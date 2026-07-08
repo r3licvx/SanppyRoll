@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SanppyRoll Premium</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --accent: #F47521;
+            --accent2: #ff6b35;
+            --bg: #0b0b0e;
+            --card: #131316;
+            --card2: #1a1a1f;
+            --border: rgba(255,255,255,0.07);
+            --text: #ffffff;
+            --muted: #8e8e93;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body {
+            font-family:'SF Pro Display',-apple-system,sans-serif;
+            background:var(--bg); color:var(--text);
+            min-height:100vh; overflow-x:hidden;
+        }
+
+        /* Header */
+        .hdr {
+            position:sticky; top:0; z-index:100;
+            padding:0 5%; height:64px; display:flex; align-items:center; gap:15px;
+            background:rgba(11,11,14,0.9); backdrop-filter:blur(20px);
+            border-bottom:1px solid var(--border);
+        }
+        .back-btn {
+            width:40px; height:40px; border-radius:50%; border:1px solid var(--border);
+            background:rgba(255,255,255,0.05); color:#fff; display:flex; align-items:center;
+            justify-content:center; cursor:pointer; font-size:15px; flex-shrink:0; transition:0.2s;
+        }
+        .back-btn:active { transform:scale(0.9); }
+        .hdr-logo { display:flex; align-items:center; gap:8px; }
+        .hdr-logo span { font-size:20px; font-weight:900; letter-spacing:-0.5px; }
+        .hdr-logo span em { font-style:normal; color:var(--accent); }
+
+        /* Hero */
+        .hero {
+            text-align:center; padding:40px 5% 30px;
+            background:radial-gradient(ellipse at 50% -20%, rgba(244,117,33,0.12) 0%, transparent 60%);
+        }
+        .hero-badge {
+            display:inline-flex; align-items:center; gap:6px;
+            background:rgba(244,117,33,0.12); border:1px solid rgba(244,117,33,0.3);
+            color:var(--accent); padding:6px 14px; border-radius:20px;
+            font-size:12px; font-weight:700; letter-spacing:0.5px; margin-bottom:20px;
+        }
+        .hero h1 { font-size:clamp(24px,6vw,36px); font-weight:900; letter-spacing:-1px; line-height:1.1; margin-bottom:10px; }
+        .hero h1 span { color:var(--accent); }
+        .hero p { font-size:14px; color:var(--muted); max-width:380px; margin:0 auto; line-height:1.5; }
+
+        /* Current Plan Banner */
+        #current-plan-banner {
+            margin:0 5% 25px; padding:14px 18px; border-radius:14px;
+            display:none; align-items:center; justify-content:space-between; gap:10px;
+        }
+        .plan-active-info { display:flex; align-items:center; gap:10px; }
+        .plan-active-dot { width:8px; height:8px; border-radius:50%; background:#34c759; flex-shrink:0; box-shadow:0 0 8px rgba(52,199,89,0.6); }
+        .plan-active-text { font-size:13px; font-weight:700; color:#fff; }
+        .plan-active-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+        .plan-active-expiry { font-size:12px; font-weight:700; text-align:right; }
+
+        /* Plans Grid */
+        .plans-wrapper { padding:0 5% 40px; display:flex; flex-direction:column; gap:16px; max-width:500px; margin:0 auto; }
+
+        .plan-card {
+            border-radius:20px; padding:22px; position:relative; overflow:hidden;
+            cursor:pointer; transition:transform 0.2s, box-shadow 0.2s;
+            border:1.5px solid var(--border); background:var(--card);
+        }
+        .plan-card:active { transform:scale(0.98); }
+        .plan-card.recommended { border-color:var(--accent); background:rgba(244,117,33,0.05); }
+        .plan-card.current-active-plan { border-color:#34c759; }
+
+        .rec-badge {
+            position:absolute; top:0; right:20px;
+            background:var(--accent); color:#fff; font-size:10px; font-weight:800;
+            padding:4px 12px; border-radius:0 0 10px 10px; letter-spacing:0.5px;
+        }
+
+        .plan-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px; }
+        .plan-icon-name { display:flex; align-items:center; gap:10px; }
+        .plan-emoji { font-size:28px; }
+        .plan-name { font-size:18px; font-weight:900; letter-spacing:-0.3px; }
+        .plan-duration { font-size:11px; color:var(--muted); font-weight:600; margin-top:2px; }
+
+        .plan-price { text-align:right; }
+        .plan-price .amount { font-size:32px; font-weight:900; line-height:1; }
+        .plan-price .amount span { font-size:16px; font-weight:700; opacity:0.7; }
+        .plan-price .period { font-size:11px; color:var(--muted); }
+
+        .plan-features { display:flex; flex-direction:column; gap:8px; margin-bottom:18px; }
+        .feat { display:flex; align-items:center; gap:10px; font-size:13px; color:rgba(255,255,255,0.85); }
+        .feat i { width:16px; color:#34c759; font-size:12px; flex-shrink:0; }
+        .feat.locked i { color:rgba(255,255,255,0.2); }
+        .feat.locked { color:var(--muted); }
+
+        .plan-btn {
+            width:100%; padding:14px; border-radius:12px; border:none; cursor:pointer;
+            font-size:15px; font-weight:800; transition:0.2s; display:flex; align-items:center;
+            justify-content:center; gap:8px;
+        }
+        .plan-btn.orange { background:var(--accent); color:#fff; }
+        .plan-btn.orange:hover { background:var(--accent2); }
+        .plan-btn.outline { background:rgba(255,255,255,0.06); color:#fff; border:1px solid rgba(255,255,255,0.12); }
+        .plan-btn.green { background:rgba(52,199,89,0.12); color:#34c759; border:1px solid rgba(52,199,89,0.2); }
+        .plan-btn:active { transform:scale(0.97); }
+
+        /* Compare table */
+        .compare-wrap { padding:0 5% 50px; max-width:500px; margin:0 auto; }
+        .compare-title { font-size:16px; font-weight:800; margin-bottom:15px; color:#fff; display:flex; align-items:center; gap:8px; }
+        .compare-table { border-radius:16px; overflow:hidden; border:1px solid var(--border); }
+        .ct-row { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; border-bottom:1px solid var(--border); }
+        .ct-row:last-child { border-bottom:none; }
+        .ct-cell {
+            padding:12px 10px; font-size:12px; font-weight:600; text-align:center;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .ct-row.header .ct-cell { background:rgba(255,255,255,0.04); font-size:11px; font-weight:800; color:var(--muted); }
+        .ct-row.header .ct-cell:first-child { text-align:left; justify-content:flex-start; }
+        .ct-cell:first-child { text-align:left; justify-content:flex-start; color:var(--muted); }
+        .ct-cell .yes { color:#34c759; font-size:14px; }
+        .ct-cell .no { color:rgba(255,255,255,0.2); font-size:14px; }
+        .ct-cell .partial { color:var(--accent); font-size:10px; font-weight:800; }
+
+        /* Contact Section */
+        .contact-wrap { padding:0 5% 60px; max-width:500px; margin:0 auto; }
+        .contact-card {
+            background:var(--card); border:1px solid var(--border); border-radius:16px;
+            padding:20px; display:flex; flex-direction:column; gap:12px;
+        }
+        .contact-card h4 { font-size:15px; font-weight:800; }
+        .contact-card p { font-size:13px; color:var(--muted); line-height:1.5; }
+        .contact-btns { display:flex; gap:10px; flex-wrap:wrap; }
+        .c-btn {
+            flex:1; min-width:120px; padding:12px 16px; border-radius:12px;
+            font-size:13px; font-weight:700; text-decoration:none; text-align:center;
+            display:flex; align-items:center; justify-content:center; gap:8px; transition:0.2s;
+            cursor:pointer; border:none;
+        }
+        .c-btn.tg { background:rgba(0,136,204,0.1); color:#29b6f6; border:1px solid rgba(0,136,204,0.2); }
+        .c-btn.wa { background:rgba(37,211,102,0.1); color:#25D366; border:1px solid rgba(37,211,102,0.2); }
+        .c-btn:active { transform:scale(0.95); }
+
+        /* Loader */
+        .page-loader { position:fixed; inset:0; background:var(--bg); z-index:9999; display:flex; align-items:center; justify-content:center; transition:opacity 0.3s; }
+        .spin { width:36px; height:36px; border:3px solid rgba(244,117,33,0.2); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        /* Toast */
+        #toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(100px); background:rgba(0,0,0,0.9); border:1px solid var(--accent); color:#fff; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600; z-index:9999; opacity:0; transition:0.3s; pointer-events:none; white-space:nowrap; }
+        #toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+    </style>
+</head>
+<body>
+
+<div class="page-loader" id="page-loader"><div class="spin"></div></div>
+<div id="toast"></div>
+
+<header class="hdr">
+    <div class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i></div>
+    <div class="hdr-logo"><span>Sanppy<em>Roll</em></span></div>
+</header>
+
+<div class="hero">
+    <div class="hero-badge"><i class="fas fa-crown"></i> GO PREMIUM</div>
+    <h1>Unlock <span>Everything</span><br>on SanppyRoll</h1>
+    <p>Ad-free streaming in stunning quality. Pick the plan that's right for you.</p>
+</div>
+
+<div id="current-plan-banner"></div>
+
+<div class="plans-wrapper">
+
+    <!-- STARTER -->
+    <div class="plan-card" id="card-starter">
+        <div class="plan-top">
+            <div class="plan-icon-name">
+                <span class="plan-emoji">⚡</span>
+                <div>
+                    <div class="plan-name">Starter</div>
+                    <div class="plan-duration">7 Days</div>
+                </div>
+            </div>
+            <div class="plan-price">
+                <div class="amount"><span>₹</span>9</div>
+                <div class="period">one-time</div>
+            </div>
+        </div>
+        <div class="plan-features">
+            <div class="feat"><i class="fas fa-check"></i> HD Streaming (720p)</div>
+            <div class="feat"><i class="fas fa-check"></i> No Ads</div>
+            <div class="feat"><i class="fas fa-check"></i> Verified Badge on Comments</div>
+            <div class="feat locked"><i class="fas fa-lock"></i> 1080p Full HD — Elite Only</div>
+            <div class="feat locked"><i class="fas fa-lock"></i> 4K Ultra HD — Supreme Only</div>
+            <div class="feat locked"><i class="fas fa-lock"></i> Downloads — Elite / Supreme</div>
+        </div>
+        <button class="plan-btn outline" id="btn-starter" onclick="buyPlan('starter')">
+            <i class="fab fa-telegram"></i> Get Starter
+        </button>
+    </div>
+
+    <!-- ELITE -->
+    <div class="plan-card recommended" id="card-elite">
+        <div class="rec-badge">MOST POPULAR</div>
+        <div class="plan-top">
+            <div class="plan-icon-name">
+                <span class="plan-emoji">🔥</span>
+                <div>
+                    <div class="plan-name">Elite</div>
+                    <div class="plan-duration">30 Days</div>
+                </div>
+            </div>
+            <div class="plan-price">
+                <div class="amount"><span>₹</span>29</div>
+                <div class="period">one-time</div>
+            </div>
+        </div>
+        <div class="plan-features">
+            <div class="feat"><i class="fas fa-check"></i> Full HD Streaming (1080p)</div>
+            <div class="feat"><i class="fas fa-check"></i> No Ads</div>
+            <div class="feat"><i class="fas fa-check"></i> Fast Servers</div>
+            <div class="feat"><i class="fas fa-check"></i> Download Videos</div>
+            <div class="feat"><i class="fas fa-check"></i> Verified Badge on Comments</div>
+            <div class="feat locked"><i class="fas fa-lock"></i> 4K Ultra HD — Supreme Only</div>
+        </div>
+        <button class="plan-btn orange" id="btn-elite" onclick="buyPlan('elite')">
+            <i class="fab fa-telegram"></i> Get Elite
+        </button>
+    </div>
+
+    <!-- SUPREME -->
+    <div class="plan-card" id="card-supreme">
+        <div class="plan-top">
+            <div class="plan-icon-name">
+                <span class="plan-emoji">👑</span>
+                <div>
+                    <div class="plan-name">Supreme</div>
+                    <div class="plan-duration">90 Days</div>
+                </div>
+            </div>
+            <div class="plan-price">
+                <div class="amount"><span>₹</span>79</div>
+                <div class="period">one-time</div>
+            </div>
+        </div>
+        <div class="plan-features">
+            <div class="feat"><i class="fas fa-check"></i> 4K Ultra HD Streaming</div>
+            <div class="feat"><i class="fas fa-check"></i> No Ads</div>
+            <div class="feat"><i class="fas fa-check"></i> Priority Access Servers</div>
+            <div class="feat"><i class="fas fa-check"></i> Download Videos</div>
+            <div class="feat"><i class="fas fa-check"></i> Everything Unlocked</div>
+            <div class="feat"><i class="fas fa-check"></i> Verified Badge on Comments</div>
+        </div>
+        <button class="plan-btn outline" id="btn-supreme" onclick="buyPlan('supreme')">
+            <i class="fab fa-telegram"></i> Get Supreme
+        </button>
+    </div>
+
+</div>
+
+<!-- Compare Table -->
+<div class="compare-wrap">
+    <div class="compare-title"><i class="fas fa-table" style="color:var(--accent);"></i> Plan Comparison</div>
+    <div class="compare-table">
+        <div class="ct-row header">
+            <div class="ct-cell">Feature</div>
+            <div class="ct-cell">Starter</div>
+            <div class="ct-cell">Elite</div>
+            <div class="ct-cell">Supreme</div>
+        </div>
+        <div class="ct-row">
+            <div class="ct-cell">Max Quality</div>
+            <div class="ct-cell"><span class="partial">720p</span></div>
+            <div class="ct-cell"><span class="partial">1080p</span></div>
+            <div class="ct-cell"><span class="partial">4K</span></div>
+        </div>
+        <div class="ct-row">
+            <div class="ct-cell">No Ads</div>
+            <div class="ct-cell"><i class="fas fa-check yes"></i></div>
+            <div class="ct-cell"><i class="fas fa-check yes"></i></div>
+            <div class="ct-cell"><i class="fas fa-check yes"></i></div>
+        </div>
+        <div class="ct-row">
+            <div class="ct-cell">Downloads</div>
+            <div class="ct-cell"><i class="fas fa-times no"></i></div>
+            <div class="ct-cell"><i class="fas fa-check yes"></i></div>
+            <div class="ct-cell"><i class="fas fa-check yes"></i></div>
+        </div>
+        <div class="ct-row">
+            <div class="ct-cell">Verified ✓</div>
+            <div class="ct-cell"><i class="fas fa-check yes"></i></div>
+            <div class="ct-cell"><i class="fas fa-check yes"></i></div>
+            <div class="ct-cell"><i class="fas fa-check yes"></i></div>
+        </div>
+        <div class="ct-row">
+            <div class="ct-cell">Fast Servers</div>
+            <div class="ct-cell"><i class="fas fa-times no"></i></div>
+            <div class="ct-cell"><i class="fas fa-check yes"></i></div>
+            <div class="ct-cell"><i class="fas fa-check yes"></i></div>
+        </div>
+        <div class="ct-row">
+            <div class="ct-cell">Duration</div>
+            <div class="ct-cell" style="color:#fff;font-weight:700;">7 Days</div>
+            <div class="ct-cell" style="color:#fff;font-weight:700;">30 Days</div>
+            <div class="ct-cell" style="color:#fff;font-weight:700;">90 Days</div>
+        </div>
+    </div>
+</div>
+
+<!-- Contact -->
+<div class="contact-wrap">
+    <div class="contact-card">
+        <h4><i class="fas fa-headset" style="color:var(--accent);margin-right:8px;"></i>How to Subscribe?</h4>
+        <p>Click any plan button to contact us on Telegram. Send your User ID and plan name. We'll activate your subscription within minutes!</p>
+        <div class="contact-btns">
+            <!-- TELEGRAM LINK: Replace with your actual Telegram business link -->
+            <a class="c-btn tg" href="https://t.me/YAHAN_APNA_TELEGRAM_LINK_DAALO" target="_blank">
+                <i class="fab fa-telegram"></i> Contact on Telegram
+            </a>
+            <!-- WHATSAPP LINK: Replace with your actual WhatsApp link -->
+            <a class="c-btn wa" href="https://wa.me/YAHAN_WHATSAPP_NUMBER" target="_blank">
+                <i class="fab fa-whatsapp"></i> WhatsApp
+            </a>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+    const firebaseConfig = {
+    apiKey: "AIzaSyDnmFVfVSCxXC9shWhz4dw06xtTNBA6vsU",
+    authDomain: "sanppyroll.firebaseapp.com",
+    databaseURL: "https://sanppyroll-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "sanppyroll",
+    storageBucket: "sanppyroll.firebasestorage.app",
+    messagingSenderId: "642736474886",
+    appId: "1:642736474886:web:f0e0e3c04101fddfe02c87"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // TELEGRAM & WHATSAPP LINKS — change these:
+    const TELEGRAM_LINK = "https://t.me/YAHAN_APNA_TELEGRAM_LINK_DAALO";
+    const WHATSAPP_LINK = "https://wa.me/YAHAN_WHATSAPP_NUMBER";
+
+    const PLAN_NAMES = { starter: "⚡ Starter (₹9 / 7 Days)", elite: "🔥 Elite (₹29 / 30 Days)", supreme: "👑 Supreme (₹79 / 90 Days)" };
+
+    let currentUser = null;
+    let userSub = null;
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    function timeLeft(expiryTs) {
+        const now = Date.now();
+        const diff = expiryTs - now;
+        if (diff <= 0) return null;
+        const days = Math.floor(diff / 86400000);
+        if (days > 0) return `${days} day${days > 1 ? 's' : ''} left`;
+        const hours = Math.floor(diff / 3600000);
+        return `${hours} hour${hours > 1 ? 's' : ''} left`;
+    }
+
+    function updateUI() {
+        const loader = document.getElementById('page-loader');
+        loader.style.opacity = '0';
+        setTimeout(() => loader.style.display = 'none', 300);
+
+        if (!userSub || !userSub.plan || !userSub.expiry || Date.now() > userSub.expiry) {
+            // No active subscription
+            return;
+        }
+
+        const planKey = userSub.plan;
+        const remaining = timeLeft(userSub.expiry);
+        if (!remaining) return;
+
+        // Show current plan banner
+        const planEmojis = { starter: '⚡', elite: '🔥', supreme: '👑' };
+        const planLabels = { starter: 'Starter', elite: 'Elite', supreme: 'Supreme' };
+        const banner = document.getElementById('current-plan-banner');
+        banner.style.display = 'flex';
+        const expDate = new Date(userSub.expiry).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        banner.style.background = 'rgba(52,199,89,0.07)';
+        banner.style.border = '1px solid rgba(52,199,89,0.2)';
+        banner.innerHTML = `
+            <div class="plan-active-info">
+                <div class="plan-active-dot"></div>
+                <div>
+                    <div class="plan-active-text">${planEmojis[planKey] || ''} ${planLabels[planKey] || planKey} — Active</div>
+                    <div class="plan-active-sub">Expires ${expDate}</div>
+                </div>
+            </div>
+            <div class="plan-active-expiry" style="color:#34c759;">${remaining}</div>
+        `;
+
+        // Highlight active plan card + change button
+        const cardMap = { starter: 'card-starter', elite: 'card-elite', supreme: 'card-supreme' };
+        const btnMap = { starter: 'btn-starter', elite: 'btn-elite', supreme: 'btn-supreme' };
+
+        const activeCard = document.getElementById(cardMap[planKey]);
+        const activeBtn = document.getElementById(btnMap[planKey]);
+        if (activeCard) activeCard.classList.add('current-active-plan');
+        if (activeBtn) {
+            activeBtn.className = 'plan-btn green';
+            activeBtn.innerHTML = `<i class="fas fa-check-circle"></i> Already Subscribed • ${remaining}`;
+            activeBtn.onclick = null;
+        }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            document.getElementById('page-loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('page-loader').style.display = 'none', 300);
+            return;
+        }
+        currentUser = user;
+
+        try {
+            const snap = await get(ref(db, `users/${user.uid}/subscription`));
+            if (snap.exists()) userSub = snap.val();
+        } catch(e) {}
+
+        updateUI();
+    });
+
+    window.buyPlan = function(planKey) {
+        if (!currentUser) { showToast("Please login first!"); return; }
+
+        // Check if already on this plan
+        if (userSub && userSub.plan === planKey && userSub.expiry && Date.now() < userSub.expiry) {
+            showToast("You already have this plan active!"); return;
+        }
+
+        const userId = currentUser.uid;
+        const email = currentUser.email || '';
+        const planName = PLAN_NAMES[planKey];
+        const msg = encodeURIComponent(`Hello! I want to subscribe to SanppyRoll.\n\nPlan: ${planName}\nUser ID: ${userId}\nEmail: ${email}`);
+
+        // Open Telegram with pre-filled message
+        window.open(`${TELEGRAM_LINK}?text=${msg}`, '_blank');
+        showToast("Redirecting to Telegram... 🚀");
+    };
+</script>
+
+</body>
+</html>

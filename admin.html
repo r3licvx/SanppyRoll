@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SanppyRoll Admin Dashboard</title>
+    <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <style>
+        /* --- CORE STYLES --- */
+        :root {
+            --accent: #F47521;
+            --accent-hover: #ff8a3d;
+            --bg-main: #0b0b0e;
+            --bg-card: #151518;
+            --text-muted: #8e8e93;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent !important; font-family: 'SF Pro Display', sans-serif; outline: none !important;}
+        body { background-color: var(--bg-main); color: #fff; min-height: 100vh; padding-bottom: 80px; scroll-behavior: smooth; display: none; }
+        
+        .container { padding: 20px 5%; max-width: 1000px; margin: 0 auto; display: block; opacity: 0; }
+        
+        @keyframes slideUpFadeDash {
+            0% { opacity: 0; transform: translateY(40px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .dashboard-enter { animation: slideUpFadeDash 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .anim-fade { opacity: 0; animation: fadeUp 0.5s ease-out forwards; }
+        .delay-1 { animation-delay: 0.2s; } .delay-2 { animation-delay: 0.3s; } .delay-3 { animation-delay: 0.4s; }
+
+        /* --- HEADER & LOGOUT --- */
+        .admin-header-wrapper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .admin-header h1 { font-size: 30px; font-weight: 900; letter-spacing: -1px; margin-bottom: 3px; }
+        .admin-header h1 span { color: var(--accent); }
+        
+        .logout-btn { background: rgba(255, 69, 58, 0.1); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.2); padding: 12px 16px; border-radius: 12px; font-size: 14px; font-weight: 800; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px;}
+        .logout-btn:active { transform: scale(0.95); background: rgba(255, 69, 58, 0.2); }
+
+        /* Custom Toast */
+        .toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(15px); color: #fff; padding: 14px 20px; border-radius: 20px; font-size: 14px; font-weight: 700; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 10000; transition: top 0.4s ease; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px; width: 90%; max-width: 400px; justify-content: center; text-align: center;}
+        .toast.show { top: 30px; }
+        .toast.error { border-color: rgba(255, 59, 48, 0.5); color: #ff453a; }
+        .toast.success { border-color: rgba(244, 117, 33, 0.5); color: var(--accent); }
+
+        /* Custom Modals */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 10001; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.3s; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-box { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 25px; width: 90%; max-width: 350px; text-align: center; transform: translateY(20px) scale(0.95); transition: 0.3s ease; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        .modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
+        .modal-box h3 { margin-bottom: 10px; font-size: 20px; font-weight: 800; color: #fff;}
+        .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 25px; line-height: 1.5; }
+        .modal-btns { display: flex; gap: 10px; }
+        .modal-btns button { flex: 1; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer; border: none; transition: 0.2s; }
+        .btn-cancel { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-cancel:hover { background: rgba(255,255,255,0.2); }
+        .btn-confirm { background: rgba(255, 69, 58, 0.15); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.3); }
+        .btn-confirm:hover { background: rgba(255, 69, 58, 0.3); }
+
+        /* Section Cards */
+        .glass-card { background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        .card-title { font-size: 16px; font-weight: 800; margin-bottom: 15px; color: var(--accent); display: flex; align-items: center; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);}
+
+        /* Form Inputs */
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 15px; } 
+        @media(min-width: 600px){ .form-grid { grid-template-columns: 1fr 1fr; } }
+        .full-width { grid-column: 1 / -1; }
+        
+        label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 700; }
+        input, textarea, select { 
+            width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255, 255, 255, 0.1); 
+            padding: 14px; border-radius: 12px; color: white; font-size: 16px !important; 
+            outline: none; transition: 0.2s; 
+        }
+        input:focus, textarea:focus, select:focus { border-color: var(--accent); background: rgba(244, 117, 33, 0.05); }
+
+        /* TAGS INPUT STYLES */
+        .tags-input-wrapper { background: rgba(0,0,0,0.5); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 52px; transition: 0.2s; cursor: text; }
+        .tags-input-wrapper:focus-within { border-color: var(--accent); background: rgba(244, 117, 33, 0.05); }
+        .admin-tags-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .admin-tag-pill { background: rgba(244, 117, 33, 0.15); border: 1px solid rgba(244, 117, 33, 0.4); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .admin-tag-pill i { cursor: pointer; color: #ff453a; font-size: 14px; transition: 0.2s; }
+        .admin-tag-pill i:active { transform: scale(0.8); }
+        #m-tag-input { border: none; background: transparent; padding: 0; flex: 1; min-width: 120px; font-size: 15px; color: #fff; height: 30px; box-shadow: none !important;}
+        #m-tag-input:focus { border: none; background: transparent; }
+
+        select {
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 15px center; background-size: 16px; cursor: pointer;
+        }
+        select option { background: var(--bg-card); color: #fff; }
+
+        /* Dynamic Rows */
+        .dynamic-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        @media(min-width: 600px){ .dynamic-row { flex-direction: row; } .dynamic-row input.short, .dynamic-row select.short { width: 140px; } }
+        
+        .add-btn { background: rgba(244, 117, 33, 0.1); color: var(--accent); border: 1px dashed rgba(244, 117, 33, 0.4); padding: 14px; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.2s; width: 100%; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px;}
+        .add-btn:active { transform: scale(0.98); }
+
+        .remove-btn { background: rgba(255, 69, 58, 0.1); color: #ff453a; border: none; padding: 12px; border-radius: 10px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; font-weight: 800; gap: 6px; font-size: 13px;}
+        .remove-btn:active { transform: scale(0.95); }
+
+        /* Season/Episode Blocks */
+        .season-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 15px; margin-bottom: 20px; transition: 0.3s; }
+        .season-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px;}
+        .season-header input { flex: 1; background: #000; font-size: 16px; font-weight: 800; border-color: #222; }
+        
+        .episode-block { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 14px; margin-bottom: 15px; transition: 0.3s; }
+        .ep-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .ep-header h4 { font-size: 15px; color: var(--accent); font-weight: 800; }
+        .ep-body { display: flex; flex-direction: column; gap: 10px; }
+        
+        .link-section { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; margin-top: 5px;}
+        .link-section label { color: #fff; margin-bottom: 10px; font-size: 13px;}
+        .error-border { border-color: #ff453a !important; box-shadow: 0 0 10px rgba(255, 69, 58, 0.2); }
+
+        /* Save Button Wrapper */
+        .save-btn-wrapper { margin-top: 25px; position: relative; border-radius: 14px; overflow: hidden; height: 60px; box-shadow: 0 10px 20px rgba(244, 117, 33, 0.3); }
+        .save-btn-wrapper .glow { position: absolute; inset: 0; background: var(--accent); }
+        .save-btn { position: absolute; inset: 2px; background: var(--bg-card); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 900; cursor: pointer; transition: 0.2s; }
+        .save-btn:active { background: transparent; }
+
+        /* --- CATEGORY GROUPING & LIST STYLES --- */
+        .category-group { margin-bottom: 30px; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
+        .category-header { color: #f5c518; margin-bottom: 15px; font-size: 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;}
+        
+        .item-list { display: flex; flex-direction: column; gap: 10px; }
+        
+        .list-item { background: rgba(0,0,0,0.5); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 12px; display: flex; gap: 12px; align-items: center; transition: transform 0.2s; }
+        .list-item.sortable-ghost { opacity: 0.4; background: rgba(244, 117, 33, 0.2); border: 1px dashed var(--accent); }
+        
+        .drag-handle { width: 30px; display: flex; align-items: center; justify-content: center; cursor: grab; color: var(--text-muted); font-size: 18px; touch-action: none; }
+        .drag-handle:active { cursor: grabbing; color: var(--accent); }
+
+        .hide-item { display: none !important; }
+        .show-all .hide-item { display: flex !important; }
+        
+        .show-more-btn { background: rgba(244, 117, 33, 0.1); color: var(--accent); border: 1px dashed rgba(244, 117, 33, 0.4); padding: 12px; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.2s; width: 100%; text-align: center; margin-top: 15px; }
+        .show-more-btn:active { transform: scale(0.98); background: rgba(244, 117, 33, 0.2); }
+
+        .list-item img { width: 55px; height: 80px; border-radius: 8px; object-fit: cover; }
+        .video-icon-box { width: 55px; height: 60px; background: rgba(244, 117, 33, 0.1); color: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;}
+        .item-info { flex: 1; overflow: hidden; }
+        .item-info h3 { font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px;}
+        .item-info p { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; display: flex; gap: 8px; align-items: center;}
+        
+        .type-badge { background: #333; color: #fff; font-size: 9px; padding: 3px 6px; border-radius: 4px; font-weight: 700; margin-left: 5px; }
+        .order-badge { background: var(--accent); color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; }
+        
+        .item-actions { display: flex; gap: 8px; }
+        .s-btn { padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; border: none; transition: 0.2s; flex: 1; }
+        .edit-btn { background: rgba(244, 117, 33, 0.1); color: var(--accent); }
+        .del-btn { background: rgba(255, 69, 58, 0.1); color: #ff453a; }
+
+        /* Hero Banner Simple */
+        .hero-banner-card { display: flex; flex-direction: column; gap: 10px; background: rgba(245, 197, 24, 0.05); border: 1px solid rgba(245, 197, 24, 0.2); padding: 15px; border-radius: 16px; margin-bottom: 25px;}
+        @media(min-width: 600px){ .hero-banner-card { flex-direction: row; align-items: center; } }
+        .hero-banner-card input { flex: 1; border-color: rgba(245, 197, 24, 0.3); }
+        .hero-btn { background: #f5c518; color: #000; padding: 14px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; }
+
+        .loader-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0; transition: 0.3s; }
+        .loader-overlay.active { visibility: visible; opacity: 1; }
+        .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        hr.section-divider { border: 0; height: 1px; background: rgba(255,255,255,0.1); margin: 50px 0; }
+
+        #video-list-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+
+        .search-wrapper input { transition: 0.2s; }
+        .search-wrapper input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(244,117,33,0.2); background: rgba(244,117,33,0.05); }
+
+        .icon-item { font-size: 24px; padding: 12px; border-radius: 12px; cursor: pointer; text-align: center; border: 2px solid transparent; transition: 0.2s; color: #e1e6eb; background: rgba(255,255,255,0.03);}
+        .icon-item:hover { background: rgba(255,255,255,0.1); }
+        .icon-item.active-icon { background: rgba(244, 117, 33, 0.2); border-color: var(--accent); transform: scale(1.05); box-shadow: 0 4px 10px rgba(244, 117, 33, 0.3);}
+    </style>
+</head>
+<body>
+
+    <div class="loader-overlay" id="loader"><div class="spinner"></div></div>
+
+    <div id="toast" class="toast"><i id="toast-icon" class="fas fa-info-circle"></i> <span id="toast-msg">Message</span></div>
+
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modal-title">Delete Content?</h3>
+            <p>Are you sure? This action cannot be undone.</p>
+            <div class="modal-btns">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-confirm" id="modal-confirm-btn"><i class="fas fa-trash"></i> Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="remove-node-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Remove Item?</h3>
+            <p>Are you sure you want to remove this from the list? Unsaved data will be lost.</p>
+            <div class="modal-btns">
+                <button class="btn-cancel" onclick="closeNodeModal()">Cancel</button>
+                <button class="btn-confirm" id="node-confirm-btn"><i class="fas fa-trash"></i> Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="category-modal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 400px; padding: 20px;">
+            <h3>Edit Category</h3>
+            <input type="hidden" id="edit-cat-old-name">
+            
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label>Category Name</label>
+                <input type="text" id="edit-cat-name" placeholder="Enter Category Name">
+            </div>
+            
+            <div style="text-align: left; margin-bottom: 20px;">
+                <label>Select Premium Icon</label>
+                <div id="icon-picker-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-height: 250px; overflow-y: auto; background: rgba(0,0,0,0.4); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); scrollbar-width: thin;">
+                    </div>
+            </div>
+
+            <div class="modal-btns">
+                <button class="btn-cancel" onclick="closeCategoryModal()">Cancel</button>
+                <button class="btn-confirm" style="color: var(--accent); border-color: var(--accent); background: rgba(244, 117, 33, 0.1);" onclick="saveCategoryChanges()"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="main-container">
+        
+        <div class="admin-header-wrapper anim-fade">
+            <div class="admin-header" style="text-align: left; margin-bottom: 0;">
+                <h1>SanppyRoll <span>Admin</span></h1>
+            </div>
+            <button class="logout-btn" id="logout-btn-nav"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+
+        <div class="hero-banner-card anim-fade delay-1">
+            <div style="flex: 1; width: 100%;">
+                <h3 style="color: #f5c518; margin-bottom: 5px; font-size: 15px;"><i class="fas fa-star"></i> Hero Banner Control</h3>
+                <p style="font-size: 12px; color: var(--text-muted);" id="current-hero-txt">Loading...</p>
+            </div>
+            <input type="text" id="hero-movie-id" placeholder="Paste Movie ID here...">
+            <button class="hero-btn" onclick="window.setBannerHero()">Update Banner</button>
+        </div>
+
+        <h2 id="form-mode-title" class="anim-fade delay-2" style="font-size: 20px; margin-bottom: 15px; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 5px;">Add New Content</h2>
+
+        <div id="main-form" class="anim-fade delay-2">
+            <input type="hidden" id="movie-id">
+            <input type="hidden" id="movie-hidden-order" value="99999"> 
+            
+            <div class="glass-card">
+                <div class="card-title"><i class="fas fa-info-circle"></i> Basic Info</div>
+                <div class="form-grid">
+                    <div class="input-box full-width">
+                        <label>Content Type</label>
+                        <select id="m-type" onchange="window.toggleBuilderType()">
+                            <option value="movie">Movie</option>
+                            <option value="series">Web Series</option>
+                        </select>
+                    </div>
+                    <div class="input-box full-width">
+                        <label><i class="fas fa-lock" style="color:var(--accent);margin-right:5px;"></i>Content Access Level</label>
+                        <select id="m-access">
+                            <option value="free">Free — Everyone can watch</option>
+                            <option value="any_sub">Any Subscription — Starter / Elite / Supreme</option>
+                            <option value="elite">Elite+ — Elite or Supreme only</option>
+                            <option value="supreme">Supreme Only — Supreme plan required</option>
+                        </select>
+                    </div>
+                    <div class="input-box full-width"><label>Title (Name)</label><input type="text" id="m-title" placeholder="e.g. Inception"></div>
+                    
+                    <div class="input-box full-width">
+                        <label>Tags (Type Comma ',' or Press Enter/Go)</label>
+                        <div class="tags-input-wrapper" onclick="document.getElementById('m-tag-input').focus()">
+                            <div id="admin-tags-list" class="admin-tags-list"></div>
+                            <input type="text" id="m-tag-input" placeholder="e.g. 18+, Trending, Blockbuster...">
+                        </div>
+                    </div>
+
+                    <div class="input-box"><label>Home Row Name (Index Category)</label><input type="text" id="m-index-cat" placeholder="e.g. Trending Now, Top 10"></div>
+                    <div class="input-box"><label>Genres (Detail Page)</label><input type="text" id="m-detail-genres" placeholder="e.g. Action, Sci-Fi, Thriller"></div>
+                    <div class="input-box"><label>Release Year</label><input type="number" id="m-year" placeholder="2026"></div>
+                    <div class="input-box"><label>IMDB Rating</label><input type="text" id="m-rate" placeholder="e.g. 8.5"></div>
+                    <div class="input-box full-width"><label>Storyline</label><textarea id="m-desc" rows="3" placeholder="Write story here..."></textarea></div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <div class="card-title"><i class="fas fa-image"></i> Media Links</div>
+                <div class="form-grid">
+                    <div class="input-box full-width"><label>Trailer URL (YouTube / MP4)</label><input type="text" id="m-trailer" placeholder="Paste trailer link"></div>
+                    <div class="input-box full-width"><label>Poster Image (Vertical)</label><input type="text" id="m-poster" placeholder="Poster Image URL"></div>
+                    <div class="input-box full-width"><label>Backdrop Image (Horizontal)</label><input type="text" id="m-backdrop" placeholder="Backdrop Image URL"></div>
+                    
+                    <div class="input-box full-width">
+                        <label>Additional Screenshots</label>
+                        <div id="screenshot-container"></div>
+                        <button class="add-btn" onclick="window.addScreenshot()"><i class="fas fa-plus"></i> Add Screenshot</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="movie-builder-section" class="glass-card">
+                <div class="card-title"><i class="fas fa-play-circle"></i> Movie Streaming Links</div>
+                <label>Video Links (Select Quality Access)</label>
+                <div id="quality-container"></div>
+                <button class="add-btn" onclick="window.addQualityRow('quality-container')" style="margin-bottom: 20px;"><i class="fas fa-plus"></i> Add Video Quality</button>
+
+                <label>Audio Tracks</label>
+                <div id="audio-container"></div>
+                <button class="add-btn" onclick="window.addAudioRow('audio-container')"><i class="fas fa-plus"></i> Add Audio Track</button>
+            </div>
+
+            <div id="series-builder-section" class="glass-card" style="display: none;">
+                <div class="card-title"><i class="fas fa-list-ol"></i> Web Series Setup</div>
+                <div id="seasons-wrapper"></div>
+                <button class="add-btn" onclick="window.addSeason()" style="padding: 15px;"><i class="fas fa-folder-plus"></i> Add New Season</button>
+            </div>
+
+            <div class="save-btn-wrapper">
+                <div class="glow"></div>
+                <button class="save-btn" onclick="window.handleData()"><i class="fas fa-save"></i> SAVE CONTENT DATA</button>
+            </div>
+
+            <button id="cancel-edit" onclick="window.resetForm()" style="display:none; width:100%; background:transparent; border:none; color:#ff453a; margin-top:20px; font-weight: 800; font-size: 15px; cursor:pointer;"><i class="fas fa-times"></i> Cancel / Clear Form</button>
+        </div>
+
+        <hr class="section-divider">
+
+        <h2 class="anim-fade delay-3" style="font-size: 20px; margin-bottom: 15px;"><i class="fas fa-layer-group" style="color: #f5c518;"></i> Manage Categories & Icons</h2>
+        <p class="anim-fade delay-3" style="font-size: 13px; color:var(--text-muted); margin-bottom: 15px;">Drag to reorder Home Page rows. Click Edit to rename and assign premium icons.</p>
+        <div id="category-order-list" class="item-list anim-fade delay-3" style="margin-bottom: 30px;"></div>
+
+        <hr class="section-divider">
+
+        <h2 class="anim-fade delay-3" style="margin-bottom: 15px; font-size: 20px;"><i class="fas fa-database"></i> Movies/Series Library</h2>
+        
+        <div class="search-wrapper anim-fade delay-3" style="margin-bottom: 20px;">
+            <input type="text" id="admin-search" placeholder="Search movies by Title, Category or ID..." style="width: 100%; background: #111; border: 1px solid rgba(255,255,255,0.2); padding: 16px; border-radius: 12px; color: white; font-size: 16px; font-weight: 600;">
+        </div>
+
+        <div id="movie-list" class="anim-fade delay-3"></div>
+
+        <hr class="section-divider">
+
+        <h2 id="video-form-title" class="anim-fade delay-3" style="font-size: 20px; margin-bottom: 15px; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 5px;"><i class="fas fa-video"></i> Add Welcome Feed Video</h2>
+        
+        <div id="video-form" class="anim-fade delay-3">
+            <div class="glass-card">
+                <input type="hidden" id="v-id">
+                <div class="card-title"><i class="fas fa-film"></i> Video Details</div>
+                <div class="form-grid">
+                    <div class="input-box full-width"><label>Video Title</label><input type="text" id="v-title" placeholder="e.g. Exclusive Original Series"></div>
+                    <div class="input-box full-width"><label>Description</label><textarea id="v-desc" rows="3" placeholder="Description visible under the video..."></textarea></div>
+                    <div class="input-box full-width"><label>Video URL (MP4 / M3U8)</label><input type="text" id="v-url" placeholder="Paste direct video link here..."></div>
+                </div>
+            </div>
+
+            <div class="save-btn-wrapper video-btn">
+                <div class="glow"></div>
+                <button class="save-btn" onclick="window.handleVideoData()"><i class="fas fa-upload"></i> SAVE VIDEO</button>
+            </div>
+            
+            <button id="cancel-video-edit" onclick="window.resetVideoForm()" style="display:none; width:100%; background:transparent; border:none; color:#ff453a; margin-top:20px; font-weight: 800; font-size: 15px; cursor:pointer;"><i class="fas fa-times"></i> Cancel Video Editing</button>
+        </div>
+
+        <h2 class="anim-fade delay-3" style="margin-top: 30px; margin-bottom: 15px; font-size: 20px;"><i class="fas fa-list"></i> Welcome Videos List</h2>
+        <div class="anim-fade delay-3" id="video-list-container"></div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+        import { getDatabase, ref, set, get, child, remove, onValue, update } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyDnmFVfVSCxXC9shWhz4dw06xtTNBA6vsU",
+  authDomain: "sanppyroll.firebaseapp.com",
+  databaseURL: "https://sanppyroll-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "sanppyroll",
+  storageBucket: "sanppyroll.firebasestorage.app",
+  messagingSenderId: "642736474886",
+  appId: "1:642736474886:web:f0e0e3c04101fddfe02c87"
+};
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        let currentUser = null;
+
+        // --- PREMIUM ICON COLOR LOGIC ---
+        function getDynamicIconHtml(iconClass) {
+            if(!iconClass) iconClass = 'fa-solid fa-folder-open';
+
+            let bgGrad = 'linear-gradient(135deg, #e1e6eb 0%, #8e8e93 100%)'; 
+            let shadow = 'rgba(255, 255, 255, 0.2)';
+
+            if(iconClass.includes('crown') || iconClass.includes('star') || iconClass.includes('award') || iconClass.includes('ranking') || iconClass.includes('ticket')) {
+                bgGrad = 'linear-gradient(135deg, #F9D423 0%, #FF4E50 100%)'; shadow = 'rgba(249, 212, 35, 0.4)';
+            }
+            else if(iconClass.includes('fire')) {
+                bgGrad = 'linear-gradient(135deg, #ff0844 0%, #ffb199 100%)'; shadow = 'rgba(255, 8, 68, 0.4)';
+            }
+            else if(iconClass.includes('bolt') || iconClass.includes('robot') || iconClass.includes('rocket')) {
+                bgGrad = 'linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)'; shadow = 'rgba(0, 198, 255, 0.4)';
+            }
+            else if(iconClass.includes('meteor') || iconClass.includes('dragon')) {
+                bgGrad = 'linear-gradient(135deg, #f12711 0%, #f5af19 100%)'; shadow = 'rgba(241, 39, 17, 0.4)';
+            }
+            else if(iconClass.includes('masks') || iconClass.includes('wand')) {
+                bgGrad = 'linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%)'; shadow = 'rgba(142, 45, 226, 0.4)';
+            }
+            else if(iconClass.includes('fist') || iconClass.includes('skull') || iconClass.includes('heart')) {
+                bgGrad = 'linear-gradient(135deg, #ed213a 0%, #93291E 100%)'; shadow = 'rgba(237, 33, 58, 0.4)';
+            }
+            else if(iconClass.includes('laugh') || iconClass.includes('face') || iconClass.includes('popcorn')) {
+                bgGrad = 'linear-gradient(135deg, #FDFC47 0%, #24FE41 100%)'; shadow = 'rgba(36, 254, 65, 0.4)';
+            }
+            else if(iconClass.includes('ghost') || iconClass.includes('ninja') || iconClass.includes('secret')) {
+                bgGrad = 'linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%)'; shadow = 'rgba(189, 195, 199, 0.4)';
+            }
+            else if(iconClass.includes('child') || iconClass.includes('globe') || iconClass.includes('earth') || iconClass.includes('leaf')) {
+                bgGrad = 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)'; shadow = 'rgba(56, 239, 125, 0.4)';
+            }
+            else if(iconClass.includes('tv') || iconClass.includes('film') || iconClass.includes('clapperboard') || iconClass.includes('video') || iconClass.includes('play') || iconClass.includes('layer-group')) {
+                bgGrad = 'linear-gradient(135deg, #F47521 0%, #ff8a3d 100%)'; shadow = 'rgba(244, 117, 33, 0.4)';
+            }
+            else if(iconClass.includes('gem')) {
+                bgGrad = 'linear-gradient(135deg, #00b4db 0%, #0083b0 100%)'; shadow = 'rgba(0, 180, 219, 0.4)';
+            }
+
+            return `<i class="${iconClass}" style="background: ${bgGrad}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0px 2px 4px ${shadow}); display: inline-block; font-size: inherit;"></i>`;
+        }
+
+        function showLoader(show) { document.getElementById('loader').classList.toggle('active', show); }
+        
+        showLoader(true);
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.email === 'z3ro.vx@mail.ru') {
+                currentUser = user;
+                document.body.style.display = "block";
+                document.getElementById('main-container').classList.add('dashboard-enter');
+                loadAdminData();
+                
+                // Initialize Draft Saver Loop
+                setInterval(() => {
+                    if (currentUser) window.saveDraft();
+                }, 3000);
+                
+                showLoader(false);
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        document.getElementById('logout-btn-nav').addEventListener('click', () => {
+            signOut(auth).then(() => { window.location.href = "login.html"; });
+        });
+
+        let isEditing = false;
+        let isEditingVideo = false;
+        let allMovies = [];
+        let allVideos = [];
+        let categoryOrder = [];
+        let categoryIcons = {}; 
+        let currentHeroId = null;
+        let pendingDeleteId = null;
+        let pendingDeleteNode = null; 
+        let pendingNodeToRemove = null;
+        let adminTags = [];
+        let catSortable = null;
+        let movieSortables = [];
+        
+        const iconLibrary = [
+            "fa-solid fa-crown", "fa-solid fa-fire-flame-curved", "fa-solid fa-bolt", "fa-solid fa-meteor",
+            "fa-solid fa-masks-theater", "fa-solid fa-hand-fist", "fa-solid fa-face-laugh-squint", "fa-solid fa-ghost",
+            "fa-solid fa-heart", "fa-solid fa-rocket", "fa-solid fa-user-ninja", "fa-solid fa-child",
+            "fa-solid fa-wand-magic-sparkles", "fa-solid fa-tv", "fa-solid fa-clapperboard", "fa-solid fa-star",
+            "fa-solid fa-award", "fa-solid fa-gem", "fa-solid fa-dragon", "fa-solid fa-gun", "fa-solid fa-skull",
+            "fa-solid fa-user-secret", "fa-solid fa-user-astronaut", "fa-solid fa-robot", "fa-solid fa-music",
+            "fa-solid fa-video", "fa-solid fa-film", "fa-solid fa-play", "fa-solid fa-compass", "fa-solid fa-globe",
+            "fa-solid fa-earth-americas", "fa-solid fa-hat-wizard", "fa-solid fa-book-journal-whills",
+            "fa-solid fa-ranking-star", "fa-solid fa-fire", "fa-solid fa-popcorn", "fa-solid fa-ticket",
+            "fa-solid fa-layer-group", "fa-solid fa-folder-open", "fa-solid fa-shield-halved"
+        ];
+        let selectedCategoryIcon = "fa-solid fa-folder-open";
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            document.getElementById('toast-icon').className = isError ? "fas fa-exclamation-triangle" : "fas fa-check-circle";
+            toast.className = `toast show ${isError ? 'error' : 'success'}`;
+            setTimeout(() => { toast.className = 'toast'; }, 3500);
+        }
+
+        // --- AUTO-SAVE (DRAFT) LOGIC ---
+        window.saveDraft = function() {
+            const draft = {
+                movieId: document.getElementById('movie-id').value,
+                isEditing: isEditing,
+                type: document.getElementById('m-type').value,
+                title: document.getElementById('m-title').value,
+                tags: adminTags,
+                indexCat: document.getElementById('m-index-cat').value,
+                detailGenres: document.getElementById('m-detail-genres').value,
+                year: document.getElementById('m-year').value,
+                rate: document.getElementById('m-rate').value,
+                desc: document.getElementById('m-desc').value,
+                trailer: document.getElementById('m-trailer').value,
+                poster: document.getElementById('m-poster').value,
+                backdrop: document.getElementById('m-backdrop').value,
+                screenshots: Array.from(document.querySelectorAll('.ss-input')).map(i => i.value),
+                videos: Array.from(document.querySelectorAll('#quality-container .q-row')).map(row => ({ label: row.querySelector('.q-label').value, req_plan: row.querySelector('.q-req-plan').value, url: row.querySelector('.q-url').value })),
+                audios: Array.from(document.querySelectorAll('#audio-container .a-row')).map(row => ({ label: row.querySelector('.a-label').value, url: row.querySelector('.a-url').value }))
+            };
+
+            let seasonsArray = [];
+            document.querySelectorAll('.season-block').forEach((sBlock) => {
+                let sTitle = sBlock.querySelector('.s-title').value;
+                let epsArray = [];
+                sBlock.querySelectorAll('.ep-wrap-node').forEach(epBlock => {
+                    epsArray.push({
+                        title: epBlock.querySelector('.ep-title').value,
+                        thumb: epBlock.querySelector('.ep-thumb').value,
+                        desc: epBlock.querySelector('.ep-desc').value,
+                        vLinks: Array.from(epBlock.querySelectorAll('.q-row')).map(row => ({ label: row.querySelector('.q-label').value, req_plan: row.querySelector('.q-req-plan').value, url: row.querySelector('.q-url').value })),
+                        aLinks: Array.from(epBlock.querySelectorAll('.a-row')).map(row => ({ label: row.querySelector('.a-label').value, url: row.querySelector('.a-url').value }))
+                    });
+                });
+                seasonsArray.push({ title: sTitle, eps: epsArray });
+            });
+            draft.seasons = seasonsArray;
+
+            localStorage.setItem('nexstream_admin_draft', JSON.stringify(draft));
+        }
+
+        window.loadDraft = function() {
+            let draftStr = localStorage.getItem('nexstream_admin_draft');
+            if(!draftStr) return false;
+            try {
+                let draft = JSON.parse(draftStr);
+                
+                if(!draft.title && !draft.poster && draft.tags.length === 0) return false;
+
+                isEditing = draft.isEditing;
+                document.getElementById('movie-id').value = draft.movieId || "";
+                document.getElementById('m-type').value = draft.type || "movie";
+                window.toggleBuilderType();
+
+                document.getElementById('m-title').value = draft.title || "";
+                adminTags = draft.tags || [];
+                renderAdminTags();
+                document.getElementById('m-index-cat').value = draft.indexCat || "";
+                document.getElementById('m-detail-genres').value = draft.detailGenres || "";
+                document.getElementById('m-year').value = draft.year || "";
+                document.getElementById('m-rate').value = draft.rate || "";
+                document.getElementById('m-desc').value = draft.desc || "";
+                document.getElementById('m-trailer').value = draft.trailer || "";
+                document.getElementById('m-poster').value = draft.poster || "";
+                document.getElementById('m-backdrop').value = draft.backdrop || "";
+
+                document.getElementById('screenshot-container').innerHTML = "";
+                document.getElementById('quality-container').innerHTML = "";
+                document.getElementById('audio-container').innerHTML = "";
+                document.getElementById('seasons-wrapper').innerHTML = "";
+
+                if(draft.screenshots && draft.screenshots.length > 0) draft.screenshots.forEach(s => window.addScreenshot(s));
+                else window.addScreenshot();
+
+                if(draft.type === 'movie') {
+                    if(draft.videos && draft.videos.length > 0) draft.videos.forEach(v => window.addQualityRow('quality-container', v.label, v.url, v.req_plan));
+                    else window.addQualityRow('quality-container');
+
+                    if(draft.audios && draft.audios.length > 0) draft.audios.forEach(a => window.addAudioRow('audio-container', a.label, a.url));
+                } else {
+                    if(draft.seasons && draft.seasons.length > 0) {
+                        draft.seasons.forEach(s => {
+                            let sData = { season_title: s.title, episodes: [] };
+                            s.eps.forEach(e => {
+                                sData.episodes.push({
+                                    ep_title: e.title, ep_thumb: e.thumb, ep_desc: e.desc,
+                                    video_links: e.vLinks, audio_links: e.aLinks
+                                });
+                            });
+                            window.addSeason(sData);
+                        });
+                    } else {
+                        window.addSeason();
+                    }
+                }
+
+                if(isEditing || document.getElementById('m-title').value !== "") {
+                    document.getElementById('cancel-edit').style.display = "block";
+                }
+                
+                showToast("Draft restored automatically!", false);
+                return true;
+            } catch(e) { 
+                console.error("Draft load failed", e); 
+                return false;
+            }
+        }
+
+        function loadAdminData() {
+            onValue(ref(db, 'settings/category_order'), (snapshot) => {
+                categoryOrder = snapshot.exists() ? snapshot.val() : [];
+                if(allMovies.length > 0) renderCategoryManager(); 
+            });
+
+            onValue(ref(db, 'settings/category_icons'), (snapshot) => {
+                categoryIcons = snapshot.exists() ? snapshot.val() : {};
+                if(allMovies.length > 0) renderCategoryManager(); 
+            });
+
+            onValue(ref(db, 'movies'), (snapshot) => {
+                allMovies = [];
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    allMovies = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                }
+                renderCategoryManager();
+                renderUI(document.getElementById('admin-search').value.toLowerCase().trim());
+            });
+
+            onValue(ref(db, 'welcome_videos'), (snapshot) => {
+                allVideos = [];
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    allVideos = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+                }
+                renderVideoUI();
+            });
+
+            onValue(ref(db, 'settings/hero_movie_id'), (snapshot) => {
+                currentHeroId = snapshot.exists() ? snapshot.val() : null;
+                document.getElementById('current-hero-txt').innerText = currentHeroId ? `Current ID: ${currentHeroId}` : 'None';
+            });
+        }
+
+        window.openCategoryModal = function(catName) {
+            document.getElementById('edit-cat-old-name').value = catName;
+            document.getElementById('edit-cat-name').value = catName;
+            
+            selectedCategoryIcon = categoryIcons[catName] || "fa-solid fa-folder-open";
+            renderIconGrid();
+            
+            document.getElementById('category-modal').classList.add('active');
+        }
+
+        window.closeCategoryModal = function() {
+            document.getElementById('category-modal').classList.remove('active');
+        }
+
+        window.selectCatIcon = function(iconClass) {
+            selectedCategoryIcon = iconClass;
+            renderIconGrid();
+        }
+
+        function renderIconGrid() {
+            const grid = document.getElementById('icon-picker-grid');
+            grid.innerHTML = iconLibrary.map(icon => `
+                <div class="icon-item ${icon === selectedCategoryIcon ? 'active-icon' : ''}" onclick="selectCatIcon('${icon}')">
+                    ${getDynamicIconHtml(icon)}
+                </div>
+            `).join('');
+        }
+
+        window.saveCategoryChanges = async function() {
+            const oldName = document.getElementById('edit-cat-old-name').value;
+            const newName = document.getElementById('edit-cat-name').value.trim();
+            
+            if(!newName) return showToast("Category name cannot be empty!", true);
+            
+            showLoader(true);
+            try {
+                let updates = {};
+                
+                if(newName !== oldName) {
+                    allMovies.forEach(m => {
+                        if(m.category === oldName) {
+                            updates[`movies/${m.id}/category`] = newName;
+                        }
+                    });
+                    
+                    let newOrder = [...categoryOrder];
+                    let idx = newOrder.findIndex(c => c === oldName);
+                    if(idx !== -1) {
+                        newOrder[idx] = newName;
+                        updates['settings/category_order'] = newOrder;
+                    } else if (newOrder.length > 0) {
+                        newOrder.push(newName);
+                        updates['settings/category_order'] = newOrder;
+                    }
+                    
+                    updates[`settings/category_icons/${oldName}`] = null; 
+                }
+                
+                updates[`settings/category_icons/${newName}`] = selectedCategoryIcon;
+                
+                await update(ref(db), updates);
+                showToast("Category Updated & Applied to all movies!", false);
+                closeCategoryModal();
+            } catch(e) {
+                console.error(e);
+                showToast("Failed to update category!", true);
+            }
+            showLoader(false);
+        }
+
+        function renderCategoryManager() {
+            const container = document.getElementById('category-order-list');
+            let uniqueCats = [...new Set(allMovies.map(m => m.category).filter(Boolean))];
+
+            uniqueCats.sort((a, b) => {
+                let indexA = categoryOrder.findIndex(c => c.toLowerCase() === a.toLowerCase());
+                let indexB = categoryOrder.findIndex(c => c.toLowerCase() === b.toLowerCase());
+                if(indexA !== -1 && indexB !== -1) return indexA - indexB;
+                if(indexA !== -1) return -1;
+                if(indexB !== -1) return 1;
+                return a.localeCompare(b);
+            });
+
+            container.innerHTML = uniqueCats.map(cat => {
+                const iconClass = categoryIcons[cat] || "fa-solid fa-folder-open";
+                const safeCat = cat.replace(/'/g, "\\'");
+                return `
+                <div class="list-item cat-drag-item" data-cat="${cat}" style="padding: 10px; background: rgba(244, 117, 33, 0.05); border-color: rgba(244, 117, 33, 0.2);">
+                    <div class="drag-handle" style="color: var(--accent);"><i class="fas fa-grip-lines"></i></div>
+                    <div class="item-info" style="display:flex; align-items:center; gap: 10px;">
+                        <div style="font-size: 18px; display: flex;">${getDynamicIconHtml(iconClass)}</div>
+                        <h3 style="color:#e1e6eb; font-size: 16px; margin:0;">${cat}</h3>
+                    </div>
+                    <div style="margin-left: auto;">
+                        <button class="s-btn edit-btn" style="width: auto; padding: 8px 15px;" onclick="window.openCategoryModal('${safeCat}')"><i class="fas fa-edit"></i> Edit</button>
+                    </div>
+                </div>
+            `}).join('');
+
+            if(catSortable) {
+                catSortable.destroy();
+            }
+            
+            catSortable = new Sortable(container, {
+                handle: '.drag-handle',
+                animation: 200,
+                delay: 150, 
+                delayOnTouchOnly: true, 
+                ghostClass: 'sortable-ghost',
+                onEnd: async function() {
+                    const newOrder = Array.from(container.querySelectorAll('.cat-drag-item')).map(el => el.getAttribute('data-cat'));
+                    try {
+                        await set(ref(db, 'settings/category_order'), newOrder);
+                    } catch(e) { console.error("Failed to save order!", e); }
+                }
+            });
+        }
+
+        document.getElementById('admin-search').addEventListener('input', (e) => {
+            renderUI(e.target.value.toLowerCase().trim());
+        });
+
+        window.openConfirmModal = function(id, title, nodePath) {
+            pendingDeleteId = id;
+            pendingDeleteNode = nodePath; 
+            document.getElementById('modal-title').innerText = "Delete Item?";
+            document.getElementById('confirm-modal').classList.add('active');
+        }
+        window.closeModal = function() {
+            pendingDeleteId = null;
+            pendingDeleteNode = null;
+            document.getElementById('confirm-modal').classList.remove('active');
+        }
+        document.getElementById('modal-confirm-btn').addEventListener('click', async () => {
+            if(!pendingDeleteId || !pendingDeleteNode) return;
+            showLoader(true);
+            try {
+                await remove(ref(db, pendingDeleteNode + '/' + pendingDeleteId));
+                if(pendingDeleteNode === 'movies' && pendingDeleteId === currentHeroId) await set(ref(db, 'settings/hero_movie_id'), null);
+                showToast("Deleted Successfully!", false);
+            } catch(e) { showToast("Failed to delete!", true); }
+            window.closeModal();
+            showLoader(false);
+        });
+
+        window.confirmRemoveNode = function(btnElement) {
+            pendingNodeToRemove = btnElement.closest('.dynamic-row, .episode-block, .season-block');
+            if(pendingNodeToRemove) { document.getElementById('remove-node-modal').classList.add('active'); }
+        }
+        window.closeNodeModal = function() {
+            pendingNodeToRemove = null;
+            document.getElementById('remove-node-modal').classList.remove('active');
+        }
+        document.getElementById('node-confirm-btn').addEventListener('click', () => {
+            if(pendingNodeToRemove) { 
+                pendingNodeToRemove.remove(); 
+                showToast("Item Removed.", false); 
+                window.saveDraft(); 
+            }
+            window.closeNodeModal();
+        });
+
+
+        window.toggleBuilderType = function() {
+            const type = document.getElementById('m-type').value;
+            if(type === 'movie') {
+                document.getElementById('movie-builder-section').style.display = 'block';
+                document.getElementById('series-builder-section').style.display = 'none';
+            } else {
+                document.getElementById('movie-builder-section').style.display = 'none';
+                document.getElementById('series-builder-section').style.display = 'block';
+            }
+        }
+
+        window.addScreenshot = function(val = "") {
+            const container = document.getElementById('screenshot-container');
+            const div = document.createElement('div'); div.className = 'dynamic-row';
+            div.innerHTML = `<input type="text" class="ss-input long" placeholder="Paste Image URL here..." value="${val}">
+                             <button class="remove-btn" onclick="window.confirmRemoveNode(this)"><i class="fas fa-trash"></i></button>`;
+            container.appendChild(div);
+        }
+
+        // UPDATE: Add subscription access plan selection for Video Quality
+        window.addQualityRow = function(containerId, label = "", url = "", reqPlan = "free") {
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            const div = document.createElement('div'); div.className = 'dynamic-row q-row';
+            div.innerHTML = `<input type="text" class="q-label short" placeholder="Name (e.g. 1080p)" value="${label}">
+                             <select class="q-req-plan short">
+                                <option value="free" ${reqPlan === 'free' ? 'selected' : ''}>Free</option>
+                                <option value="starter" ${reqPlan === 'starter' ? 'selected' : ''}>Starter</option>
+                                <option value="elite" ${reqPlan === 'elite' ? 'selected' : ''}>Elite</option>
+                                <option value="supreme" ${reqPlan === 'supreme' ? 'selected' : ''}>Supreme</option>
+                             </select>
+                             <input type="text" class="q-url long" placeholder="Paste Video URL here..." value="${url}">
+                             <button class="remove-btn" onclick="window.confirmRemoveNode(this)"><i class="fas fa-trash"></i></button>`;
+            container.appendChild(div);
+        }
+
+        window.addAudioRow = function(containerId, label = "", url = "") {
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            const div = document.createElement('div'); div.className = 'dynamic-row a-row';
+            div.innerHTML = `<input type="text" class="a-label short" placeholder="Lang (e.g. Hindi)" value="${label}">
+                             <input type="text" class="a-url long" placeholder="Paste Audio URL here..." value="${url}">
+                             <button class="remove-btn" onclick="window.confirmRemoveNode(this)"><i class="fas fa-trash"></i></button>`;
+            container.appendChild(div);
+        }
+
+        let seasonCounter = 0; let epCounter = 0;
+
+        window.addSeason = function(sData = null) {
+            seasonCounter++;
+            const sId = `season-${Date.now()}`;
+            const container = document.getElementById('seasons-wrapper');
+            const title = sData ? sData.season_title : `Season ${container.children.length + 1}`;
+            
+            const div = document.createElement('div'); div.className = 'season-block'; div.id = sId;
+            div.innerHTML = `
+                <div class="season-header">
+                    <input type="text" class="s-title" value="${title}" placeholder="Season Name">
+                    <button class="remove-btn" onclick="window.confirmRemoveNode(this)">Remove</button>
+                </div>
+                <div id="eps-${sId}"></div>
+                <button class="add-btn" onclick="window.addEpisode('${sId}')"><i class="fas fa-plus"></i> Add Episode</button>
+            `;
+            container.appendChild(div);
+            if(sData && sData.episodes) sData.episodes.forEach(ep => window.addEpisode(sId, ep));
+            else window.addEpisode(sId);
+        }
+
+        window.addEpisode = function(seasonId, epData = null) {
+            epCounter++;
+            const epWrapper = document.getElementById(`eps-${seasonId}`);
+            const epId = `ep-${Date.now()}-${epCounter}`;
+            
+            const title = epData && epData.ep_title ? epData.ep_title : "";
+            const desc = epData && epData.ep_desc ? epData.ep_desc : "";
+            const thumb = epData && epData.ep_thumb ? epData.ep_thumb : "";
+
+            const div = document.createElement('div'); div.className = 'episode-block ep-wrap-node'; div.id = epId;
+            div.innerHTML = `
+                <div class="ep-header">
+                    <h4>Episode ${epWrapper.children.length + 1}</h4>
+                    <button class="remove-btn" onclick="window.confirmRemoveNode(this)"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="ep-body">
+                    <input type="text" class="ep-title full-width" placeholder="Episode Title (Required)" value="${title}">
+                    <input type="text" class="ep-thumb full-width" placeholder="Thumbnail Image URL" value="${thumb}">
+                    <textarea class="ep-desc full-width" rows="2" placeholder="Short description...">${desc}</textarea>
+                    
+                    <div class="link-section">
+                        <label>Video Links (Select Quality Access)</label>
+                        <div id="vids-${epId}"></div>
+                        <button class="add-btn" onclick="window.addQualityRow('vids-${epId}')">Add Video Link</button>
+                    </div>
+                    <div class="link-section">
+                        <label>Audio Links</label>
+                        <div id="auds-${epId}"></div>
+                        <button class="add-btn" onclick="window.addAudioRow('auds-${epId}')">Add Audio Track</button>
+                    </div>
+                </div>
+            `;
+            epWrapper.appendChild(div);
+
+            if(epData) {
+                if(epData.video_links) epData.video_links.forEach(v => window.addQualityRow(`vids-${epId}`, v.label, v.url, v.req_plan));
+                if(epData.audio_links) epData.audio_links.forEach(a => window.addAudioRow(`auds-${epId}`, a.label, a.url));
+            } else {
+                window.addQualityRow(`vids-${epId}`);
+            }
+        }
+
+        function renderAdminTags() {
+            const list = document.getElementById('admin-tags-list');
+            list.innerHTML = adminTags.map((t, i) => `
+                <div class="admin-tag-pill">
+                    ${t} <i class="fas fa-times" onclick="removeAdminTag(${i})"></i>
+                </div>
+            `).join('');
+        }
+
+        window.removeAdminTag = function(index) {
+            adminTags.splice(index, 1);
+            renderAdminTags();
+        }
+
+        function processTagInput(val) {
+            val = val.trim();
+            if (val && !adminTags.includes(val)) {
+                adminTags.push(val);
+                renderAdminTags();
+            }
+        }
+
+        const tagInputEl = document.getElementById('m-tag-input');
+        
+        tagInputEl.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault();
+                processTagInput(this.value);
+                this.value = '';
+            }
+        });
+
+        tagInputEl.addEventListener('input', function(e) {
+            if (this.value.includes(',')) {
+                let parts = this.value.split(',');
+                for (let i = 0; i < parts.length - 1; i++) {
+                    processTagInput(parts[i]);
+                }
+                this.value = parts[parts.length - 1].trimStart();
+            }
+        });
+
+        function renderUI(searchTerm = "") {
+            const listContainer = document.getElementById('movie-list');
+            listContainer.innerHTML = "";
+            
+            let filteredMovies = allMovies;
+            if (searchTerm) {
+                filteredMovies = allMovies.filter(m => 
+                    (m.title && m.title.toLowerCase().includes(searchTerm)) ||
+                    (m.category && m.category.toLowerCase().includes(searchTerm)) ||
+                    (m.genres && m.genres.toLowerCase().includes(searchTerm)) ||
+                    (m.id && m.id.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            if(filteredMovies.length === 0) {
+                listContainer.innerHTML = "<p style='color:var(--text-muted); text-align:center;'>No movies found.</p>";
+                return;
+            }
+
+            const categories = {};
+            filteredMovies.forEach(m => {
+                const cat = m.category || "Uncategorized";
+                if(!categories[cat]) categories[cat] = [];
+                categories[cat].push(m);
+            });
+
+            for(const cat in categories) {
+                categories[cat].sort((a,b) => {
+                    let orderA = a.order !== undefined ? parseInt(a.order) : 99999;
+                    let orderB = b.order !== undefined ? parseInt(b.order) : 99999;
+                    return orderA - orderB;
+                });
+                
+                const iconClass = categoryIcons[cat] || "fa-solid fa-folder-open";
+
+                let catHtml = `<div class="category-group">
+                    <h3 class="category-header"><div style="font-size: 18px; display: inline-block;">${getDynamicIconHtml(iconClass)}</div> <span style="color: #f5c518; margin-left: 8px;">${cat}</span> <span style="color:var(--text-muted); font-size:12px; margin-left: 5px;">(${categories[cat].length} Items)</span></h3>
+                    <div class="item-list sortable-cat-list" data-category="${cat}">`;
+                
+                categories[cat].forEach((m, index) => {
+                    const safeM = JSON.stringify(m).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                    const typeBadge = m.type === 'series' ? '<span class="type-badge">Series</span>' : '<span class="type-badge" style="background:var(--accent);">Movie</span>';
+                    const orderNum = m.order !== undefined ? m.order : '-';
+                    const isHiddenClass = (!searchTerm && index >= 3) ? "hide-item" : "";
+
+                    catHtml += `
+                        <div class="list-item ${isHiddenClass}" data-id="${m.id}">
+                            <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                            <img src="${m.poster}" loading="lazy">
+                            <div class="item-info">
+                                <h3>${m.title} ${typeBadge}</h3>
+                                <p>Pos: <span class="order-badge">#${orderNum}</span> &nbsp;•&nbsp; ID: ${m.id}</p>
+                                <div class="item-actions">
+                                    <button class="s-btn edit-btn" onclick="window.editMovie(${safeM})">Edit</button>
+                                    <button class="s-btn del-btn" onclick="window.openConfirmModal('${m.id}', '${m.title.replace(/'/g, "\\'")}', 'movies')">Del</button>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+
+                catHtml += `</div>`;
+
+                if (!searchTerm && categories[cat].length > 3) {
+                    catHtml += `<button class="show-more-btn" onclick="
+                        const listDiv = this.previousElementSibling;
+                        listDiv.classList.toggle('show-all');
+                        this.innerHTML = listDiv.classList.contains('show-all') ? '- Show Less' : '+ Show More';
+                    ">+ Show More</button>`;
+                }
+
+                catHtml += `</div>`;
+                listContainer.innerHTML += catHtml;
+            }
+
+            if (!searchTerm) {
+                movieSortables.forEach(s => s.destroy());
+                movieSortables = [];
+                
+                document.querySelectorAll('.sortable-cat-list').forEach(listEl => {
+                    const s = new Sortable(listEl, {
+                        handle: '.drag-handle',
+                        animation: 200,
+                        delay: 150,
+                        delayOnTouchOnly: true,
+                        ghostClass: 'sortable-ghost',
+                        onEnd: async function(evt) {
+                            const allItems = Array.from(listEl.querySelectorAll('.list-item'));
+                            showLoader(true);
+                            try {
+                                const updates = {};
+                                allItems.forEach((el, index) => {
+                                    const id = el.getAttribute('data-id');
+                                    updates[`movies/${id}/order`] = index + 1;
+                                });
+                                await update(ref(db), updates);
+                                showToast("Position Saved!", false);
+                            } catch(e) { 
+                                showToast("Failed to save order!", true); 
+                                console.error(e);
+                            }
+                            showLoader(false);
+                        }
+                    });
+                    movieSortables.push(s);
+                });
+            }
+        }
+
+        window.handleData = async function() {
+            const title = document.getElementById('m-title').value.trim();
+            if(!title) { showToast("Content Title is required!", true); document.getElementById('m-title').focus(); return; }
+            
+            showLoader(true);
+            const id = isEditing ? document.getElementById('movie-id').value : Math.random().toString(36).substr(2, 10);
+            const type = document.getElementById('m-type').value;
+            const screenshots = Array.from(document.querySelectorAll('.ss-input')).map(i => i.value.trim()).filter(v => v);
+
+            const existingOrder = parseInt(document.getElementById('movie-hidden-order').value) || 99999;
+
+            let payload = {
+                title: title, type: type,
+                category: document.getElementById('m-index-cat').value, 
+                genres: document.getElementById('m-detail-genres').value,
+                year: document.getElementById('m-year').value,
+                rating: document.getElementById('m-rate').value, trailer_url: document.getElementById('m-trailer').value,
+                poster: document.getElementById('m-poster').value, backdrop: document.getElementById('m-backdrop').value,
+                description: document.getElementById('m-desc').value, screenshots: screenshots, timestamp: Date.now(),
+                order: existingOrder,
+                tags: adminTags,
+                access_level: document.getElementById('m-access').value || 'free'
+            };
+
+            let validationError = false;
+            // UPDATE: Include req_plan directly into the video links array payload
+            if (type === 'movie') {
+                payload.video_links = Array.from(document.querySelectorAll('#quality-container .q-row')).map(row => ({ 
+                    label: row.querySelector('.q-label').value.trim() || "HD", 
+                    req_plan: row.querySelector('.q-req-plan').value, 
+                    url: row.querySelector('.q-url').value.trim() 
+                })).filter(v => v.url !== "");
+                
+                payload.audio_links = Array.from(document.querySelectorAll('#audio-container .a-row')).map(row => ({ label: row.querySelector('.a-label').value.trim() || "Default", url: row.querySelector('.a-url').value.trim() })).filter(v => v.url !== "");
+                if(payload.video_links.length === 0) { showToast("Movie requires at least 1 Video Link!", true); validationError = true; }
+            } else {
+                let seasonsArray = [];
+                document.querySelectorAll('.season-block').forEach((sBlock, index) => {
+                    let sTitle = sBlock.querySelector('.s-title').value.trim();
+                    if(!sTitle) { sBlock.classList.add('error-border'); validationError = true; } else { sBlock.classList.remove('error-border'); }
+                    let epsArray = [];
+                    sBlock.querySelectorAll('.ep-wrap-node').forEach(epBlock => {
+                        let eTitle = epBlock.querySelector('.ep-title').value.trim();
+                        let eThumb = epBlock.querySelector('.ep-thumb').value.trim();
+                        let eDesc = epBlock.querySelector('.ep-desc').value.trim();
+                        let vLinks = Array.from(epBlock.querySelectorAll('.q-row')).map(row => ({ 
+                            label: row.querySelector('.q-label').value.trim() || "HD", 
+                            req_plan: row.querySelector('.q-req-plan').value,
+                            url: row.querySelector('.q-url').value.trim() 
+                        })).filter(v => v.url !== "");
+                        let aLinks = Array.from(epBlock.querySelectorAll('.a-row')).map(row => ({ label: row.querySelector('.a-label').value.trim() || "Default", url: row.querySelector('.a-url').value.trim() })).filter(a => a.url !== "");
+                        
+                        if(!eTitle || vLinks.length === 0) { epBlock.classList.add('error-border'); validationError = true; } 
+                        else { epBlock.classList.remove('error-border'); epsArray.push({ ep_title: eTitle, ep_thumb: eThumb, ep_desc: eDesc, video_links: vLinks, audio_links: aLinks }); }
+                    });
+                    if(sTitle && epsArray.length > 0) { seasonsArray.push({ season_number: index + 1, season_title: sTitle, episodes: epsArray }); }
+                });
+                if(seasonsArray.length === 0 && !validationError) { showToast("Please add at least 1 valid Season & Episode!", true); validationError = true; }
+                payload.seasons = seasonsArray;
+            }
+
+            if(validationError) { showToast("Please fix the highlighted errors in red!", true); showLoader(false); return; }
+
+            try {
+                await set(ref(db, 'movies/' + id), payload);
+                localStorage.removeItem('nexstream_admin_draft'); 
+                window.resetForm();
+                showToast(isEditing ? "Updated Successfully!" : "Added Successfully!", false);
+            } catch(e) { showToast("Firebase Error!", true); }
+            showLoader(false);
+        }
+
+        window.setBannerHero = async function() {
+            const id = document.getElementById('hero-movie-id').value.trim();
+            if(!id) { showToast("Enter ID!", true); return; }
+            showLoader(true);
+            try {
+                await set(ref(db, 'settings/hero_movie_id'), id);
+                document.getElementById('hero-movie-id').value = "";
+                showToast("Hero Banner Updated!", false);
+            } catch(e) { showToast("Failed!", true); }
+            showLoader(false);
+        }
+
+        window.editMovie = function(m) {
+            isEditing = true;
+            document.getElementById('form-mode-title').innerHTML = `<i class="fas fa-edit"></i> Editing: ${m.title}`;
+            document.getElementById('movie-id').value = m.id;
+            document.getElementById('movie-hidden-order').value = m.order !== undefined ? m.order : 99999;
+            document.getElementById('m-type').value = m.type || 'movie';
+            window.toggleBuilderType();
+            document.getElementById('m-title').value = m.title || "";
+            document.getElementById('m-index-cat').value = m.category || "";
+            document.getElementById('m-detail-genres').value = m.genres || "";
+            document.getElementById('m-year').value = m.year || "";
+            document.getElementById('m-rate').value = m.rating || "";
+            document.getElementById('m-trailer').value = m.trailer_url || "";
+            document.getElementById('m-poster').value = m.poster || "";
+            document.getElementById('m-backdrop').value = m.backdrop || "";
+            document.getElementById('m-desc').value = m.description || "";
+            document.getElementById('screenshot-container').innerHTML = "";
+            document.getElementById('quality-container').innerHTML = "";
+            document.getElementById('audio-container').innerHTML = "";
+            document.getElementById('seasons-wrapper').innerHTML = "";
+
+            adminTags = m.tags ? [...m.tags] : [];
+            renderAdminTags();
+            document.getElementById('m-access').value = m.access_level || 'free';
+
+            if(m.screenshots) m.screenshots.forEach(s => window.addScreenshot(s));
+            if(m.type !== 'series') {
+                if(m.video_links) m.video_links.forEach(v => window.addQualityRow('quality-container', v.label, v.url, v.req_plan));
+                if(m.audio_links) m.audio_links.forEach(a => window.addAudioRow('audio-container', a.label, a.url));
+            } else { if(m.seasons) m.seasons.forEach(s => window.addSeason(s)); }
+
+            document.getElementById('cancel-edit').style.display = "block";
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            window.saveDraft(); 
+        }
+
+        window.resetForm = function() {
+            isEditing = false;
+            localStorage.removeItem('nexstream_admin_draft'); 
+            document.getElementById('form-mode-title').innerHTML = `<i class="fas fa-plus-circle"></i> Add New Content`;
+            document.querySelectorAll('#main-form input[type="text"], #main-form input[type="number"], #main-form textarea').forEach(i => i.value = "");
+            document.querySelectorAll('.error-border').forEach(el => el.classList.remove('error-border'));
+            document.getElementById('m-type').value = 'movie'; window.toggleBuilderType();
+            
+            document.getElementById('movie-hidden-order').value = "99999"; 
+
+            adminTags = [];
+            renderAdminTags();
+            document.getElementById('m-tag-input').value = "";
+
+            document.getElementById('screenshot-container').innerHTML = ""; document.getElementById('quality-container').innerHTML = "";
+            document.getElementById('audio-container').innerHTML = ""; document.getElementById('seasons-wrapper').innerHTML = "";
+            document.getElementById('cancel-edit').style.display = "none";
+            window.addScreenshot(); window.addQualityRow('quality-container');
+        }
+
+        function renderVideoUI() {
+            const list = document.getElementById('video-list-container');
+            list.innerHTML = "";
+            allVideos.forEach(v => {
+                const safeV = JSON.stringify(v).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                list.innerHTML += `
+                    <div class="list-item" style="flex-direction: column; align-items: stretch;">
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <div class="video-icon-box"><i class="fas fa-play"></i></div>
+                            <div class="item-info">
+                                <h3>${v.title}</h3>
+                                <p style="-webkit-line-clamp: 1; display: -webkit-box; -webkit-box-orient: vertical;">${v.desc}</p>
+                            </div>
+                        </div>
+                        <div class="item-actions" style="margin-top: 10px;">
+                            <button class="s-btn edit-btn" onclick="window.editVideo(${safeV})">Edit</button>
+                            <button class="s-btn del-btn" onclick="window.openConfirmModal('${v.id}', '${v.title.replace(/'/g, "\\'")}', 'welcome_videos')">Delete</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        window.handleVideoData = async function() {
+            const title = document.getElementById('v-title').value.trim();
+            const url = document.getElementById('v-url').value.trim();
+            const desc = document.getElementById('v-desc').value.trim();
+
+            if(!title || !url) { 
+                showToast("Title and Video URL are required!", true); 
+                return; 
+            }
+            
+            showLoader(true);
+            const id = isEditingVideo ? document.getElementById('v-id').value : 'vid_' + Date.now();
+
+            let payload = { title: title, desc: desc, url: url, timestamp: Date.now() };
+
+            try {
+                await set(ref(db, 'welcome_videos/' + id), payload);
+                window.resetVideoForm();
+                showToast(isEditingVideo ? "Video Updated!" : "Video Added!", false);
+            } catch(e) { showToast("Firebase Error!", true); }
+            showLoader(false);
+        }
+
+        window.editVideo = function(v) {
+            isEditingVideo = true;
+            document.getElementById('video-form-title').innerHTML = `<i class="fas fa-edit"></i> Editing Video: ${v.title}`;
+            document.getElementById('v-id').value = v.id;
+            document.getElementById('v-title').value = v.title || "";
+            document.getElementById('v-desc').value = v.desc || "";
+            document.getElementById('v-url').value = v.url || "";
+            
+            document.getElementById('cancel-video-edit').style.display = "block";
+            document.getElementById('video-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        window.resetVideoForm = function() {
+            isEditingVideo = false;
+            document.getElementById('video-form-title').innerHTML = `<i class="fas fa-video"></i> Add Welcome Feed Video`;
+            document.getElementById('v-id').value = "";
+            document.getElementById('v-title').value = "";
+            document.getElementById('v-desc').value = "";
+            document.getElementById('v-url').value = "";
+            document.getElementById('cancel-video-edit').style.display = "none";
+        }
+
+        window.onload = () => {
+            const isDraftLoaded = window.loadDraft();
+            if (!isDraftLoaded) {
+                window.toggleBuilderType();
+                window.addScreenshot();
+                window.addQualityRow('quality-container');
+            }
+        }
+    </script>
+</body>
+</html>

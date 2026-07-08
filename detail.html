@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Loading... - SanppyRoll</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Anime.js CDN dependency required for motion transitions -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <style>
+    :root {
+        --accent: #f47521;
+        --bg-main: #0b0b0e;
+        --bg-card: #131318;
+        --text-muted: #8e8e93;
+        --border-tint: rgba(255, 255, 255, 0.05);
+        --card-radius: 12px;
+    }
+    *, *::before, *::after {
+        margin: 0; padding: 0; box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        font-family: 'SF Pro Display', -apple-system, sans-serif;
+        user-select: none; -webkit-user-select: none;
+    }
+    body { background: var(--bg-main); color: #fff; min-height: 100vh; overflow-x: hidden; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    img { pointer-events: none; -webkit-user-drag: none; display: block; }
+
+    .svg-icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ── SHIMMER ANIMATION ── */
+    .skeleton {
+        background: #12121a;
+        background-image: linear-gradient(90deg, #12121a 0px, #1e1e2a 40px, #12121a 80px);
+        background-size: 600px; 
+        animation: shimmer 1.5s infinite linear; 
+        border-radius: 8px; 
+        pointer-events: none;
+    }
+    @keyframes shimmer { 0% { background-position: -300px 0; } 100% { background-position: 800px 0; } }
+
+    /* ── NAVBAR ── */
+    .navbar {
+        position: fixed; top: 0; left: 0; width: 100%; height: 90px; z-index: 2000;
+        display: flex; justify-content: space-between; align-items: flex-start;
+        padding: 14px 5%;
+        background: linear-gradient(to bottom, rgba(11,11,14,0.75) 0%, rgba(11,11,14,0.2) 55%, transparent 100%);
+        backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+        -webkit-mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
+        mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
+    }
+    .back-btn-new {
+        background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border-tint); color: #fff;
+        width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
+        transition: background 0.2s, transform 0.2s; backdrop-filter: blur(5px); z-index: 10; margin-top: 2px;
+    }
+    .back-btn-new:active { transform: scale(0.88); background: rgba(255, 255, 255, 0.15); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; pointer-events: auto; margin-top: 2px; }
+
+    .profile-btn { 
+    position: relative;
+    width: 36px;   
+    height: 36px; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    background: #1a1a1a;
+    border: 2.5px solid transparent;  
+    padding: 2px;  
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s;
+}
+
+.profile-btn:active {
+    transform: scale(0.9);
+}
+
+ 
+.profile-btn.premium-user { 
+    border-color: #f47521 !important;  
+    box-shadow: 0 0 12px rgba(244, 117, 33, 0.4); 
+}
+
+.profile-btn img { 
+    width: 100%; 
+    height: 100%; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    display: block;
+}
+
+    /* ── HERO HEADER ── */
+    .hero-header {
+        position: relative; width: 100%; padding: 100px 5% 10px;
+        display: flex; gap: 15px; z-index: 2; align-items: flex-start;
+    }
+    .backdrop-bg {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; max-height: 420px;
+        background-size: cover; background-position: center top;
+        z-index: 0; opacity: 0.35; filter: blur(15px);
+        mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+    }
+    .poster-container {
+        width: 110px; flex-shrink: 0; z-index: 2; opacity: 0;
+        border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        background: #111; aspect-ratio: 2/3;
+    }
+    .poster-container img { width: 100%; height: 100%; object-fit: cover; }
+
+    .info-container { display: flex; flex-direction: column; z-index: 2; width: 100%; }
+    .d-title { font-size: 20px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; opacity: 0; }
+
+    .badges-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; align-items: center; opacity: 0; }
+    .badge { background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; color: #bbb; text-transform: uppercase; }
+
+    .rating-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 12px; font-weight: 700; color: #ddd; opacity: 0; }
+    .star-rating { color: #f5c518; display: flex; align-items: center; gap: 4px; }
+    .star-rating svg { width: 12px; height: 12px; fill: currentColor; }
+
+    .m-desc { font-size: 12px; color: #aaa; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; opacity: 0; }
+
+    /* ── INLINE TRAILER VIEW ── */
+    .inline-trailer-section {
+        width: 90%; max-height: 0; overflow: hidden; background: #000;
+        margin: 0 auto; border-radius: 16px; border: 0px solid transparent;
+        transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1), border-width 0.1s, margin 0.4s, box-shadow 0.4s;
+        position: relative; display: flex; flex-direction: column; z-index: 15;
+    }
+    .inline-trailer-section.active {
+        max-height: 52vw;
+        margin: 10px auto 15px;
+        border: 1px solid var(--accent);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.8);
+    }
+    .player-wrapper { position: relative; width: 100%; height: 100%; aspect-ratio: 16/9; }
+    .player-wrapper video, .player-wrapper iframe { width: 100%; height: 100%; border: none; display: block; object-fit: cover; }
+
+    .player-top-bar {
+        position: absolute; top: 0; left: 0; width: 100%; padding: 12px 16px;
+        display: flex; align-items: center; z-index: 20;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
+        opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s;
+    }
+    .player-top-bar .trailer-lbl {
+        font-size: 12px; font-weight: 700; color: #fff; opacity: 0.95;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; letter-spacing: 0.3px;
+    }
+    .inline-trailer-section.show-controls .player-top-bar { opacity: 1; visibility: visible; }
+
+    .html5-controls {
+        position: absolute; bottom: 0; left: 0; width: 100%; padding: 35px 16px 14px;
+        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+        display: flex; align-items: center; gap: 12px; z-index: 20;
+        opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s;
+    }
+    .inline-trailer-section.show-controls .html5-controls { opacity: 1; visibility: visible; }
+
+    .play-pause-btn { background: none; border: none; color: #fff; cursor: pointer; display: flex; align-items: center; }
+    .play-pause-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+    .progress-container { flex: 1; height: 20px; display: flex; align-items: center; cursor: pointer; position: relative; touch-action: none; }
+    .progress-track { width: 100%; height: 3px; background: rgba(255,255,255,0.25); border-radius: 1.5px; position: relative; pointer-events: none; }
+    .progress-bar { height: 100%; background: var(--accent); border-radius: 1.5px; width: 0%; position: relative; }
+    .progress-bar::after { content: ''; position: absolute; right: -4px; top: 50%; transform: translateY(-50%); width: 10px; height: 10px; background: #fff; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.6); }
+    .time-display { color: rgba(255,255,255,0.85); font-size: 11px; font-variant-numeric: tabular-nums; font-weight: 500; }
+    .player-tap-layer { position: absolute; inset: 0; z-index: 10; cursor: pointer; }
+
+    .inline-mute-btn { background: none; border: none; color: #ffffff !important; cursor: pointer; padding: 4px; display: flex; align-items: center; }
+    .inline-mute-btn svg { fill: #ffffff !important; color: #ffffff !important; }
+
+    /* ── ACTION BUTTONS ── */
+    .action-row-new {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 15px 5%; position: relative; z-index: 2; margin-bottom: 5px; gap: 10px;
+    }
+    .btn-main {
+        flex: 1; background: rgba(255,255,255,0.06); border: 1px solid var(--border-tint); opacity: 0;
+        border-radius: 8px; padding: 12px 0; color: #fff; font-size: 13px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: 0.2s;
+    }
+    .btn-main:active { transform: scale(0.96); }
+    .btn-main.active-trailer { border-color: var(--accent); color: var(--accent); background: rgba(244, 117, 33, 0.08); }
+    .btn-main svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .btn-icon {
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; opacity: 0;
+        color: #aaa; font-size: 10px; font-weight: 600; cursor: pointer; background: transparent; border: none; width: 60px;
+    }
+    .btn-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; }
+    .btn-icon:active { color: #fff; transform: scale(0.95); }
+
+    /* ── CONTENT CONTAINER ── */
+    .details-container { padding: 10px 5% 40px; position: relative; z-index: 10; }
+
+    /* SEASON TABS */
+    .season-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; color: #fff; }
+    .season-tabs { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 10px; scrollbar-width: none; }
+    .season-tabs::-webkit-scrollbar { display: none; }
+    .season-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border-tint); border-radius: 6px; padding: 6px 12px; color: #aaa; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+    .season-btn.active { background: #fff; color: #000; border-color: #fff; }
+
+    /* ── EPISODE CARDS ── */
+    #series-selector { opacity: 0; }
+    #episode-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px;}
+    .ep-card { display: flex; gap: 12px; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 10px; border: 1px solid var(--border-tint); align-items: center; position: relative; cursor: pointer; transition: background 0.2s;}
+    .ep-card:active { background: rgba(255,255,255,0.06); }
+    .ep-thumb { width: 120px; aspect-ratio: 16/9; border-radius: 6px; overflow: hidden; position: relative; flex-shrink: 0; background: #111; }
+    .ep-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .ep-thumb .play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #fff; z-index: 2; width:22px; height:22px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
+
+    .ep-info { display: flex; flex-direction: column; justify-content: center; width: 100%; }
+    .ep-title { font-size: 13px; font-weight: 700; color: #fff; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+    .ep-desc-text { font-size: 10px; color: #888; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 3px; }
+
+    /* ── DASHBOARD SPECS (CRUNCHYROLL SYSTEM) ── */
+    .sec-title { font-size: 14px; font-weight: 800; color: var(--accent); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; gap: 6px; opacity: 0; }
+    .sec-title::before { content: ''; width: 3px; height: 13px; background: var(--accent); border-radius: 2px; }
+
+    .crunchy-specs-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 28px;
+    }
+    .spec-tile {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-tint);
+        border-radius: var(--card-radius);
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        opacity: 0;
+        transition: background 0.2s, border-color 0.2s;
+    }
+    .spec-tile:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    .spec-tile .spec-lbl {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+    .spec-tile .spec-val {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #e4e4e9;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .spec-tile.full-width {
+        grid-column: span 2;
+    }
+    .spec-tile.cast-tile .spec-val {
+        white-space: normal;
+        line-height: 1.4;
+        font-size: 12px;
+        color: #cdd0d5;
+    }
+
+    /* ── VERTICAL SCREENSHOTS ── */
+    .screenshots-container { margin-bottom: 25px; opacity: 0; }
+    .ss-grid { display: flex; flex-direction: column; gap: 12px; }
+    .ss-card { width: 100%; border-radius: 8px; overflow: hidden; background: #111; border: 1px solid var(--border-tint); }
+    .ss-card img { width: 100%; height: auto; display: block; opacity: 0; transition: opacity 0.5s; }
+
+    /* ── TELEGRAM CARD ── */
+    .tg-card {
+        background: linear-gradient(145deg, rgba(44,160,217,0.08), rgba(44,160,217,0.01));
+        border: 1px solid rgba(44,160,217,0.15); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; opacity: 0;
+    }
+    .tg-title { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+    .tg-desc { font-size: 11px; color: #999; margin-bottom: 14px; line-height: 1.4; }
+    .tg-btn {
+        width: 100%; height: 44px; border-radius: 8px; border: none; background: #2ca0d9; color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+    }
+    .tg-btn:active { transform: scale(0.98); }
+    .tg-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+    /* TOAST */
+    .toast { position: fixed; top: -80px; left: 50%; transform: translateX(-50%); background: rgba(18,18,24,0.96); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; padding: 11px 18px; border-radius: 22px; font-size: 13px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 30000; transition: top 0.38s cubic-bezier(0.2, 0.8, 0.2, 1); border: 1px solid rgba(255,59,48,0.3); display: flex; align-items: center; gap: 9px; }
+    .toast.show { top: 38px; }
+    .toast.success { color: #32d74b; border-color: rgba(50,215,75,0.3); }
+
+    @media (max-width: 600px) {
+        .hero-header { padding-top: 86px; }
+    }
+</style>
+</head>
+<body oncontextmenu="return false;">
+
+<div id="toast" class="toast">
+    <svg class="svg-icon" id="toast-icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span id="toast-msg">Error</span>
+</div>
+
+<!-- ── INSTANT MATURING SKELETON LAYOUT ── -->
+<div id="skeleton-ui" style="display: block; position: absolute; top: 0; left: 0; width: 100%; z-index: 100; padding: 100px 5% 40px;">
+    <div style="display: flex; gap: 15px; margin-bottom: 25px;">
+        <div class="skeleton" style="width: 110px; aspect-ratio: 2/3; border-radius: 10px; flex-shrink: 0;"></div>
+        <div style="width: 100%; display: flex; flex-direction: column; gap: 10px; justify-content: flex-start;">
+            <div class="skeleton" style="width: 75%; height: 24px;"></div>
+            <div style="display: flex; gap: 6px;">
+                <div class="skeleton" style="width: 50px; height: 16px;"></div>
+                <div class="skeleton" style="width: 60px; height: 16px;"></div>
+                <div class="skeleton" style="width: 45px; height: 16px;"></div>
+            </div>
+            <div class="skeleton" style="width: 90%; height: 12px; margin-top: 5px;"></div>
+            <div class="skeleton" style="width: 80%; height: 12px;"></div>
+            <div class="skeleton" style="width: 60%; height: 12px;"></div>
+        </div>
+    </div>
+    
+    <div style="display: flex; gap: 10px; margin-bottom: 30px;">
+        <div class="skeleton" style="flex: 1; height: 44px; border-radius: 8px;"></div>
+        <div class="skeleton" style="width: 60px; height: 44px; border-radius: 8px;"></div>
+        <div class="skeleton" style="width: 60px; height: 44px; border-radius: 8px;"></div>
+    </div>
+    
+    <!-- Dynamically shown if s and e query parameters are present -->
+    <div id="skeleton-series-block" style="display: none; margin-bottom: 25px;">
+        <div class="skeleton" style="width: 100px; height: 18px; margin-bottom: 12px;"></div>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; overflow: hidden;">
+            <div class="skeleton" style="width: 80px; height: 28px; border-radius: 6px; flex-shrink: 0;"></div>
+            <div class="skeleton" style="width: 80px; height: 28px; border-radius: 6px; flex-shrink: 0;"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; gap: 12px; padding: 10px; background: rgba(255,255,255,0.01); border-radius: 10px;">
+                <div class="skeleton" style="width: 120px; aspect-ratio: 16/9; border-radius: 6px; flex-shrink: 0;"></div>
+                <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; justify-content: center;">
+                    <div class="skeleton" style="width: 60%; height: 14px;"></div>
+                    <div class="skeleton" style="width: 85%; height: 10px;"></div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px; padding: 10px; background: rgba(255,255,255,0.01); border-radius: 10px;">
+                <div class="skeleton" style="width: 120px; aspect-ratio: 16/9; border-radius: 6px; flex-shrink: 0;"></div>
+                <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; justify-content: center;">
+                    <div class="skeleton" style="width: 50%; height: 14px;"></div>
+                    <div class="skeleton" style="width: 80%; height: 10px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="skeleton" style="width: 120px; height: 16px; margin-bottom: 15px;"></div>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+        <div class="skeleton" style="height: 48px; border-radius: 8px;"></div>
+        <div class="skeleton" style="height: 48px; border-radius: 8px;"></div>
+        <div class="skeleton" style="height: 48px; border-radius: 8px;"></div>
+        <div class="skeleton" style="height: 48px; border-radius: 8px;"></div>
+    </div>
+</div>
+
+<!-- ── ACTUAL PAGE CONTENT ── -->
+<div id="real-ui" style="display:none; opacity:0;">
+    <nav class="navbar" id="navbar">
+        <button class="back-btn-new" onclick="history.back()">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="nav-actions">
+            <button class="icon-btn profile-btn" onclick="window.location.href='me.html'" id="user-profile-icon">
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </button>
+        </div>
+    </nav>
+
+    <div class="hero-header">
+        <div class="backdrop-bg" id="bg-backdrop"></div>
+        <div class="poster-container" id="poster-element">
+            <img id="main-poster" src="" alt="Poster">
+        </div>
+        <div class="info-container">
+            <h1 class="d-title" id="d-title"></h1>
+            <div class="badges-row" id="badges-row"></div>
+            <div class="rating-row" id="rating-row" style="display:none;">
+                <div class="star-rating">
+                    <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    <span id="d-rate"></span>
+                </div>
+                <span id="d-quality" style="font-weight:600; color:#aaa;"></span>
+                <span id="d-audio" style="font-weight:600; color:#aaa;"></span>
+            </div>
+            <p class="m-desc" id="desc"></p>
+        </div>
+    </div>
+
+    <div class="inline-trailer-section" id="inline-trailer-player">
+        <div class="player-wrapper" id="inline-media-container"></div>
+    </div>
+
+    <div class="action-row-new">
+        <button class="btn-main" id="btn-play-trailer" onclick="toggleTrailer()">
+            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play Trailer
+        </button>
+        <button class="btn-main" id="btn-play-movie" onclick="startPlay()" style="display:none; background: #fff; color: #000; border: none;">
+            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play Now
+        </button>
+        <button class="btn-icon" id="btn-watchlist" onclick="showToast('Added to Watchlist', 'success')">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Watchlist
+        </button>
+        <button class="btn-icon" id="btn-share" onclick="shareMovie()">
+            <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+            Share
+        </button>
+    </div>
+
+    <div class="details-container">
+        <div id="series-selector" style="display:none; margin-bottom: 25px;">
+            <div class="season-title" id="s-title-text">Season 1</div>
+            <div class="season-tabs" id="season-tabs"></div>
+            <div id="episode-list"></div>
+        </div>
+
+        <div class="sec-title" id="dt-title-head">Movie Details</div>
+        
+        <!-- Premium Specs Dashboard Section -->
+        <div class="crunchy-specs-grid" id="dynamic-info-grid"></div>
+
+        <div class="screenshots-container" id="screenshots-section" style="display:none;">
+            <div class="sec-title" style="color:#fff;">Screenshots</div>
+            <div class="ss-grid" id="ss-grid"></div>
+        </div>
+
+        <div class="tg-card" id="telegram-vip-card">
+            <div class="tg-title">Join Our VIP Community</div>
+            <div class="tg-desc">Stay updated with latest releases, request your favorite movies/series, and connect with other fans.</div>
+            <button class="tg-btn" onclick="window.open('https://t.me/temp_link_here', '_blank')">
+                <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2z"></path></svg> Join Telegram Now
+            </button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDnmFVfVSCxXC9shWhz4dw06xtTNBA6vsU",
+        authDomain: "sanppyroll.firebaseapp.com",
+        databaseURL: "https://sanppyroll-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "sanppyroll",
+        storageBucket: "sanppyroll.firebasestorage.app",
+        messagingSenderId: "642736474886",
+        appId: "1:642736474886:web:f0e0e3c04101fddfe02c87"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db);
+    const auth = getAuth(app);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const movieId = urlParams.get('id');
+    let sIdx = urlParams.get('s') !== null ? parseInt(urlParams.get('s')) : null;
+    let eIdx = urlParams.get('e') !== null ? parseInt(urlParams.get('e')) : null;
+
+    let movieData = null;
+    let currentPlayingType = 'movie';
+    let currentSeasonIndex = 0;
+    let currentUser = null;
+
+    // Dedicated Trailer State Matrix
+    let isModalMuted = false;
+    let isPlaying = true;
+    let customVideoElement = null;
+    let controlsTimer = null;
+    let isDraggingTimeline = false;
+    let isTrailerOpen = false;
+
+    // Auto-mature series block in skeleton if URL implies a web series
+    if (sIdx !== null || eIdx !== null) {
+        const skSeriesBlock = document.getElementById('skeleton-series-block');
+        if (skSeriesBlock) skSeriesBlock.style.display = 'block';
+    }
+
+    function setProfileIcon(user) {
+        const profileImg = document.getElementById('user-profile-icon');
+        if (!profileImg) return;
+
+        if (!user) {
+            profileImg.innerHTML = `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+            return;
+        }
+
+        let avatarUrl = user.photoURL || '';
+        let uName = user.displayName || (user.email ? user.email.split('@')[0] : '?');
+
+        try {
+            const profileSnapPromise = get(child(dbRef, `users/${user.uid}/profile`));
+            const subSnapPromise = get(child(dbRef, `users/${user.uid}/subscription`));
+
+            Promise.all([profileSnapPromise, subSnapPromise]).then(([profileSnap, subSnap]) => {
+                if (subSnap.exists() && subSnap.val().plan && subSnap.val().expiry > Date.now()) {
+                    profileImg.classList.add('premium-user');
+                }
+
+                if (profileSnap.exists()) {
+                    const profile = profileSnap.val() || {};
+                    if (profile.avatarUrl) avatarUrl = profile.avatarUrl;
+                    if (profile.username) uName = profile.username;
+                }
+
+                if (avatarUrl) {
+                    profileImg.innerHTML = `<img src="${avatarUrl}" alt="Profile">`;
+                } else {
+                    let initial = (uName || 'U').charAt(0).toUpperCase();
+                    profileImg.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, #f47521, #e00073);color:#fff;font-weight:900;font-size:14px;border-radius:50%;">${initial}</div>`;
+                }
+            }).catch(() => {
+                let initial = (uName || 'U').charAt(0).toUpperCase();
+                profileImg.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, #f47521, #e00073);color:#fff;font-weight:900;font-size:14px;border-radius:50%;">${initial}</div>`;
+            });
+        } catch (e) {
+            let initial = (uName || 'U').charAt(0).toUpperCase();
+            profileImg.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, #f47521, #e00073);color:#fff;font-weight:900;font-size:14px;border-radius:50%;">${initial}</div>`;
+        }
+    }
+
+    onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+        setProfileIcon(user);
+        if (!movieData) fetchDetails();
+    });
+
+    window.showToast = function(msg, type = "error") {
+        const toast = document.getElementById('toast');
+        const icon = document.getElementById('toast-icon');
+        toast.className = 'toast show';
+        if (type === 'success') {
+            toast.classList.add('success');
+            icon.innerHTML = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>';
+        } else {
+            icon.innerHTML = '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>';
+        }
+        document.getElementById('toast-msg').innerText = msg;
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    };
+
+    async function fetchDetails() {
+        if (!movieId) { window.location.replace('index.html'); return; }
+        try {
+            const snapshot = await get(child(dbRef, `movies/${movieId}`));
+            if (snapshot.exists()) {
+                movieData = snapshot.val();
+                currentPlayingType = movieData.type || 'movie';
+                document.title = `${movieData.title} - SanppyRoll`;
+                
+                // Real-time mature series block inside skeleton before transitioning
+                if (currentPlayingType === 'series' || currentPlayingType === 'anime') {
+                    const skSeriesBlock = document.getElementById('skeleton-series-block');
+                    if (skSeriesBlock) skSeriesBlock.style.display = 'block';
+                }
+                
+                setTimeout(() => { 
+                    renderPage(); 
+                }, 100);
+            } else {
+                document.getElementById('skeleton-ui').style.display = 'none';
+                showToast("Content not found!");
+            }
+        } catch(err) {
+            document.getElementById('skeleton-ui').style.display = 'none';
+            showToast("Network Error!");
+        }
+    }
+
+    window.shareMovie = function() {
+        setTimeout(async () => {
+            if (navigator.share) {
+                try { await navigator.share({ title: movieData?.title || 'SanppyRoll', text: `Watch ${movieData?.title} on SanppyRoll!`, url: window.location.href }); }
+                catch(e) {}
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                showToast('Link copied!', 'success');
+            }
+        }, 150);
+    };
+
+    function getYoutubeId(url) {
+        if (!url) return null;
+        let match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/);
+        return match ? match[1] : null;
+    }
+
+    function formatTime(seconds) {
+        if(isNaN(seconds)) return "0:00";
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    function renderPage() {
+        const posterImg = movieData.poster || movieData.backdrop || '';
+        document.getElementById('main-poster').src = posterImg;
+        document.getElementById('bg-backdrop').style.backgroundImage = `url(${movieData.backdrop || posterImg})`;
+
+        if (movieData.title) document.getElementById('d-title').innerText = movieData.title;
+        if (movieData.description) document.getElementById('desc').innerText = movieData.description;
+
+        let badgesHtml = '';
+        if (movieData.year) badgesHtml += `<span class="badge">${movieData.year}</span>`;
+        if (currentPlayingType) badgesHtml += `<span class="badge">${currentPlayingType}</span>`;
+
+        if (movieData.genres?.trim()) {
+            const gArray = movieData.genres.split(',').map(s => s.trim()).filter(Boolean);
+            gArray.slice(0, 2).forEach(g => { badgesHtml += `<span class="badge">${g}</span>`; });
+        }
+
+        if (movieData.age_rating || movieData.age) {
+            badgesHtml += `<span class="badge">${movieData.age_rating || movieData.age}</span>`;
+        }
+
+        document.getElementById('badges-row').innerHTML = badgesHtml;
+
+        let rawRate = movieData.rating;
+        let displayRate = null;
+        if (rawRate && rawRate !== "N/A") {
+            const n = parseFloat(rawRate);
+            if (!isNaN(n)) {
+                displayRate = n.toFixed(1);
+                document.getElementById('d-rate').innerText = displayRate;
+                document.getElementById('rating-row').style.display = 'flex';
+            }
+        }
+
+        const allLinks = currentPlayingType === 'series' || currentPlayingType === 'anime'
+            ? (movieData.seasons?.[0]?.episodes?.[0]?.video_links || [])
+            : (movieData.video_links || []);
+
+        const allAudio = currentPlayingType === 'series' || currentPlayingType === 'anime'
+            ? (movieData.seasons?.[0]?.episodes?.[0]?.audio_links || [])
+            : (movieData.audio_links || []);
+
+        const uniqueQualities = [...new Set(allLinks.map(l => (l.label || 'HD')))];
+        const uniqueAudio = [...new Set(allAudio.map(a => (a.label || 'Hindi')))];
+        const sourceText = movieData.source || movieData.format || movieData.release_type || movieData.stream_type || movieData.quality_source || 'WEB-DL';
+
+        if(uniqueQualities.length) document.getElementById('d-quality').innerText = uniqueQualities[0];
+        if(uniqueAudio.length) document.getElementById('d-audio').innerText = uniqueAudio[0];
+
+        document.getElementById('dt-title-head').innerText = currentPlayingType === 'series' ? 'Series Details' : 'Movie Details';
+
+        // Redesigned Crunchyroll Grid Build
+        let gridHtml = '';
+        const addTile = (lbl, val, isFullWidth = false) => {
+            if(val) {
+                gridHtml += `
+                    <div class="spec-tile ${isFullWidth ? 'full-width' : ''}">
+                        <span class="spec-lbl">${lbl}</span>
+                        <span class="spec-val">${val}</span>
+                    </div>
+                `;
+            }
+        };
+
+        addTile('Title', movieData.title, true);
+        if(displayRate) addTile('Rating', displayRate);
+        addTile('Source', sourceText);
+        if(uniqueAudio.length) addTile('Audio Track', uniqueAudio.join(' / '));
+        addTile('Release Year', movieData.year);
+        if(uniqueQualities.length) addTile('Resolution', uniqueQualities.join(' | '), true);
+
+        if(movieData.cast) {
+            gridHtml += `
+                <div class="spec-tile cast-tile full-width">
+                    <span class="spec-lbl">Starring Cast</span>
+                    <span class="spec-val">${movieData.cast}</span>
+                </div>
+            `;
+        }
+
+        document.getElementById('dynamic-info-grid').innerHTML = gridHtml;
+
+        const trailerUrl = movieData.trailer || movieData.trailer_url;
+        if (!trailerUrl) { document.getElementById('btn-play-trailer').style.display = 'none'; }
+
+        if (currentPlayingType === 'series' || currentPlayingType === 'anime') {
+            document.getElementById('series-selector').style.display = 'block';
+            if(movieData.seasons) { renderSeasonTabs(); renderEpisodeList(); }
+        } else {
+            document.getElementById('btn-play-movie').style.display = 'flex';
+        }
+
+        if (movieData.screenshots?.length > 0) {
+            document.getElementById('screenshots-section').style.display = 'block';
+            document.getElementById('ss-grid').innerHTML = movieData.screenshots.map(url => `<div class="ss-card"><img src="${url}" loading="lazy" onload="this.style.opacity=1"></div>`).join('');
+        }
+
+        triggerEntranceTransitions();
+    }
+
+    // ── ADVANCED ANIME.JS ENTRANCE MATRIX ──
+    function triggerEntranceTransitions() {
+        const skeletonUi = document.getElementById('skeleton-ui');
+        const realUi = document.getElementById('real-ui');
+        
+        realUi.style.display = 'block';
+        skeletonUi.style.display = 'none';
+
+        if (typeof anime !== 'undefined') {
+            anime.timeline({
+                easing: 'easeOutQuart',
+                duration: 800
+            })
+            .add({
+                targets: '#real-ui',
+                opacity: [0, 1],
+                duration: 300
+            })
+            .add({
+                targets: '#bg-backdrop',
+                opacity: [0, 0.35],
+                duration: 1000
+            }, '-=300')
+            .add({
+                targets: '#poster-element',
+                scale: [0.9, 1],
+                opacity: [0, 1],
+                duration: 600
+            }, '-=800')
+            .add({
+                targets: ['.d-title', '#badges-row', '#rating-row', '#desc'],
+                translateY: [25, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(100)
+            }, '-=600')
+            .add({
+                targets: '.action-row-new > *',
+                translateY: [15, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(80)
+            }, '-=600')
+            .add({
+                targets: ['#series-selector', '#dt-title-head', '.spec-tile', '#screenshots-section', '#telegram-vip-card'],
+                translateY: [20, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(80)
+            }, '-=650');
+        } else {
+            // Bulletproof Fallback Override if anime.js fails to initialize (Prevents Blank Screen)
+            realUi.style.opacity = '1';
+            const targets = realUi.querySelectorAll('.poster-container, .d-title, .badges-row, .rating-row, .m-desc, .btn-main, .btn-icon, #series-selector, .sec-title, .spec-tile, .screenshots-container, .tg-card');
+            targets.forEach(el => {
+                el.style.opacity = '1';
+                el.style.transform = 'none';
+            });
+        }
+    }
+
+    window.changeSeason = function(index) {
+        currentSeasonIndex = index;
+        document.getElementById('s-title-text').innerText = movieData.seasons[index].season_title || `Season ${index + 1}`;
+        renderSeasonTabs(); renderEpisodeList();
+    };
+
+    function renderSeasonTabs() {
+        if(movieData.seasons.length <= 1) {
+            document.getElementById('season-tabs').style.display = 'none';
+            return;
+        }
+        document.getElementById('season-tabs').innerHTML = movieData.seasons.map((s, i) =>
+            `<button class="season-btn ${i === currentSeasonIndex ? 'active' : ''}" onclick="window.changeSeason(${i})">${s.season_title || 'S'+(i+1)}</button>`
+        ).join('');
+    }
+
+    function renderEpisodeList() {
+        const epListDiv = document.getElementById('episode-list');
+        const season = movieData.seasons[currentSeasonIndex];
+        if (!season?.episodes) return;
+
+        epListDiv.innerHTML = season.episodes.map((ep, i) => {
+            const fallback = movieData.backdrop || movieData.poster || '';
+            const epImg = ep.ep_thumb || fallback;
+            const titleStr = `${i + 1}. ${ep.ep_title || 'Episode ' + (i+1)}`;
+            const epDesc = ep.ep_desc ? `<p class="ep-desc-text">${ep.ep_desc}</p>` : '';
+            return `<div class="ep-card" onclick="window.startEpisode(${i})">
+                <div class="ep-thumb">
+                    <img src="${epImg}" loading="lazy">
+                    <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                </div>
+                <div class="ep-info">
+                    <div class="ep-title">${titleStr}</div>
+                    ${epDesc}
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    window.startPlay = function() {
+        if (!currentUser) {
+            setTimeout(() => { window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`; }, 1000);
+            return;
+        }
+        if (!movieData?.video_links?.length) { showToast("Not available yet!"); return; }
+        window.location.href = `player.html?id=${movieId}`;
+    };
+
+    window.startEpisode = function(epIndex) {
+        if (!currentUser) {
+            showToast("Login to watch.");
+            setTimeout(() => { window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`; }, 1200);
+            return;
+        }
+        const ep = movieData.seasons[currentSeasonIndex].episodes[epIndex];
+        if (!ep?.video_links?.length) return showToast("Video not available!");
+        window.location.href = `player.html?id=${movieId}&s=${currentSeasonIndex}&e=${epIndex}`;
+    };
+
+    // ── INLINE TRAILER CONTROLS SYSTEM ──
+    window.toggleTrailer = function() {
+        if(isTrailerOpen) {
+            closeInlineTrailer();
+            return;
+        }
+
+        const segment = document.getElementById('inline-trailer-player');
+        const container = document.getElementById('inline-media-container');
+        const triggerBtn = document.getElementById('btn-play-trailer');
+
+        let trailerUrl = movieData.trailer || movieData.trailer_url;
+        if(!trailerUrl) { showToast("Trailer asset not found!"); return; }
+
+        isTrailerOpen = true;
+        triggerBtn.classList.add('active-trailer');
+        triggerBtn.innerHTML = `<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Close Trailer`;
+
+        let ytId = getYoutubeId(trailerUrl);
+        isModalMuted = false;
+
+        segment.classList.add('active');
+
+        let rawTitle = movieData.title || "Media";
+        let displayTrailerTitle = rawTitle.length > 25 ? rawTitle.substring(0, 22) + "..." : rawTitle;
+
+        if (ytId) {
+            container.innerHTML = `
+                <div class="player-top-bar">
+                    <span class="trailer-lbl">${displayTrailerTitle} / Trailer</span>
+                </div>
+                <iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0&controls=1" allow="autoplay; encrypted-media"></iframe>
+            `;
+            setTimeout(() => { segment.classList.add('show-controls'); }, 100);
+        } else {
+            container.innerHTML = `
+                <div class="player-top-bar">
+                    <span class="trailer-lbl">${displayTrailerTitle} / Trailer</span>
+                </div>
+                <div class="player-tap-layer" onclick="triggerControlsVisibility()"></div>
+                <video id="inline-html5-video" src="${trailerUrl}" autoplay playsinline></video>
+                <div class="html5-controls">
+                    <button class="play-pause-btn" id="play-pause-btn" onclick="togglePlayPause()"></button>
+                    <div class="progress-container" id="progress-container">
+                        <div class="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
+                    </div>
+                    <div class="time-display" id="time-display">0:00 / 0:00</div>
+                    <button class="inline-mute-btn" id="inline-mute-btn" onclick="toggleMuteHtml5()"></button>
+                </div>
+            `;
+            initHtml5Controls();
+        }
+    };
+
+    function initHtml5Controls() {
+        customVideoElement = document.getElementById('inline-html5-video');
+        const segment = document.getElementById('inline-trailer-player');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = document.getElementById('progress-container');
+        const timeDisplay = document.getElementById('time-display');
+
+        isPlaying = true;
+        updatePlayIcon();
+        updateMuteIconUI();
+
+        segment.classList.add('show-controls');
+        resetControlsTimer();
+
+        customVideoElement.addEventListener('timeupdate', () => {
+            if(!isDraggingTimeline && customVideoElement) {
+                const percent = (customVideoElement.currentTime / customVideoElement.duration) * 100;
+                progressBar.style.width = `${percent}%`;
+                timeDisplay.innerText = `${formatTime(customVideoElement.currentTime)} / ${formatTime(customVideoElement.duration)}`;
+            }
+        });
+
+        customVideoElement.addEventListener('ended', () => { isPlaying = false; updatePlayIcon(); segment.classList.add('show-controls'); });
+
+        const updateProgress = (e) => {
+            const rect = progressContainer.getBoundingClientRect();
+            let pos = (e.clientX - rect.left) / rect.width;
+            pos = Math.max(0, Math.min(1, pos));
+            progressBar.style.width = `${pos * 100}%`;
+            customVideoElement.currentTime = pos * customVideoElement.duration;
+        };
+
+        progressContainer.addEventListener('pointerdown', (e) => {
+            isDraggingTimeline = true;
+            clearTimeout(controlsTimer);
+            progressContainer.setPointerCapture(e.pointerId);
+            updateProgress(e);
+        });
+
+        progressContainer.addEventListener('pointermove', (e) => {
+            if(isDraggingTimeline) updateProgress(e);
+        });
+
+        progressContainer.addEventListener('pointerup', (e) => {
+            isDraggingTimeline = false;
+            progressContainer.releasePointerCapture(e.pointerId);
+            resetControlsTimer();
+        });
+    }
+
+    window.triggerControlsVisibility = function() {
+        const segment = document.getElementById('inline-trailer-player');
+        if(segment.classList.contains('show-controls')) {
+            segment.classList.remove('show-controls');
+            clearTimeout(controlsTimer);
+        } else {
+            segment.classList.add('show-controls');
+            resetControlsTimer();
+        }
+    };
+
+    function resetControlsTimer() {
+        clearTimeout(controlsTimer);
+        if(!isDraggingTimeline && isPlaying) {
+            controlsTimer = setTimeout(() => {
+                const segment = document.getElementById('inline-trailer-player');
+                if(segment) segment.classList.remove('show-controls');
+            }, 3000);
+        }
+    }
+
+    window.togglePlayPause = function() {
+        if(!customVideoElement) return;
+        if(customVideoElement.paused) {
+            customVideoElement.play();
+            isPlaying = true;
+            resetControlsTimer();
+        } else {
+            customVideoElement.pause();
+            isPlaying = false;
+            clearTimeout(controlsTimer);
+        }
+        updatePlayIcon();
+    };
+
+    function updatePlayIcon() {
+        const btn = document.getElementById('play-pause-btn');
+        if(!btn) return;
+        btn.innerHTML = isPlaying
+            ? '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>'
+            : '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+    }
+
+    window.toggleMuteHtml5 = function() {
+        if(!customVideoElement) return;
+        isModalMuted = !isModalMuted;
+        customVideoElement.muted = isModalMuted;
+        updateMuteIconUI();
+        resetControlsTimer();
+    };
+
+    function updateMuteIconUI() {
+        const btn = document.getElementById('inline-mute-btn');
+        if(!btn) return;
+        btn.innerHTML = isModalMuted
+            ? '<svg class="svg-icon" viewBox="0 0 24 24" style="width:16px; height:16px; fill:#fff; stroke:#fff;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>'
+            : '<svg class="svg-icon" viewBox="0 0 24 24" style="width:16px; height:16px; fill:#fff; stroke:#fff;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+    }
+
+    window.closeInlineTrailer = function() {
+        const segment = document.getElementById('inline-trailer-player');
+        const container = document.getElementById('inline-media-container');
+        const triggerBtn = document.getElementById('btn-play-trailer');
+
+        isTrailerOpen = false;
+        clearTimeout(controlsTimer);
+
+        triggerBtn.classList.remove('active-trailer');
+        triggerBtn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play Trailer`;
+
+        segment.classList.remove('active', 'show-controls');
+        if(customVideoElement) customVideoElement.pause();
+
+        setTimeout(() => {
+            container.innerHTML = '';
+            customVideoElement = null;
+        }, 400);
+    };
+</script>
+</body>
+</html>

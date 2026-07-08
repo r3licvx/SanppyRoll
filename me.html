@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Account - SanppyRoll</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Anime.js Required for premium motion aesthetics -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+    <style>
+        :root {
+            --accent: #F47521;
+            --bg-main: #000000;
+            --bg-card: #1c1c1e;
+            --text-muted: #8e8e93;
+        }
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; 
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+            user-select: none; outline: none;
+        }
+
+        body {
+            background-color: var(--bg-main); color: #ffffff;
+            overflow-x: hidden; scroll-behavior: smooth; min-height: 100vh;
+        }
+
+        /* ── HEADER BLUR MODIFICATION ── */
+        .hdr {
+            position: sticky; top: 0; left: 0; right: 0; height: 64px; z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 5%;
+            background: rgba(0, 0, 0, 0.4); 
+            backdrop-filter: blur(35px) saturate(180%); -webkit-backdrop-filter: blur(35px) saturate(180%);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            opacity: 0; /* Animated on load */
+        }
+        .hdr-left { display: flex; align-items: center; gap: 12px; }
+        
+        .back-btn {
+            background: transparent; border: none;
+            display: flex; align-items: center; justify-content: center; color: #fff;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); font-size: 20px;
+            padding: 5px 10px 5px 0;
+        }
+        .back-btn:hover { color: var(--accent); transform: translateX(-5px); }
+
+        .hdr-title { font-size: 16px; font-weight: 700; letter-spacing: 0.3px; display: flex; align-items: center; gap: 8px;}
+        .logout-hdr-btn {
+            background: rgba(255,59,48,0.1); border: 1px solid rgba(255,59,48,0.2);
+            color: #ff3b30; width: 38px; height: 38px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; font-size: 15px;
+        }
+        .logout-hdr-btn:active { transform: scale(0.9); }
+
+        .page-loader {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; align-items: center; justify-content: center; transition: opacity 0.3s;
+        }
+        .spin {
+            width: 40px; height: 40px; border: 3px solid rgba(244,117,33,0.2);
+            border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .content-wrapper { padding: 25px 5% 50px; display: flex; flex-direction: column; gap: 30px; }
+        .sec-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; color: #fff; display: flex; align-items: center; gap: 8px; }
+
+        .error-msg { color: #ff453a; font-size: 12px; font-weight: 600; display: none; margin-left: 2px;}
+
+        .history-group { margin-bottom: 30px; }
+        .group-header { font-size: 16px; color: #e1e6eb; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;}
+        .group-header i { color: var(--accent); }
+
+        .history-card { 
+            display: flex; gap: 16px; background: rgba(255, 255, 255, 0.02); 
+            border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 16px; 
+            padding: 12px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s ease; position: relative;
+            overflow: hidden;
+        }
+        .history-card:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(244, 117, 33, 0.3); }
+        
+        .history-thumb { position: relative; width: 140px; aspect-ratio: 16/9; flex-shrink: 0; border-radius: 10px; overflow: hidden; background: #111; }
+        .history-thumb.movie-thumb { width: 90px; aspect-ratio: 2/3; }
+        .history-thumb img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: 0.4s ease; }
+        
+        .play-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.3s ease; backdrop-filter: blur(2px); }
+        .history-card:hover .play-overlay { opacity: 1; }
+        .play-overlay i { font-size: 32px; color: #fff; }
+
+        .h-progress-bg { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: rgba(255,255,255,0.2); }
+        .h-progress-fill { height: 100%; background: var(--accent); }
+        
+        .history-info { flex: 1; display: flex; flex-direction: column; justify-content: center; overflow: hidden; padding-right: 40px; }
+        .h-badge { font-size: 11px; color: #fff; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; background: rgba(244, 117, 33, 0.8); padding: 3px 8px; border-radius: 6px; width: fit-content;}
+        .h-title { font-size: 16px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+        .h-desc { font-size: 13px; color: rgba(255,255,255,0.5); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .remove-history-btn {
+            position: absolute; right: 12px; top: 12px;
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #8e8e93;
+            width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; z-index: 10;
+        }
+        .remove-history-btn:hover { background: rgba(255,59,48,0.8); color: #fff; }
+
+        .reviews-list { display: flex; flex-wrap: wrap; gap: 12px; }
+        .my-review-card { width: 100%; background: rgba(20, 20, 25, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .rev-movie-title { font-size: 14px; font-weight: 800; color: var(--accent);}
+        .rev-stars { color: #f5c518; font-size: 12px; letter-spacing: 2px;}
+        .rev-text { font-size: 13px; color: #e1e6eb; }
+
+        .sub-card {
+            background: rgba(255,255,255,0.03); border: 1.5px solid rgba(255,255,255,0.08);
+            border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px;
+        }
+        .sub-status-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .sub-plan-info { display: flex; align-items: center; gap: 12px; }
+        .sub-plan-label { font-size: 18px; font-weight: 900; color: #fff;}
+        .sub-plan-sub { font-size: 12px; color: #8e8e93; margin-top: 2px; }
+        .sub-free-dot { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #34c759; font-weight: 700; }
+        .sub-free-dot::before { content: ''; width: 7px; height: 7px; background: #34c759; border-radius: 50%; box-shadow: 0 0 8px rgba(52,199,89,0.6); }
+        .sub-features { display: flex; flex-direction: column; gap: 8px; }
+        .sf { display: flex; align-items: center; gap: 8px; font-size: 13px; color: rgba(255,255,255,0.9); }
+        .sf i { color: #34c759; font-size: 12px; width: 14px; }
+        .upgrade-btn {
+            background: linear-gradient(135deg, #F47521, #ff4500);
+            color: #fff; border: none; padding: 14px; border-radius: 12px;
+            font-size: 15px; font-weight: 900; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        /* ── HERO PROFILE & ENTRY ANIMATION ── */
+        .profile-hero {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 20px; padding: 28px 20px 22px;
+            display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;
+            opacity: 0; transform: scale(0.95); /* Handled by Anime.js */
+        }
+        
+        .profile-avatar-wrap {
+            position: relative; display: inline-block; width: 88px; height: 88px; margin-bottom: 5px;
+        }
+        .profile-avatar-box {
+            width: 82px; height: 82px; border-radius: 50%;
+            border: 3px solid var(--accent); display: block; overflow: hidden;
+            position: relative; background: #1a1a1a; margin: 0 auto;
+        }
+        .avatar-blur-bg {
+            position: absolute; inset: 0; background-size: cover; background-position: center;
+            filter: blur(8px); transform: scale(1.2); opacity: 0.6; z-index: 1;
+        }
+        .profile-avatar {
+            width: 100%; height: 100%; object-fit: scale-down; position: relative; z-index: 2; display: block;
+        }
+        .profile-avatar-fallback {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            font-size: 34px; font-weight: 900; color: #fff;
+            background: linear-gradient(135deg, var(--accent), #e00073); position: relative; z-index: 2;
+        }
+        .avatar-edit-trigger {
+            position: absolute; bottom: 0; right: 0; background: var(--accent);
+            border: 2px solid #000; color: #fff; width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; z-index: 10;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .avatar-edit-trigger:active { transform: scale(0.85); }
+
+        .profile-email { font-size: 13px; color: #8e8e93; }
+        .profile-sub-badge {
+            background: rgba(52, 199, 89, 0.15); border: 1px solid rgba(52, 199, 89, 0.4);
+            color: #34c759; padding: 5px 14px; border-radius: 20px;
+            font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;
+        }
+
+        .info-box {
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px; overflow: hidden; opacity: 0;
+        }
+        .info-box-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 13px 16px; font-size: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .info-box-row:last-child { border-bottom: none; }
+        .info-box-lbl { color: #8e8e93; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .info-box-lbl i { width: 14px; text-align: center; font-size: 13px; }
+        .info-box-val { font-weight: 700; color: #fff; font-size: 13px; text-align: right; }
+
+        .hero-name-row { display: flex; align-items: center; gap: 6px; margin-top: 5px;}
+        .hero-name-input {
+            background: transparent; border: none; color: #fff; font-size: 21px;
+            font-weight: 900; outline: none; text-align: center; max-width: 220px; pointer-events: none;
+            border-bottom: 1px solid transparent; transition: 0.2s;
+        }
+        .hero-name-row.editing .hero-name-input {
+            pointer-events: auto; border-bottom-color: var(--accent);
+        }
+        .hero-edit-btn { background: transparent; border: none; color: #8e8e93; font-size: 15px; cursor: pointer; padding: 4px; }
+        .hero-edit-btn.editing-mode { color: #34c759; }
+
+        /* ── MODALS ── */
+        .del-modal-overlay {
+            position: fixed; inset: 0; z-index: 3000;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .del-modal-overlay.active { opacity: 1; visibility: visible; }
+        .del-modal-box {
+            background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 25px 20px 20px; width: 85%; max-width: 300px;
+            text-align: center; transform: scale(0.9) translateY(10px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .del-modal-overlay.active .del-modal-box { transform: scale(1) translateY(0); }
+        .del-modal-icon { font-size: 38px; margin-bottom: 15px; color: #ff3b30;}
+        .del-modal-title { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+        .del-modal-sub { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+        .del-modal-actions { display: flex; gap: 10px; }
+        .del-modal-cancel { flex: 1; background: rgba(255,255,255,0.08); border: none; color: #fff; padding: 12px; border-radius: 12px; cursor: pointer;}
+        .del-modal-confirm { flex: 1; background: #ff3b30; border: none; color: #fff; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer;}
+
+        .editor-overlay {
+            position: fixed; inset: 0; z-index: 3500; background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .editor-overlay.active { opacity: 1; visibility: visible; }
+        .editor-box {
+            background: var(--bg-card); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px; padding: 25px 20px; width: 90%; max-width: 360px;
+            display: flex; flex-direction: column; gap: 16px; box-shadow: 0 20px 45px rgba(0,0,0,0.7);
+        }
+        .editor-header h3 { font-size: 16px; font-weight: 700; color: #fff; text-align: center; }
+        .input-group { display: flex; flex-direction: column; gap: 6px; }
+        .input-group label { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-left: 2px;}
+        
+        input[type="search"]::-webkit-search-decoration,
+        input[type="search"]::-webkit-search-cancel-button,
+        input[type="search"]::-webkit-search-results-button,
+        input[type="search"]::-webkit-search-results-decoration {
+            -webkit-appearance: none;
+            display: none;
+        }
+
+        .editor-input {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+            color: #fff; padding: 12px 16px; border-radius: 12px; font-size: 13px; transition: 0.2s;
+            user-select: text !important; -webkit-user-select: text !important;
+            -webkit-touch-callout: default !important;
+        }
+        .editor-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.08); }
+        
+        .help-link-btn {
+            font-size: 12px; color: var(--accent); font-weight: 700; background: none; border: none;
+            text-align: left; width: fit-content; cursor: pointer; padding: 4px 2px; transition: 0.2s;
+        }
+        .help-link-btn:hover { opacity: 0.8; }
+
+        .editor-actions { display: flex; gap: 10px; margin-top: 5px; }
+        .editor-btn-cancel { flex: 1; background: rgba(255,255,255,0.06); border: none; color: #fff; padding: 12px; border-radius: 12px; font-size: 13px; cursor: pointer; }
+        .editor-btn-save { flex: 1; background: var(--accent); border: none; color: #fff; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;}
+
+        .soon-overlay {
+            position: fixed; inset: 0; z-index: 4000; background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .soon-overlay.active { opacity: 1; visibility: visible; }
+        .soon-box {
+            background: #151518; border: 1px solid rgba(244,117,33,0.3);
+            border-radius: 24px; padding: 35px 25px; width: 85%; max-width: 320px;
+            text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+        }
+        .soon-icon-wrap {
+            width: 64px; height: 64px; background: rgba(244,117,33,0.1); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
+        }
+        .soon-icon-wrap i { font-size: 28px; color: var(--accent); }
+        .soon-box h2 { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 8px; letter-spacing: -0.2px;}
+        .soon-box p { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 22px; }
+        .soon-close-btn {
+            background: #fff; color: #000; border: none; width: 100%; padding: 12px;
+            border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s;
+        }
+        .soon-close-btn:active { transform: scale(0.97); }
+
+        /* ── REMODELLED CUSTOM POPUP PLAYER ── */
+        .help-video-overlay {
+            position: fixed; inset: 0; z-index: 5000; 
+            background: rgba(0,0,0,0.5); 
+            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .help-video-overlay.active { opacity: 1; visibility: visible; }
+        
+        .video-box-wrapper {
+            width: 82%; max-width: 310px; aspect-ratio: 9/16; background: #000;
+            border-radius: 22px; border: 2.5px solid var(--accent); position: relative;
+            overflow: hidden; transform: scale(0.88); transition: 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+        .help-video-overlay.active .video-box-wrapper { transform: scale(1); }
+        
+        .video-box-wrapper video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* Loader logic (Avoid overlapping with buttons) */
+        .v-loader {
+            position: absolute; inset: 0; z-index: 5010;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+            transition: opacity 0.3s ease; pointer-events: none;
+        }
+        .v-loader.hidden { opacity: 0; }
+
+        /* Premium Center Play / Pause Icon */
+        .v-center-play {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            width: 58px; height: 58px; border-radius: 50%;
+            background: rgba(244, 117, 33, 0.9); border: none; color: #fff;
+            font-size: 18px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 5005; 
+            transition: opacity 0.3s ease, transform 0.2s ease, visibility 0.3s;
+            box-shadow: 0 4px 15px rgba(244, 117, 33, 0.4);
+        }
+        .v-center-play:active { transform: translate(-50%, -50%) scale(0.9); }
+        .v-center-play.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        /* Top controls for Fullscreen option */
+        .v-top-controls {
+            position: absolute; top: 0; left: 0; right: 0;
+            padding: 15px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            display: flex; justify-content: flex-end; z-index: 5005;
+            transition: opacity 0.3s ease, visibility 0.3s;
+        }
+        .v-top-controls.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        
+        .v-fs-btn {
+            background: none; border: none; color: #fff; font-size: 16px; cursor: pointer;
+            width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
+        }
+        .v-fs-btn:active { transform: scale(0.85); }
+
+        /* Bottom Controls (Timeline & Audio options) */
+        .v-bottom-controls {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.4) 70%, transparent);
+            padding: 30px 15px 15px; display: flex; flex-direction: column; gap: 12px;
+            z-index: 5005; transition: opacity 0.3s ease, visibility 0.3s;
+        }
+        .v-bottom-controls.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        .v-time-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+        .v-current-time, .v-total-time {
+            font-size: 11px; color: #e1e6eb; font-weight: 700; min-width: 32px; text-align: center;
+        }
+
+        .v-timeline {
+            flex: 1; height: 4px; background: rgba(255,255,255,0.25); border-radius: 2px;
+            position: relative; cursor: pointer; display: flex; align-items: center;
+        }
+        .v-progress { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; }
+        .v-handle {
+            width: 10px; height: 10px; background: #fff; border-radius: 50%;
+            position: absolute; left: 0%; transform: translateX(-50%); transition: transform 0.1s;
+        }
+        .v-timeline:hover .v-handle { transform: translateX(-50%) scale(1.3); }
+
+        .v-buttons-row { display: flex; align-items: center; justify-content: flex-start; }
+        .v-mute-btn {
+            background: none; border: none; color: #fff; font-size: 16px; cursor: pointer;
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
+        }
+        .v-mute-btn:active { transform: scale(0.85); }
+
+        /* Native Fullscreen adjustments to keep layout perfect */
+        .video-box-wrapper:fullscreen {
+            width: 100vw; height: 100vh; max-width: none; border-radius: 0; border: none;
+        }
+        .video-box-wrapper:-webkit-full-screen {
+            width: 100vw; height: 100vh; max-width: none; border-radius: 0; border: none;
+        }
+
+        #toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(15,15,15,0.95); backdrop-filter: blur(10px); border: 1px solid var(--accent); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); pointer-events: none;}
+        #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        @media (max-width: 600px) {
+            .history-thumb { width: 120px; }
+            .history-thumb.movie-thumb { width: 80px; }
+            .history-info { padding-right: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-loader" id="main-loader"><div class="spin"></div></div>
+    <div id="toast">Message</div>
+
+    <div class="del-modal-overlay" id="del-modal">
+        <div class="del-modal-box">
+            <div class="del-modal-icon"><i class="fas fa-trash-alt"></i></div>
+            <div class="del-modal-title">Remove from History?</div>
+            <div class="del-modal-sub">This video will be permanently removed from your recently watched list.</div>
+            <div class="del-modal-actions">
+                <button class="del-modal-cancel" onclick="closeDelModal()">Cancel</button>
+                <button class="del-modal-confirm" onclick="confirmDeleteHistory()">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="editor-overlay" id="editor-modal">
+        <div class="editor-box">
+            <div class="editor-header">
+                <h3>Edit Profile</h3>
+            </div>
+            <div class="input-group">
+                <label>Display Name</label>
+                <input type="search" id="edit-name-field" class="editor-input" placeholder="Enter your name" autocomplete="off" spellcheck="false">
+                <span class="error-msg" id="edit-name-error"></span>
+            </div>
+            <div class="input-group">
+                <label>Avatar Image / GIF Link</label>
+                <input type="search" id="edit-avatar-field" class="editor-input" placeholder="https://example.com/image.png" autocomplete="off" spellcheck="false">
+                <button class="help-link-btn" onclick="openHelpVideoModal()">How to get link?</button>
+            </div>
+            <div class="editor-actions">
+                <button class="editor-btn-cancel" onclick="closeEditorModal()">Cancel</button>
+                <button class="editor-btn-save" id="save-profile-btn" onclick="saveProfileData()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── RECONSTRUCTED CINEMATIC PLAYER SCREEN ── -->
+    <div class="help-video-overlay" id="help-video-overlay" onclick="closeHelpVideoModal(event)">
+        <div class="video-box-wrapper" onclick="event.stopPropagation()">
+            <div class="v-loader" id="v-loader">
+                <div class="spin"></div>
+            </div>
+
+            <video id="help-player" playsinline loop>
+                <source src="" type="video/mp4"> 
+            </video>
+
+            <div class="v-top-controls" id="v-top-controls">
+                <button class="v-fs-btn" id="v-fs-btn" onclick="toggleFullscreenHelp()">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+
+            <button class="v-center-play" id="v-center-play" onclick="togglePlayHelp()">
+                <i class="fas fa-play"></i>
+            </button>
+
+            <div class="v-bottom-controls" id="v-bottom-controls">
+                <div class="v-time-row">
+                    <span class="v-current-time" id="v-current-time">00:00</span>
+                    <div class="v-timeline" id="v-timeline">
+                        <div class="v-progress" id="v-progress"></div>
+                        <div class="v-handle" id="v-handle"></div>
+                    </div>
+                    <span class="v-total-time" id="v-total-time">00:00</span>
+                </div>
+                <div class="v-buttons-row">
+                    <button class="v-mute-btn" id="v-mute-btn" onclick="toggleMuteHelp()">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="soon-overlay" id="soon-modal">
+        <div class="soon-box">
+            <div class="soon-icon-wrap">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            <h2>Premium Subscription</h2>
+            <p>Our premium automated billing framework is currently under deployment. Premium plans are launching shortly!</p>
+            <button class="soon-close-btn" onclick="toggleSoonModal(false)">Understood</button>
+        </div>
+    </div>
+
+    <header class="hdr" id="app-header">
+        <div class="hdr-left">
+            <div class="back-btn" onclick="history.back()"><i class="fa-solid fa-arrow-left"></i></div>
+            <div class="hdr-title"><i class="fa-solid fa-user-circle" style="color:var(--accent); font-size: 18px;"></i> Account</div>
+        </div>
+        <button class="logout-hdr-btn" id="logout-btn" onclick="triggerLogout()"><i class="fas fa-power-off"></i></button>
+    </header>
+
+    <div class="content-wrapper">
+        
+        <div id="basic-info-sec" class="profile-hero">
+            <div class="profile-avatar-wrap">
+                <div class="profile-avatar-box" id="avatar-display-box">
+                    <div class="avatar-blur-bg" id="avatar-blur-bg"></div>
+                    <div class="profile-avatar-fallback" id="avatar-fallback">?</div>
+                </div>
+                <div class="avatar-edit-trigger" onclick="openEditorModal()" title="Modify Profile"><i class="fa-solid fa-camera"></i></div>
+            </div>
+
+            <div class="hero-name-row">
+                <input type="text" id="username-display" class="hero-name-input" value="Loading..." readonly>
+            </div>
+            <div class="profile-email" id="email-val">...</div>
+            <div class="profile-sub-badge" id="profile-sub-badge"><i class="fas fa-circle-check"></i> Premium Unlocked</div>
+        </div>
+
+        <div class="info-box" id="general-info-box">
+            <div class="info-box-row">
+                <span class="info-box-lbl"><i id="provider-icon" class="fa-brands fa-google"></i> Login with</span>
+                <span class="info-box-val" id="provider-val">Google</span>
+            </div>
+            <div class="info-box-row">
+                <span class="info-box-lbl"><i class="fa-solid fa-calendar-days"></i> Member Since</span>
+                <span class="info-box-val" id="created-val">...</span>
+            </div>
+            <div class="info-box-row">
+                <span class="info-box-lbl"><i class="fa-solid fa-clock-rotate-left"></i> Last Seen</span>
+                <span class="info-box-val" id="last-login-val">...</span>
+            </div>
+        </div>
+
+        <div id="history-sec" style="display: none; opacity: 0;">
+            <div class="group-header"><i class="fa-solid fa-clock-rotate-left"></i> Recently Watched</div>
+            <div id="history-container"></div>
+        </div>
+
+        <div id="reviews-sec" style="display: none; opacity: 0;">
+            <div class="sec-title"><i class="fa-solid fa-star" style="color: #f5c518;"></i> My Reviews</div>
+            <div class="reviews-list" id="reviews-container"></div>
+        </div>
+
+        <div id="sub-sec" style="opacity: 0;">
+            <div class="sec-title"><i class="fa-solid fa-crown" style="color:#F47521;"></i> Subscription Plan</div>
+            <div id="sub-card-wrap">
+                <div class="sub-card">
+                    <div class="sub-status-row">
+                        <div class="sub-plan-info">
+                            <div>
+                                <div class="sub-plan-label">All-Access Free Pass</div>
+                                <div class="sub-plan-sub">Universal Feature Matrix</div>
+                            </div>
+                        </div>
+                        <div class="sub-free-dot">Activated</div>
+                    </div>
+                    <div class="sub-features">
+                        <div class="sf"><i class="fas fa-check"></i> Ultra HD Quality Streaming (4K/1080p/720p)</div>
+                        <div class="sf"><i class="fas fa-check"></i> Super-Fast Specialized Core Media Servers</div>
+                        <div class="sf"><i class="fas fa-check"></i> Dynamic Multi-Audio External Streams Access</div>
+                        <div class="sf"><i class="fas fa-check"></i> Authenticated Verified Interaction Badges</div>
+                    </div>
+                    <button class="upgrade-btn" onclick="toggleSoonModal(true)">
+                        <i class="fas fa-crown"></i> Go Premium Custom Tier
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── CUSTOM PLAYER LOGIC & EVENT LISTENERS ── -->
+    <script>
+        const helpOverlay = document.getElementById('help-video-overlay');
+        const helpPlayer = document.getElementById('help-player');
+        const vCenterPlayBtn = document.getElementById('v-center-play');
+        const vMuteBtn = document.getElementById('v-mute-btn');
+        const vTimeline = document.getElementById('v-timeline');
+        const vProgress = document.getElementById('v-progress');
+        const vHandle = document.getElementById('v-handle');
+        const vLoader = document.getElementById('v-loader');
+        const vControls = document.getElementById('v-bottom-controls');
+        const vTopControls = document.getElementById('v-top-controls');
+        const vWrapper = document.querySelector('.video-box-wrapper');
+        
+        let controlsTimeout;
+
+        // Auto-hide controls with mouse/touch interaction
+        function resetControls() {
+            vControls.classList.remove('hidden');
+            vTopControls.classList.remove('hidden');
+            vCenterPlayBtn.classList.remove('hidden');
+            clearTimeout(controlsTimeout);
+            
+            if (!helpPlayer.paused) {
+                controlsTimeout = setTimeout(() => {
+                    vControls.classList.add('hidden');
+                    vTopControls.classList.add('hidden');
+                    vCenterPlayBtn.classList.add('hidden');
+                }, 2500); 
+            }
+        }
+
+        vWrapper.addEventListener('mousemove', resetControls);
+        vWrapper.addEventListener('touchstart', resetControls);
+        vWrapper.addEventListener('click', resetControls);
+        
+        helpPlayer.addEventListener('play', resetControls);
+        helpPlayer.addEventListener('pause', () => {
+            vControls.classList.remove('hidden');
+            vTopControls.classList.remove('hidden');
+            vCenterPlayBtn.classList.remove('hidden');
+            clearTimeout(controlsTimeout);
+        });
+
+        // Safe visibility rules (Loader hides Play Button to avoid overlapping clashing UI)
+        helpPlayer.addEventListener('waiting', () => {
+            vLoader.classList.remove('hidden');
+            vCenterPlayBtn.classList.add('hidden');
+        });
+        helpPlayer.addEventListener('loadstart', () => {
+            vLoader.classList.remove('hidden');
+            vCenterPlayBtn.classList.add('hidden');
+        });
+        helpPlayer.addEventListener('playing', () => {
+            vLoader.classList.add('hidden');
+            vCenterPlayBtn.classList.remove('hidden');
+        });
+        helpPlayer.addEventListener('canplay', () => {
+            vLoader.classList.add('hidden');
+        });
+
+        window.openHelpVideoModal = function() {
+            helpOverlay.classList.add('active');
+            vLoader.classList.remove('hidden');
+            helpPlayer.src = "https://file-to-link-2-b9adb11c51b5.herokuapp.com/dl/6a4d18060ddf2aacbcba78a5"; 
+            helpPlayer.load();
+            helpPlayer.play().then(() => {
+                vCenterPlayBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                resetControls();
+            }).catch(() => {
+                vCenterPlayBtn.innerHTML = '<i class="fas fa-play"></i>';
+            });
+        };
+
+        window.closeHelpVideoModal = function(e) {
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                toggleFullscreenHelp();
+            }
+            helpOverlay.classList.remove('active');
+            helpPlayer.pause();
+            helpPlayer.src = "";
+            clearTimeout(controlsTimeout);
+        };
+
+        window.togglePlayHelp = function() {
+            if (helpPlayer.paused) {
+                helpPlayer.play();
+                vCenterPlayBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                helpPlayer.pause();
+                vCenterPlayBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+            resetControls();
+        };
+
+        window.toggleMuteHelp = function() {
+            if (helpPlayer.muted) {
+                helpPlayer.muted = false;
+                vMuteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            } else {
+                helpPlayer.muted = true;
+                vMuteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+            }
+        };
+
+        // Complete fullscreen API orchestration avoiding ugly black bars
+        window.toggleFullscreenHelp = function() {
+            const wrapper = document.querySelector('.video-box-wrapper');
+            const fsIcon = document.querySelector('#v-fs-btn i');
+            
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (wrapper.requestFullscreen) {
+                    wrapper.requestFullscreen();
+                } else if (wrapper.webkitRequestFullscreen) {
+                    wrapper.webkitRequestFullscreen();
+                }
+                if (fsIcon) fsIcon.className = 'fas fa-compress';
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+                if (fsIcon) fsIcon.className = 'fas fa-expand';
+            }
+        };
+
+        // Synchronize browser native full-screen change triggers
+        document.addEventListener('fullscreenchange', () => {
+            const fsIcon = document.querySelector('#v-fs-btn i');
+            if (fsIcon) {
+                fsIcon.className = document.fullscreenElement ? 'fas fa-compress' : 'fas fa-expand';
+            }
+        });
+        document.addEventListener('webkitfullscreenchange', () => {
+            const fsIcon = document.querySelector('#v-fs-btn i');
+            if (fsIcon) {
+                fsIcon.className = document.webkitFullscreenElement ? 'fas fa-compress' : 'fas fa-expand';
+            }
+        });
+
+        // Formatting digital time (00:00)
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "00:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+
+        helpPlayer.addEventListener('durationchange', () => {
+            document.getElementById('v-total-time').innerText = formatTime(helpPlayer.duration);
+        });
+
+        helpPlayer.addEventListener('timeupdate', () => {
+            if (helpPlayer.duration) {
+                const percentage = (helpPlayer.currentTime / helpPlayer.duration) * 100;
+                vProgress.style.width = percentage + '%';
+                vHandle.style.left = percentage + '%';
+                document.getElementById('v-current-time').innerText = formatTime(helpPlayer.currentTime);
+            }
+        });
+
+        helpPlayer.addEventListener('ended', () => {
+            vCenterPlayBtn.innerHTML = '<i class="fas fa-redo"></i>';
+            vCenterPlayBtn.classList.remove('hidden');
+            vControls.classList.remove('hidden');
+            vTopControls.classList.remove('hidden');
+        });
+
+        vTimeline.addEventListener('click', (e) => {
+            const rect = vTimeline.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const width = rect.width;
+            const newTime = (clickX / width) * helpPlayer.duration;
+            helpPlayer.currentTime = newTime;
+        });
+    </script>
+
+    <!-- ── SYSTEM CORE BACKEND LOGIC ── -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getDatabase, ref, get, set, child, remove, update } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDnmFVfVSCxXC9shWhz4dw06xtTNBA6vsU",
+            authDomain: "sanppyroll.firebaseapp.com",
+            databaseURL: "https://sanppyroll-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "sanppyroll",
+            storageBucket: "sanppyroll.firebasestorage.app",
+            messagingSenderId: "642736474886",
+            appId: "1:642736474886:web:f0e0e3c04101fddfe02c87"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const dbRef = ref(db);
+
+        let currentUser = null;
+        let currentUsername = "";
+        let allMoviesData = [];
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        window.toggleSoonModal = function(show) {
+            const modal = document.getElementById('soon-modal');
+            if(show) {
+                modal.classList.add('active');
+                anime({
+                    targets: '#soon-modal .soon-box',
+                    scale: [0.9, 1],
+                    opacity: [0, 1],
+                    duration: 400,
+                    easing: 'easeOutBack'
+                });
+            } else {
+                anime({
+                    targets: '#soon-modal .soon-box',
+                    scale: [1, 0.9],
+                    opacity: [1, 0],
+                    duration: 300,
+                    easing: 'easeInQuad',
+                    complete: () => {
+                        modal.classList.remove('active');
+                    }
+                });
+            }
+        };
+
+        // --- HIGH QUALITY STAGGERED ENTRANCE SCHEDULER ---
+        function triggerCinematicEntrance() {
+            // Fade-out loading screen smoothly
+            anime({
+                targets: '#main-loader',
+                opacity: 0,
+                duration: 500,
+                easing: 'easeOutQuad',
+                complete: () => {
+                    document.getElementById('main-loader').style.display = 'none';
+                }
+            });
+
+            // Clean, progressive rise dynamics
+            anime.timeline({
+                easing: 'easeOutQuart'
+            })
+            .add({
+                targets: '#app-header',
+                translateY: [-64, 0],
+                opacity: [0, 1],
+                duration: 650
+            })
+            .add({
+                targets: '#basic-info-sec',
+                scale: [0.93, 1],
+                opacity: [0, 1],
+                duration: 700
+            }, '-=400')
+            .add({
+                targets: '#general-info-box',
+                translateY: [20, 0],
+                opacity: [0, 1],
+                duration: 600
+            }, '-=500')
+            .add({
+                targets: '#history-sec, #reviews-sec, #sub-sec',
+                translateY: [25, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(120),
+                duration: 750
+            }, '-=400');
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.replace('login.html');
+            } else {
+                currentUser = user;
+                document.getElementById('email-val').innerText = user.email;
+                
+                if(user.metadata) {
+                    document.getElementById('created-val').innerText = new Date(user.metadata.creationTime).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+                    document.getElementById('last-login-val').innerText = new Date(user.metadata.lastSignInTime).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+                }
+                if(user.providerData && user.providerData.length > 0) {
+                    if(user.providerData[0].providerId === 'password') {
+                        document.getElementById('provider-val').innerText = 'Email ID';
+                        document.getElementById('provider-icon').className = 'fa-solid fa-envelope';
+                    }
+                }
+
+                await loadProfileData();
+                await fetchHistoryAndReviews();
+                
+                // Execute cinematic staggering entrance
+                triggerCinematicEntrance();
+            }
+        });
+
+        async function loadProfileData() {
+            try {
+                const profileSnap = await get(child(dbRef, `users/${currentUser.uid}/profile`));
+                let userProfile = profileSnap.exists() ? profileSnap.val() : {};
+                
+                currentUsername = userProfile.username || currentUser.displayName || currentUser.email.split('@')[0];
+                document.getElementById('username-display').value = currentUsername;
+
+                const avatarUrl = userProfile.avatarUrl || currentUser.photoURL || "";
+                renderAvatar(avatarUrl, currentUsername);
+            } catch(e) { console.error(e); }
+        }
+
+        function renderAvatar(url, name) {
+            const box = document.getElementById('avatar-display-box');
+            const blurBg = document.getElementById('avatar-blur-bg');
+            const fallback = document.getElementById('avatar-fallback');
+            
+            const existingImg = box.querySelector('.profile-avatar');
+            if(existingImg) existingImg.remove();
+
+            if (url) {
+                blurBg.style.backgroundImage = `url('${url}')`;
+                fallback.style.display = 'none';
+                
+                const img = document.createElement('img');
+                img.src = url;
+                img.className = 'profile-avatar';
+                img.alt = 'Profile';
+                img.referrerPolicy = 'no-referrer';
+                img.onerror = () => {
+                    img.remove();
+                    blurBg.style.backgroundImage = 'none';
+                    fallback.style.display = 'flex';
+                    fallback.innerText = name.charAt(0).toUpperCase();
+                };
+                box.appendChild(img);
+            } else {
+                blurBg.style.backgroundImage = 'none';
+                fallback.style.display = 'flex';
+                fallback.innerText = name.charAt(0).toUpperCase();
+            }
+        }
+
+        window.openEditorModal = function() {
+            document.getElementById('edit-name-field').value = currentUsername;
+            get(child(dbRef, `users/${currentUser.uid}/profile/avatarUrl`)).then((snap) => {
+                document.getElementById('edit-avatar-field').value = snap.exists() ? snap.val() : "";
+            });
+            document.getElementById('edit-name-error').style.display = 'none';
+            
+            const modal = document.getElementById('editor-modal');
+            modal.classList.add('active');
+            
+            // Pop elasticity on dialog
+            anime({
+                targets: '#editor-modal .editor-box',
+                scale: [0.9, 1],
+                opacity: [0, 1],
+                duration: 400,
+                easing: 'easeOutBack'
+            });
+        };
+
+        window.closeEditorModal = function() {
+            anime({
+                targets: '#editor-modal .editor-box',
+                scale: [1, 0.9],
+                opacity: [1, 0],
+                duration: 300,
+                easing: 'easeInQuad',
+                complete: () => {
+                    document.getElementById('editor-modal').classList.remove('active');
+                }
+            });
+        };
+
+        window.saveProfileData = async function() {
+            const newName = document.getElementById('edit-name-field').value.trim();
+            const newAvatar = document.getElementById('edit-avatar-field').value.trim();
+            const err = document.getElementById('edit-name-error');
+            const saveBtn = document.getElementById('save-profile-btn');
+
+            if(!newName) { err.innerText = "Name field validation failed."; err.style.display = 'block'; return; }
+            if(!/^[a-zA-Z0-9 ._-]+$/.test(newName)) { err.innerText = "Only letters, numbers, spaces, dots, underscores, and hyphens allowed!"; err.style.display = 'block'; return; }
+
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving';
+            saveBtn.style.pointerEvents = 'none';
+
+            try {
+                const lowerName = newName.toLowerCase();
+                if (lowerName !== currentUsername.toLowerCase()) {
+                    const checkSnap = await get(child(dbRef, `usernames/${lowerName}`));
+                    if (checkSnap.exists() && checkSnap.val() !== currentUser.uid) {
+                        err.innerText = "Username variant already claimed."; err.style.display = 'block';
+                        saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
+                        saveBtn.style.pointerEvents = 'auto';
+                        return;
+                    }
+                    if(currentUsername) await remove(ref(db, `usernames/${currentUsername.toLowerCase()}`));
+                    await set(ref(db, `usernames/${lowerName}`), currentUser.uid);
+                }
+
+                await update(ref(db, `users/${currentUser.uid}/profile`), { username: newName, avatarUrl: newAvatar });
+                await set(ref(db, `users/${currentUser.uid}/name`), newName);
+
+                currentUsername = newName;
+                document.getElementById('username-display').value = currentUsername;
+                renderAvatar(newAvatar, currentUsername);
+                
+                closeEditorModal();
+                showToast("Profile metrics updated!");
+            } catch(e) {
+                err.innerText = "Database mapping exception."; err.style.display = 'block';
+            } finally {
+                saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
+                saveBtn.style.pointerEvents = 'auto';
+            }
+        };
+
+        let _pendingDelMovieId = null;
+        let _pendingDelEpKey = null;
+
+        window.promptDeleteHistory = function(mId, epKey) {
+            _pendingDelMovieId = mId;
+            _pendingDelEpKey = epKey;
+            
+            const modal = document.getElementById('del-modal');
+            modal.classList.add('active');
+            
+            anime({
+                targets: '#del-modal .del-modal-box',
+                scale: [0.9, 1],
+                opacity: [0, 1],
+                duration: 400,
+                easing: 'easeOutBack'
+            });
+        };
+
+        window.closeDelModal = function() {
+            anime({
+                targets: '#del-modal .del-modal-box',
+                scale: [1, 0.9],
+                opacity: [1, 0],
+                duration: 300,
+                easing: 'easeInQuad',
+                complete: () => {
+                    document.getElementById('del-modal').classList.remove('active');
+                    _pendingDelMovieId = null;
+                    _pendingDelEpKey = null;
+                }
+            });
+        };
+
+        window.confirmDeleteHistory = async function() {
+            if(!_pendingDelMovieId || !_pendingDelEpKey) return;
+            try {
+                if (_pendingDelEpKey === 'movie') {
+                    await remove(ref(db, `users/${currentUser.uid}/progress/${_pendingDelMovieId}`));
+                } else {
+                    await remove(ref(db, `users/${currentUser.uid}/progress/${_pendingDelMovieId}/${_pendingDelEpKey}`));
+                }
+                showToast("Removed from architecture tracking.");
+                closeDelModal();
+                await fetchHistoryAndReviews(); 
+            } catch(e) { console.error(e); }
+        };
+
+        async function fetchHistoryAndReviews() {
+            try {
+                const [moviesSnap, progressSnap, reviewsSnap] = await Promise.all([
+                    get(child(dbRef, `movies`)),
+                    get(child(dbRef, `users/${currentUser.uid}/progress`)),
+                    get(child(dbRef, `reviews`))
+                ]);
+
+                if (moviesSnap.exists()) {
+                    const moviesObj = moviesSnap.val();
+                    allMoviesData = Object.keys(moviesObj).map(k => ({ id: k, ...moviesObj[k] }));
+                }
+
+                if (progressSnap.exists() && allMoviesData.length > 0) {
+                    const userProgress = progressSnap.val();
+                    let historyHtml = '';
+                    let allItems = [];
+
+                    for(const movieId in userProgress) {
+                        const movie = allMoviesData.find(m => m.id === movieId);
+                        if(!movie) continue;
+                        const prog = userProgress[movieId];
+                        
+                        if(movie.type === 'series') {
+                            for(const epKey in prog) {
+                                const epProg = prog[epKey];
+                                if(epProg.duration && (epProg.time / epProg.duration) * 100 > 1) {
+                                    const p = epKey.split('_'); 
+                                    const sIdx = parseInt(p[0].replace('s', ''));
+                                    const eIdx = parseInt(p[1].replace('e', ''));
+                                    const epData = movie.seasons && movie.seasons[sIdx] && movie.seasons[sIdx].episodes ? movie.seasons[sIdx].episodes[eIdx] : null;
+                                    
+                                    if(epData) {
+                                        allItems.push({
+                                            type: 'series', movieId: movie.id, epKey: epKey, sIdx: sIdx, eIdx: eIdx,
+                                            badge: `S${sIdx + 1} E${eIdx + 1}`, title: movie.title,
+                                            desc: epData.ep_title || `Episode ${eIdx + 1}`,
+                                            thumb: epData.ep_thumb || movie.backdrop || movie.poster,
+                                            percent: Math.min((epProg.time / epProg.duration) * 100, 100),
+                                            last_watched: epProg.last_watched || 0
+                                        });
+                                    }
+                                }
+                            }
+                        } else {
+                            if(prog.duration && (prog.time / prog.duration) * 100 > 1) {
+                                allItems.push({
+                                    type: 'movie', movieId: movie.id, title: movie.title,
+                                    desc: movie.description || 'No contextual synopsis available.',
+                                    poster: movie.poster, percent: Math.min((prog.time / prog.duration) * 100, 100),
+                                    last_watched: prog.last_watched || 0
+                                });
+                            }
+                        }
+                    }
+
+                    allItems.sort((a, b) => b.last_watched - a.last_watched);
+                    allItems.forEach(item => {
+                        if (item.type === 'series') {
+                            historyHtml += `
+                            <div class="history-card" onclick="window.location.href='player.html?id=${item.movieId}&s=${item.sIdx}&e=${item.eIdx}'">
+                                <div class="history-thumb">
+                                    <img src="${item.thumb}" loading="lazy">
+                                    <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
+                                    <div class="h-progress-bg"><div class="h-progress-fill" style="width: ${item.percent}%"></div></div>
+                                </div>
+                                <div class="history-info">
+                                    <span class="h-badge">${item.badge}</span>
+                                    <span class="h-title">${item.title}</span>
+                                    <p class="h-desc">${item.desc}</p>
+                                </div>
+                                <button class="remove-history-btn" onclick="event.stopPropagation(); promptDeleteHistory('${item.movieId}', '${item.epKey}')"><i class="fas fa-trash-alt"></i></button>
+                            </div>`;
+                        } else {
+                            historyHtml += `
+                            <div class="history-card" onclick="window.location.href='player.html?id=${item.movieId}'">
+                                <div class="history-thumb movie-thumb">
+                                    <img src="${item.poster}" loading="lazy">
+                                    <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
+                                    <div class="h-progress-bg"><div class="h-progress-fill" style="width: ${item.percent}%"></div></div>
+                                </div>
+                                <div class="history-info">
+                                    <span class="h-badge" style="background: rgba(255,255,255,0.1); color: #ccc;">MOVIE</span>
+                                    <span class="h-title">${item.title}</span>
+                                    <p class="h-desc">${item.desc}</p>
+                                </div>
+                                <button class="remove-history-btn" onclick="event.stopPropagation(); promptDeleteHistory('${item.movieId}', 'movie')"><i class="fas fa-trash-alt"></i></button>
+                            </div>`;
+                        }
+                    });
+
+                    if(historyHtml !== '') {
+                        document.getElementById('history-sec').style.display = 'block';
+                        document.getElementById('history-container').innerHTML = historyHtml;
+                    } else { document.getElementById('history-sec').style.display = 'none'; }
+                } else { document.getElementById('history-sec').style.display = 'none'; }
+
+                if (reviewsSnap.exists() && allMoviesData.length > 0) {
+                    const allReviewsObj = reviewsSnap.val();
+                    let myReviews = [];
+                    for(const mId in allReviewsObj) {
+                        if(allReviewsObj[mId][currentUser.uid]) {
+                            const movie = allMoviesData.find(m => m.id === mId);
+                            if(movie) myReviews.push({ movieTitle: movie.title, data: allReviewsObj[mId][currentUser.uid] });
+                        }
+                    }
+                    myReviews.sort((a, b) => b.data.timestamp - a.data.timestamp);
+                    if(myReviews.length > 0) {
+                        document.getElementById('reviews-sec').style.display = 'block';
+                        document.getElementById('reviews-container').innerHTML = myReviews.map(r => {
+                            const starsHtml = Array(5).fill(0).map((_,i) => `<i class="fa-solid fa-star" style="color: ${i < r.data.rating ? '#f5c518' : 'rgba(255,255,255,0.1)'}"></i>`).join('');
+                            return `
+                                <div class="my-review-card">
+                                    <div class="rev-movie-title">${r.movieTitle}</div>
+                                    <div class="rev-stars">${starsHtml}</div>
+                                    <div class="rev-text">"${r.data.text}"</div>
+                                </div>`;
+                        }).join('');
+                    }
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        window.triggerLogout = function() {
+            const btn = document.getElementById('logout-btn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            btn.style.pointerEvents = 'none';
+            setTimeout(() => {
+                signOut(auth).then(() => { window.location.replace('login.html'); })
+                .catch(() => { btn.innerHTML = '<i class="fas fa-power-off"></i>'; btn.style.pointerEvents = 'auto'; });
+            }, 800); 
+        };
+    </script>
+</body>
+</html>

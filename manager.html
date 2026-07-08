@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SanppyRoll Manager</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --accent:#F47521; --bg:#050508; --card:#111115; --card2:#1a1a20;
+            --border:rgba(255,255,255,0.07); --text:#fff; --muted:#8e8e93;
+            --green:#34c759; --red:#ff3b30; --blue:#0a84ff;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'SF Pro Display',-apple-system,sans-serif;outline:none;}
+        body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;padding-bottom:80px;}
+        body{display:none;}
+
+        /* Header */
+        .hdr{position:sticky;top:0;z-index:100;height:64px;padding:0 5%;display:flex;align-items:center;justify-content:space-between;background:rgba(5,5,8,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+        .hdr-left{display:flex;align-items:center;gap:12px;}
+        .hdr-logo{font-size:20px;font-weight:900;letter-spacing:-0.5px;}
+        .hdr-logo em{font-style:normal;color:var(--accent);}
+        .badge-admin{background:rgba(244,117,33,0.15);border:1px solid rgba(244,117,33,0.3);color:var(--accent);padding:4px 10px;border-radius:8px;font-size:11px;font-weight:800;letter-spacing:0.5px;}
+        .logout-btn{background:rgba(255,59,48,0.1);border:1px solid rgba(255,59,48,0.2);color:var(--red);padding:10px 14px;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:6px;}
+        .logout-btn:active{transform:scale(0.95);}
+
+        /* Container */
+        .container{max-width:900px;margin:0 auto;padding:25px 5%;}
+
+        /* Stats Row */
+        .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:25px;}
+        .stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center;}
+        .stat-num{font-size:28px;font-weight:900;line-height:1;}
+        .stat-lbl{font-size:11px;color:var(--muted);margin-top:5px;font-weight:600;}
+
+        /* Section */
+        .sec-title{font-size:18px;font-weight:800;margin-bottom:15px;display:flex;align-items:center;gap:8px;}
+        .sec-title i{color:var(--accent);}
+
+        /* Search */
+        .search-bar{width:100%;background:var(--card);border:1px solid var(--border);color:#fff;padding:14px 16px;border-radius:12px;font-size:15px;margin-bottom:16px;transition:0.2s;}
+        .search-bar:focus{border-color:var(--accent);background:rgba(244,117,33,0.05);}
+
+        /* User Cards */
+        .users-list{display:flex;flex-direction:column;gap:12px;}
+        .user-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;transition:0.2s;}
+        .user-card:hover{border-color:rgba(244,117,33,0.2);}
+        .user-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+        .user-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#ff4500);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;flex-shrink:0;}
+        .user-info{flex:1;overflow:hidden;}
+        .user-name{font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .user-email{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .user-uid{font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .sub-badge{flex-shrink:0;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:800;text-align:center;}
+        .sub-badge.free{background:rgba(142,142,147,0.1);color:var(--muted);border:1px solid rgba(142,142,147,0.2);}
+        .sub-badge.starter{background:rgba(0,132,255,0.1);color:#0a84ff;border:1px solid rgba(0,132,255,0.2);}
+        .sub-badge.elite{background:rgba(244,117,33,0.1);color:var(--accent);border:1px solid rgba(244,117,33,0.2);}
+        .sub-badge.supreme{background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.2);}
+        .sub-badge.expired{background:rgba(255,59,48,0.1);color:var(--red);border:1px solid rgba(255,59,48,0.2);}
+
+        .sub-info-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;font-size:12px;}
+        .sub-info-row i{color:var(--muted);width:14px;}
+        .sub-info-row span{color:var(--muted);}
+        .sub-info-row strong{color:#fff;margin-left:auto;}
+
+        .user-actions{display:flex;gap:8px;flex-wrap:wrap;}
+        .act-btn{flex:1;min-width:80px;padding:10px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;border:none;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:6px;}
+        .act-btn.set{background:rgba(244,117,33,0.1);color:var(--accent);border:1px solid rgba(244,117,33,0.2);}
+        .act-btn.revoke{background:rgba(255,59,48,0.08);color:var(--red);border:1px solid rgba(255,59,48,0.2);}
+        .act-btn:active{transform:scale(0.95);}
+
+        /* Grant Modal */
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(10px);z-index:5000;display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:0.3s;}
+        .modal-overlay.active{opacity:1;visibility:visible;}
+        .modal-box{background:#111117;border:1px solid rgba(255,255,255,0.08);border-radius:24px 24px 0 0;padding:25px;width:100%;max-width:500px;transform:translateY(50px);transition:0.35s cubic-bezier(0.34,1.1,0.64,1);}
+        .modal-overlay.active .modal-box{transform:translateY(0);}
+        .modal-title{font-size:18px;font-weight:900;margin-bottom:5px;}
+        .modal-sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
+        .modal-row{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+        .modal-row label{font-size:12px;font-weight:800;color:var(--muted);}
+        .modal-row select,.modal-row input{background:#0a0a0f;border:1px solid var(--border);color:#fff;padding:13px;border-radius:11px;font-size:15px;appearance:none;-webkit-appearance:none;}
+        .modal-row select:focus,.modal-row input:focus{border-color:var(--accent);}
+        .modal-btns{display:flex;gap:10px;margin-top:6px;}
+        .mbtn{flex:1;padding:14px;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;border:none;transition:0.2s;}
+        .mbtn.cancel{background:rgba(255,255,255,0.07);color:#fff;}
+        .mbtn.confirm{background:var(--accent);color:#fff;}
+        .mbtn:active{transform:scale(0.96);}
+
+        /* Toast */
+        #toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(0,0,0,0.92);border:1px solid var(--accent);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:0.3s;pointer-events:none;white-space:nowrap;}
+        #toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+        /* Loader */
+        .page-loader{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity 0.3s;}
+        .spin{width:40px;height:40px;border:3px solid rgba(244,117,33,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+
+        .empty-state{text-align:center;padding:50px 20px;color:var(--muted);font-size:14px;}
+        .empty-state i{font-size:36px;margin-bottom:15px;display:block;opacity:0.4;}
+
+        /* Responsive */
+        @media(max-width:400px){.stats-row{grid-template-columns:1fr 1fr;}.stats-row .stat-card:last-child{grid-column:1/-1;}}
+    </style>
+</head>
+<body>
+
+<div class="page-loader" id="page-loader"><div class="spin"></div></div>
+<div id="toast"></div>
+
+<!-- Grant Modal -->
+<div class="modal-overlay" id="grant-modal">
+    <div class="modal-box">
+        <div class="modal-title">Grant Subscription</div>
+        <div class="modal-sub" id="grant-modal-sub">Setting plan for user</div>
+        <div class="modal-row">
+            <label>SELECT PLAN</label>
+            <select id="grant-plan">
+                <option value="starter">⚡ Starter — 7 Days</option>
+                <option value="elite" selected>🔥 Elite — 30 Days</option>
+                <option value="supreme">👑 Supreme — 90 Days</option>
+            </select>
+        </div>
+        <div class="modal-row">
+            <label>DURATION (Days)</label>
+            <input type="number" id="grant-days" value="30" min="1" max="365" placeholder="Number of days">
+        </div>
+        <div class="modal-btns">
+            <button class="mbtn cancel" onclick="closeModal()">Cancel</button>
+            <button class="mbtn confirm" onclick="confirmGrant()"><i class="fas fa-check"></i> Grant Now</button>
+        </div>
+    </div>
+</div>
+
+<header class="hdr">
+    <div class="hdr-left">
+        <div class="hdr-logo">Sanppy<em>Roll</em></div>
+        <div class="badge-admin">MANAGER</div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()"><i class="fas fa-power-off"></i> Logout</button>
+</header>
+
+<div class="container">
+
+    <div class="stats-row" id="stats-row">
+        <div class="stat-card"><div class="stat-num" id="stat-total">—</div><div class="stat-lbl">Total Users</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-active" style="color:var(--green);">—</div><div class="stat-lbl">Active Plans</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-expired" style="color:var(--red);">—</div><div class="stat-lbl">Expired</div></div>
+    </div>
+
+    <div class="sec-title"><i class="fas fa-users"></i> All Users</div>
+    <input class="search-bar" type="text" id="search-input" placeholder="Search by name, email or UID..." oninput="filterUsers()">
+
+    <div class="users-list" id="users-list">
+        <div class="empty-state"><i class="fas fa-spinner fa-spin"></i>Loading users...</div>
+    </div>
+
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+    import { getDatabase, ref, get, set, remove } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+    const firebaseConfig = {
+    apiKey: "AIzaSyDnmFVfVSCxXC9shWhz4dw06xtTNBA6vsU",
+    authDomain: "sanppyroll.firebaseapp.com",
+    databaseURL: "https://sanppyroll-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "sanppyroll",
+    storageBucket: "sanppyroll.firebasestorage.app",
+    messagingSenderId: "642736474886",
+    appId: "1:642736474886:web:f0e0e3c04101fddfe02c87"
+};
+
+    const ADMIN_EMAIL = "z3ro.vx@mail.ru";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let allUsers = [];
+    let pendingGrantUid = null;
+
+    function showToast(msg, dur = 2500) {
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), dur);
+    }
+
+    function timeLeft(ts) {
+        const diff = ts - Date.now();
+        if (diff <= 0) return null;
+        const d = Math.floor(diff / 86400000);
+        if (d > 0) return `${d}d left`;
+        const h = Math.floor(diff / 3600000);
+        return `${h}h left`;
+    }
+
+    function getSubStatus(sub) {
+        if (!sub || !sub.plan || !sub.expiry) return { key: 'free', label: 'Free', class: 'free' };
+        if (Date.now() > sub.expiry) return { key: 'expired', label: 'Expired', class: 'expired' };
+        const tl = timeLeft(sub.expiry);
+        const labels = { starter: '⚡ Starter', elite: '🔥 Elite', supreme: '👑 Supreme' };
+        return { key: sub.plan, label: `${labels[sub.plan] || sub.plan} • ${tl}`, class: sub.plan };
+    }
+
+    function renderUsers(users) {
+        const list = document.getElementById('users-list');
+        if (!users.length) {
+            list.innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i>No users found.</div>';
+            return;
+        }
+
+        let html = '';
+        users.forEach(u => {
+            const status = getSubStatus(u.sub);
+            const initials = (u.username || u.email || '?')[0].toUpperCase();
+            const expDate = u.sub && u.sub.expiry ? new Date(u.sub.expiry).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : '—';
+            const planLabel = u.sub && u.sub.plan ? u.sub.plan : 'none';
+
+            html += `
+            <div class="user-card" id="ucard-${u.uid}">
+                <div class="user-top">
+                    <div class="user-avatar">${initials}</div>
+                    <div class="user-info">
+                        <div class="user-name">${u.username || 'Unknown User'}</div>
+                        <div class="user-email">${u.email || '—'}</div>
+                        <div class="user-uid">UID: ${u.uid}</div>
+                    </div>
+                    <div class="sub-badge ${status.class}">${status.label}</div>
+                </div>
+                <div class="sub-info-row">
+                    <i class="fas fa-crown"></i>
+                    <span>Plan:</span>
+                    <strong>${planLabel === 'none' ? 'Free' : planLabel.charAt(0).toUpperCase() + planLabel.slice(1)}</strong>
+                    <span style="margin-left:10px;">Expires:</span>
+                    <strong>${status.class === 'expired' ? '⚠️ ' + expDate : expDate}</strong>
+                </div>
+                <div class="user-actions">
+                    <button class="act-btn set" onclick="openGrantModal('${u.uid}', '${(u.username || 'User').replace(/'/g, "\\'")}')">
+                        <i class="fas fa-crown"></i> Grant Plan
+                    </button>
+                    ${status.class !== 'free' ? `<button class="act-btn revoke" onclick="revokeSubscription('${u.uid}')"><i class="fas fa-ban"></i> Revoke</button>` : ''}
+                </div>
+            </div>`;
+        });
+        list.innerHTML = html;
+    }
+
+    async function loadAllUsers() {
+        try {
+            const snap = await get(ref(db, 'users'));
+            if (!snap.exists()) { allUsers = []; renderUsers([]); return; }
+
+            const data = snap.val();
+            allUsers = Object.entries(data).map(([uid, val]) => ({
+                uid,
+                username: val.profile?.username || null,
+                email: val.profile?.email || null,
+                sub: val.subscription || null
+            }));
+
+            // Stats
+            const total = allUsers.length;
+            const active = allUsers.filter(u => u.sub && u.sub.expiry && Date.now() < u.sub.expiry).length;
+            const expired = allUsers.filter(u => u.sub && u.sub.expiry && Date.now() > u.sub.expiry).length;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-active').innerText = active;
+            document.getElementById('stat-expired').innerText = expired;
+
+            renderUsers(allUsers);
+        } catch(e) {
+            document.getElementById('users-list').innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i>Error loading users: ${e.message}</div>`;
+        }
+    }
+
+    window.filterUsers = function() {
+        const q = document.getElementById('search-input').value.toLowerCase().trim();
+        if (!q) { renderUsers(allUsers); return; }
+        const filtered = allUsers.filter(u =>
+            (u.username && u.username.toLowerCase().includes(q)) ||
+            (u.email && u.email.toLowerCase().includes(q)) ||
+            u.uid.toLowerCase().includes(q)
+        );
+        renderUsers(filtered);
+    };
+
+    window.openGrantModal = function(uid, name) {
+        pendingGrantUid = uid;
+        document.getElementById('grant-modal-sub').innerText = `Setting plan for: ${name}`;
+        document.getElementById('grant-modal').classList.add('active');
+    };
+
+    window.closeModal = function() {
+        document.getElementById('grant-modal').classList.remove('active');
+        pendingGrantUid = null;
+    };
+
+    document.getElementById('grant-modal').addEventListener('click', function(e) {
+        if (e.target === this) window.closeModal();
+    });
+
+    // Auto-adjust days when plan changes
+    document.getElementById('grant-plan').addEventListener('change', function() {
+        const defaults = { starter: 7, elite: 30, supreme: 90 };
+        document.getElementById('grant-days').value = defaults[this.value] || 30;
+    });
+
+    window.confirmGrant = async function() {
+        if (!pendingGrantUid) return;
+        const plan = document.getElementById('grant-plan').value;
+        const days = parseInt(document.getElementById('grant-days').value);
+        if (!days || days < 1) { showToast("Enter valid days!"); return; }
+
+        const expiry = Date.now() + (days * 86400000);
+
+        try {
+            await set(ref(db, `users/${pendingGrantUid}/subscription`), { plan, expiry, grantedBy: 'admin', grantedAt: Date.now() });
+            showToast(`✅ ${plan} plan granted for ${days} days!`);
+            window.closeModal();
+            await loadAllUsers();
+        } catch(e) {
+            showToast("Error granting plan: " + e.message);
+        }
+    };
+
+    window.revokeSubscription = async function(uid) {
+        if (!confirm("Revoke this user's subscription?")) return;
+        try {
+            await set(ref(db, `users/${uid}/subscription`), { plan: null, expiry: 0 });
+            showToast("Subscription revoked.");
+            await loadAllUsers();
+        } catch(e) {
+            showToast("Error: " + e.message);
+        }
+    };
+
+    window.doLogout = function() {
+        signOut(auth).then(() => window.location.replace('login.html'));
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+        const loader = document.getElementById('page-loader');
+        if (!user) {
+            window.location.replace('index.html');
+            return;
+        }
+        if (user.email !== ADMIN_EMAIL) {
+            // Unauthorized - redirect silently
+            window.location.replace('index.html');
+            return;
+        }
+
+        document.body.style.display = 'block';
+        await loadAllUsers();
+        loader.style.opacity = '0';
+        setTimeout(() => loader.style.display = 'none', 300);
+    });
+</script>
+
+</body>
+</html>
