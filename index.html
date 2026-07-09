@@ -111,7 +111,7 @@
         .icon-btn:hover { opacity: 1; color: #f47521; }
         .icon-btn:active { transform: scale(0.88); }
 
-        /* --- PROFILE ICON & ACCENT RING FIXED --- */
+        /* --- PROFILE ICON & ACCENT RING --- */
         .profile-btn { 
             position: relative;
             width: 36px;
@@ -121,7 +121,7 @@
             align-items: center; 
             justify-content: center;
             background: #1a1a1a;
-            border: 2.5px solid transparent; /* FIXED: Transparent by default */
+            border: 2.5px solid transparent;
             padding: 2px;
             cursor: pointer;
             opacity: 0;
@@ -266,41 +266,6 @@
         .poster-img { width: 100%; height: 100%; object-fit: cover; }
         .item-title { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* ── CONTINUE WATCHING ── */
-        .cw-wrapper { width: 175px; position: relative; }
-        .cw-card {
-            aspect-ratio: 16/9; border-radius: 10px; background: #1a1a1f; position: relative; overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.05); transition: transform 0.2s;
-        }
-        .cw-wrapper:active .cw-card { transform: scale(0.96); }
-        .cw-img { width: 100%; height: 100%; object-fit: cover; transition: filter 0.3s, transform 0.35s; filter: brightness(0.55); }
-        .cw-wrapper:hover .cw-img, .cw-wrapper:active .cw-img { filter: brightness(0.75); }
-        
-        .play-center-btn {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.85);
-            width: 38px; height: 38px; background: rgba(20,20,25,0.7);
-            border: 1.5px solid rgba(255,255,255,0.25); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; z-index: 5; 
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.25s ease, transform 0.25s ease;
-        }
-        .play-center-btn i { font-size: 12px; color: #fff; margin-left: 2.5px; }
-        .cw-wrapper:hover .play-center-btn, .cw-wrapper:active .play-center-btn { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        @media (hover: none) { .play-center-btn { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-        
-        .cw-remove-btn {
-            position: absolute; top: 6px; right: 6px; width: 22px; height: 22px;
-            background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.25);
-            border-radius: 50%; color: #fff; display: flex; align-items: center;
-            justify-content: center; z-index: 20; cursor: pointer;
-            transition: background 0.2s, transform 0.15s; backdrop-filter: blur(4px);
-        }
-        .cw-remove-btn:hover { background: #ff453a; border-color: #ff453a; }
-        .cw-remove-btn:active { transform: scale(0.88); }
-        .progress-bar-container { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: rgba(255,255,255,0.15); }
-        .progress-bar { height: 100%; background: #f47521; border-radius: 0 2px 2px 0; }
-        .cw-title { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
-
         /* ── BADGES ── */
         .card-badge {
             position: absolute; top: 0; left: 0; z-index: 10; padding: 3px 7px; border-radius: 0 0 7px 0;
@@ -312,94 +277,6 @@
         .badge-top { background: linear-gradient(135deg, #ff4500 0%, #f47521 100%); color: #fff; box-shadow: 0 2px 8px rgba(255,69,0,0.4); }
         .badge-trending { background: linear-gradient(135deg, #ff0844 0%, #ff7b7b 100%); color: #fff; box-shadow: 0 2px 8px rgba(255,8,68,0.35); }
         .badge-premium { background: #f5c518; color: #000; box-shadow: 0 2px 8px rgba(245,197,24,0.4); font-size: 9px; }
-
-        /* ── RECONSTRUCTED CRUNCHYROLL SEARCH OVERLAY ── */
-        .search-screen {
-            position: fixed; inset: 0;
-            background: rgba(11,11,14,0.98); backdrop-filter: blur(35px); -webkit-backdrop-filter: blur(35px);
-            z-index: 2000; opacity: 0; pointer-events: none;
-            transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column; overflow: hidden;
-        }
-        .search-screen.active { opacity: 1; pointer-events: auto; }
-        
-        .search-header-container {
-            padding: 20px 5%; display: flex; align-items: center; gap: 15px;
-            background: linear-gradient(to bottom, #0b0b0e 80%, transparent);
-            transform: translateY(-20px); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        .search-screen.active .search-header-container { transform: translateY(0); }
-        
-        .InputContainer {
-            height: 48px; flex: 1; display: flex; align-items: center;
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px; overflow: hidden; cursor: text; padding: 0 16px;
-            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        .InputContainer:focus-within { 
-            border-color: var(--accent); 
-            background: rgba(244, 117, 33, 0.04);
-            box-shadow: 0 0 15px rgba(244, 117, 33, 0.15);
-        }
-        
-        .input {
-            width: 100%; height: 100%; border: none; outline: none; background: transparent;
-            font-size: 16px; color: #fff; caret-color: #f47521; font-weight: 500;
-        }
-        .input::placeholder { color: rgba(255,255,255,0.35); }
-        .input::-webkit-search-decoration, .input::-webkit-search-cancel-button { display: none; }
-
-        /* PREMIUM 3-DOT WAVE PULSE LOADER */
-        .search-pulse-loader {
-            display: flex; gap: 6px; align-items: center; justify-content: center;
-        }
-        .search-pulse-dot {
-            width: 8px; height: 8px; background-color: var(--accent);
-            border-radius: 50%; animation: search-pulse 1.2s infinite ease-in-out;
-        }
-        .search-pulse-dot:nth-child(2) { animation-delay: 0.2s; }
-        .search-pulse-dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes search-pulse {
-            0%, 100% { transform: scale(0.6); opacity: 0.4; }
-            50% { transform: scale(1.2); opacity: 1; }
-        }
-
-        .search-history-container { padding: 4px 5% 14px; display: none; }
-        .search-history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .search-history-header span { font-size: 12px; font-weight: 700; color: #888; }
-        .clear-history-btn { font-size: 12px; color: #f47521 !important; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
-        .clear-history-btn:active { opacity: 0.6; }
-        .history-tags { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
-        
-        .h-tag {
-            background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.09);
-            padding: 6px 12px; border-radius: 20px; font-size: 12px; color: #ddd;
-            cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 500; transition: 0.18s;
-        }
-        .h-tag:active { background: rgba(244,117,33,0.15); border-color: rgba(244,117,33,0.4); color: #f47521; }
-        .h-tag-remove { color: rgba(255,255,255,0.4); padding: 2px; display: flex; align-items: center; }
-        .h-tag-remove:active { color: #ff453a; }
-        .more-history-toggle {
-            font-size: 11px; font-weight: 700; color: #f47521; background: rgba(244,117,33,0.1); 
-            padding: 6px 12px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 4px; border: 1px solid rgba(244,117,33,0.3);
-        }
-
-        .search-list { display: flex; flex-direction: column; gap: 10px; padding: 0 5% 40px; overflow-y: auto; flex: 1; }
-        .center-message { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: rgba(255,255,255,0.3); gap: 14px; text-align: center; width: 100%; }
-        .center-message p { font-size: 15px; font-weight: 500; }
-        
-        .search-card {
-            flex-shrink: 0; display: flex; gap: 11px;
-            background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 12px; padding: 9px; cursor: pointer; transition: 0.18s;
-            opacity: 0;
-        }
-        .search-card:active { transform: scale(0.97); background: rgba(244, 117, 33, 0.08); border-color: rgba(244, 117, 33, 0.25); }
-        .search-poster { width: 65px; height: 95px; border-radius: 7px; object-fit: cover; flex-shrink: 0; background: #1a1a1f; }
-        .search-info { flex: 1; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
-        .search-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .search-meta { font-size: 10px; color: #f47521; font-weight: 800; margin-bottom: 5px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
-        .search-meta span { background: rgba(244,117,33,0.12); padding: 2px 6px; border-radius: 4px; }
-        .search-desc { font-size: 11px; color: #6e6e73; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
         /* ── VIEW ALL OVERLAY ── */
         .overlay-screen { position: fixed; inset: 0; background: #0b0b0e; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.28s; display: flex; flex-direction: column; }
@@ -468,7 +345,6 @@
         @media (max-width: 600px) {
             .hero-slider { height: 52vh; }
             .item-wrapper { width: 105px; }
-            .cw-wrapper { width: 155px; }
             .view-all-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
         }
     </style>
@@ -501,7 +377,8 @@
     <img src="logo.png" alt="SanppyRoll" class="nav-logo" onclick="location.reload()" 
          onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<span style=\'color:#fff;font-weight:900;font-size:22px;letter-spacing:-1px;\'>Sanppy<span style=\'color:#f47521\'>Roll</span></span>');">
     <div class="nav-actions">
-        <button class="icon-btn" onclick="window.openSearch()">
+        <!-- FIXED: Directly redirects to search.html page -->
+        <button class="icon-btn" onclick="window.location.href='search.html'">
             <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         </button>
         <button class="profile-btn" onclick="window.location.href='me.html'" id="user-profile-icon">
@@ -516,50 +393,9 @@
         <div class="hero-indicators" id="hero-indicators"></div>
     </div>
     
-    <div id="continue-watching-wrapper" style="display: none; opacity: 0;"></div>
     <main class="main-content" id="rows-wrapper"></main>
     
     <div id="telegram-section-wrapper" style="display:none; opacity: 0;"></div>
-</div>
-
-<div class="search-screen" id="search-screen">
-    <div class="search-header-container">
-        <button class="icon-btn" onclick="window.closeSearch()">
-            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        </button>
-        
-        <div class="InputContainer">
-            <input type="search" name="text" class="input" id="search-input" placeholder="Search movies, anime..." autocomplete="off">
-        </div>
-    </div>
-
-    <div class="search-history-container" id="search-history-container">
-        <div class="search-history-header">
-            <span>Recent searches</span>
-            <span class="clear-history-btn" onclick="clearAllSearchHistory()">Clear all</span>
-        </div>
-        <div class="history-tags" id="history-tags"></div>
-    </div>
-
-    <div id="search-empty-state" class="center-message">
-        <svg class="svg-icon" style="width: 36px; height: 36px; opacity: 0.5;" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
-        <p>Find your next favorite</p>
-    </div>
-
-    <div id="search-loading-state" class="center-message" style="display:none;">
-        <div class="search-pulse-loader">
-            <div class="search-pulse-dot"></div>
-            <div class="search-pulse-dot"></div>
-            <div class="search-pulse-dot"></div>
-        </div>
-    </div>
-
-    <div id="search-not-found" class="center-message" style="display:none;">
-        <svg class="svg-icon" style="width: 36px; height: 36px; opacity: 0.5;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M16 16s-1.5-2-4-2-4 2-4 2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
-        <p>Nothing found. Try a different search.</p>
-    </div>
-    
-    <div class="search-list" id="search-results" style="display:none;"></div>
 </div>
 
 <div class="overlay-screen" id="view-all-screen">
@@ -586,7 +422,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-    import { getDatabase, ref, get, child, remove } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
     
     const firebaseConfig = {
@@ -610,7 +446,6 @@
     let categoryIcons = {};
     let currentSlide = 0;
     let slideInterval;
-    let isHistoryExpanded = false;
 
     // Detect if page was restored via Back-Forward Cache to skip motion timelines completely
     let shouldAnimate = !isBackNav;
@@ -694,11 +529,6 @@
                 el.style.opacity = '1';
                 el.style.transform = 'none';
             });
-            const cwWrapper = document.getElementById('continue-watching-wrapper');
-            if (cwWrapper) {
-                cwWrapper.style.opacity = '1';
-                cwWrapper.style.transform = 'none';
-            }
             const tgWrapper = document.getElementById('telegram-section-wrapper');
             if (tgWrapper) {
                 tgWrapper.style.opacity = '1';
@@ -729,11 +559,6 @@
                 opacity: [0, 1],
                 duration: 800
             }, '-=800')
-            .add({
-                targets: '#continue-watching-wrapper',
-                translateY: [25, 0],
-                opacity: [0, 1]
-            }, '-=700')
             .add({
                 targets: '.row-container',
                 translateY: [35, 0],
@@ -772,6 +597,7 @@
         
         const cachedPic = localStorage.getItem('cachedProfilePic');
         const cachedName = localStorage.getItem('cachedProfileName') || 'U';
+        const cachedIsPremium = localStorage.getItem('cachedIsPremium') === 'true';
 
         window.animateAvatarLoad = function(imgEl) {
             if (!imgEl) return;
@@ -845,14 +671,8 @@
             }
         }
 
-        if (user.photoURL) {
-            updateProfileUI(user.photoURL, user.displayName || user.email);
-            localStorage.setItem('cachedProfilePic', user.photoURL);
-        } else if (cachedPic) {
-            updateProfileUI(cachedPic, cachedName);
-        } else {
-            updateProfileUI(null, user.displayName || user.email);
-        }
+        // 1. Immediately render using cached info to avoid blank/flickering profile state
+        updateProfileUI(cachedPic, cachedName, cachedIsPremium);
         
         let isPremiumPlan = false;
         try {
@@ -861,20 +681,35 @@
                 userSubPlan = subSnap.val().plan;
                 isPremiumPlan = true;
             } else { userSubPlan = 'free'; }
+            localStorage.setItem('cachedIsPremium', isPremiumPlan ? 'true' : 'false');
         } catch(e) {}
 
+        // 2. Fetch realtime user profile data. Custom avatar set via me.html strictly takes priority.
         try {
             const profileSnap = await get(child(dbRef, `users/${user.uid}/profile`));
+            let finalUrl = user.photoURL; // default to Google profile image initially
+            let finalName = user.displayName || user.email;
+
             if (profileSnap.exists()) {
                 const pData = profileSnap.val();
-                const finalUrl = pData.avatarUrl || user.photoURL;
-                const finalName = pData.username || user.displayName || user.email;
-                updateProfileUI(finalUrl, finalName, isPremiumPlan);
-                if (finalUrl) localStorage.setItem('cachedProfilePic', finalUrl);
-                localStorage.setItem('cachedProfileName', finalName);
-            } else {
-                updateProfileUI(user.photoURL, user.displayName || user.email, isPremiumPlan);
+                
+                // If custom custom profile is uploaded, overwrite Google's Auth URL completely
+                if (pData.avatarUrl) {
+                    finalUrl = pData.avatarUrl;
+                }
+                if (pData.username) {
+                    finalName = pData.username;
+                }
             }
+            
+            // Correct profile UI strictly with priority check
+            updateProfileUI(finalUrl, finalName, isPremiumPlan);
+            if (finalUrl) {
+                localStorage.setItem('cachedProfilePic', finalUrl);
+            } else {
+                localStorage.removeItem('cachedProfilePic');
+            }
+            localStorage.setItem('cachedProfileName', finalName);
         } catch(e) {
             updateProfileUI(user.photoURL, user.displayName || user.email, isPremiumPlan);
         }
@@ -885,7 +720,7 @@
                 const cached = JSON.parse(cachedRaw);
                 allMovies = cached.movies || [];
                 categoryIcons = cached.icons || {};
-                renderFromData(cached.movies, cached.settings, cached.progress || {});
+                renderFromData(cached.movies, cached.settings);
                 triggerCinematicEntrance();
                 return;
             } catch(e) {}
@@ -895,26 +730,23 @@
 
     async function fetchData(user) {
         try {
-            const [moviesSnap, progressSnap, iconsSnap] = await Promise.all([
+            const [moviesSnap, iconsSnap] = await Promise.all([
                 get(child(dbRef, `/`)),
-                get(child(dbRef, `users/${user.uid}/progress`)),
                 get(child(dbRef, `settings/category_icons`))
             ]);
             if (iconsSnap?.exists()) categoryIcons = iconsSnap.val();
-            let freshProgress = {};
-            if (progressSnap?.exists()) freshProgress = progressSnap.val();
             if (moviesSnap?.exists()) {
                 const data = moviesSnap.val();
                 allMovies = data.movies ? Object.keys(data.movies).map(k => ({ id: k, ...data.movies[k] })) : [];
                 const settings = data.settings || {};
-                sessionStorage.setItem('snappy_index_cache', JSON.stringify({ movies: allMovies, settings, icons: categoryIcons, progress: freshProgress }));
-                renderFromData(allMovies, settings, freshProgress);
+                sessionStorage.setItem('snappy_index_cache', JSON.stringify({ movies: allMovies, settings, icons: categoryIcons }));
+                renderFromData(allMovies, settings);
             }
             triggerCinematicEntrance();
         } catch(e) { triggerCinematicEntrance(); console.error(e); }
     }
 
-    function renderFromData(movies, settings, progress) {
+    function renderFromData(movies, settings) {
         let heroIds = [];
         if (settings.hero_movies && Array.isArray(settings.hero_movies)) heroIds = settings.hero_movies;
         else if (settings.hero_movie_id) heroIds = [settings.hero_movie_id];
@@ -922,7 +754,6 @@
         if (heroItems.length > 0) renderHeroSlider(heroItems);
         
         renderRows(movies, settings.category_order || []);
-        if (Object.keys(progress).length > 0) renderContinueWatching(progress, movies);
         renderTelegramSection(settings);
     }
 
@@ -1036,69 +867,6 @@
         }, { passive: true });
     }
 
-    function renderContinueWatching(userProgress, moviesData) {
-        let items = [];
-        for (const movieId in userProgress) {
-            const movie = moviesData.find(m => m.id === movieId);
-            if (!movie) continue;
-            const prog = userProgress[movieId];
-            let percent = 0, lastWatched = 0;
-            if (prog.time !== undefined && prog.duration) {
-                percent = (prog.time / prog.duration) * 100;
-                lastWatched = prog.last_watched || 0;
-            } else {
-                let maxLW = 0, latestProg = null;
-                for (const k in prog) { if (prog[k].last_watched > maxLW) { maxLW = prog[k].last_watched; latestProg = prog[k]; } }
-                if (latestProg?.duration) { percent = (latestProg.time / latestProg.duration) * 100; lastWatched = maxLW; }
-            }
-            if (percent > 1) { if (percent > 100) percent = 100; items.push({ movie, percent, lastWatched }); }
-        }
-        items.sort((a, b) => b.lastWatched - a.lastWatched);
-        if (!items.length) return;
-        
-        let html = `
-        <div class="row-container" style="opacity: 1;">
-            <div class="row-header">
-                <h3 class="row-title">
-                    <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent); font-size:15px; margin-right: 4px;"></i> Continue Watching
-                </h3>
-            </div>
-            <div class="posters-scroll">`;
-        
-        items.forEach(item => {
-            html += `
-            <div class="item-wrapper cw-wrapper" onclick="window.goToDetail('${item.movie.id}', '${item.movie.access_level || 'free'}', this)">
-                <div class="cw-card">
-                    <div class="cw-remove-btn" onclick="removeCW('${item.movie.id}', event, this)">
-                        <svg viewBox="0 0 24 24" class="svg-icon" style="width:12px;height:12px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </div>
-                    <img src="${item.movie.backdrop || item.movie.poster}" class="cw-img">
-                    <div class="play-center-btn"><i class="fa-solid fa-play"></i></div>
-                    <div class="progress-bar-container"><div class="progress-bar" style="width:${item.percent}%;"></div></div>
-                </div>
-                <div class="cw-title">${item.movie.title}</div>
-            </div>`;
-        });
-        html += `</div></div>`;
-        const cwWrap = document.getElementById('continue-watching-wrapper');
-        cwWrap.innerHTML = html; cwWrap.style.display = 'block';
-    }
-
-    window.removeCW = async function(movieId, event, element) {
-        event.stopPropagation();
-        if (currentUser) { try { await remove(ref(db, `users/${currentUser.uid}/progress/${movieId}`)); } catch(e) {} }
-        const wrapper = element.closest('.cw-wrapper');
-        if (wrapper) {
-            wrapper.style.transition = 'transform 0.3s, opacity 0.3s';
-            wrapper.style.transform = 'scale(0.8)'; wrapper.style.opacity = '0';
-            setTimeout(() => {
-                wrapper.remove();
-                const cwC = document.getElementById('continue-watching-wrapper');
-                if (cwC && cwC.querySelectorAll('.cw-wrapper').length === 0) cwC.style.display = 'none';
-            }, 300);
-        }
-    };
-
     function renderRows(data, categoryOrder = []) {
         const wrapper = document.getElementById('rows-wrapper');
         wrapper.innerHTML = '';
@@ -1179,140 +947,7 @@
         return true;
     }
 
-    // ── SEARCH LOGIC ──
-    window.openSearch = function() {
-        document.getElementById('search-screen').classList.add('active');
-        loadSearchHistory();
-        setTimeout(() => document.getElementById('search-input').focus(), 80);
-        document.body.style.overflow = 'hidden';
-    };
-    window.closeSearch = function() {
-        document.getElementById('search-screen').classList.remove('active');
-        document.body.style.overflow = '';
-    };
-
-    window.toggleSearchHistory = function() {
-        isHistoryExpanded = !isHistoryExpanded;
-        loadSearchHistory();
-    }
-
-    function loadSearchHistory() {
-        const hist = JSON.parse(localStorage.getItem('snappy_search_history') || '[]');
-        const container = document.getElementById('search-history-container');
-        const tagsDiv = document.getElementById('history-tags');
-        
-        if (hist.length > 0) {
-            const visibleHist = isHistoryExpanded ? hist : hist.slice(0, 3);
-            let html = visibleHist.map((q, i) => `
-            <div class="h-tag">
-                <span onclick="fillSearch('${q.replace(/'/g,"\\'")}');">${q}</span>
-                <span class="h-tag-remove" onclick="removeSearchItem(${i})">
-                    <svg viewBox="0 0 24 24" class="svg-icon" style="width:12px;height:12px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </span>
-            </div>`).join('');
-
-            if (hist.length > 3) {
-                html += `<div class="more-history-toggle" onclick="toggleSearchHistory()">${isHistoryExpanded ? 'Less' : 'More'} <svg viewBox="0 0 24 24" class="svg-icon" style="width:12px;height:12px; stroke-width:3; transform: ${isHistoryExpanded ? 'rotate(180deg)' : 'none'}"><polyline points="6 9 12 15 18 9"></polyline></svg></div>`;
-            }
-            tagsDiv.innerHTML = html;
-            container.style.display = 'block';
-        } else { container.style.display = 'none'; }
-    }
-
-    window.saveSearchQuery = function(title) {
-        if (!title?.trim()) return;
-        let hist = JSON.parse(localStorage.getItem('snappy_search_history') || '[]');
-        hist = hist.filter(q => q.toLowerCase() !== title.toLowerCase());
-        hist.unshift(title.trim());
-        if (hist.length > 10) hist.pop();
-        localStorage.setItem('snappy_search_history', JSON.stringify(hist));
-    };
-    window.clearAllSearchHistory = function() {
-        localStorage.removeItem('snappy_search_history');
-        isHistoryExpanded = false;
-        loadSearchHistory();
-    };
-    window.removeSearchItem = function(index) {
-        let hist = JSON.parse(localStorage.getItem('snappy_search_history') || '[]');
-        hist.splice(index, 1);
-        localStorage.setItem('snappy_search_history', JSON.stringify(hist));
-        loadSearchHistory();
-    };
-    window.fillSearch = function(query) {
-        const input = document.getElementById('search-input');
-        input.value = query;
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-    };
-
-    let searchTimeout;
-    document.getElementById('search-input').addEventListener('input', e => {
-        const query = e.target.value.toLowerCase().trim();
-        const list = document.getElementById('search-results');
-        const emptyS = document.getElementById('search-empty-state');
-        const loadS = document.getElementById('search-loading-state');
-        const noS = document.getElementById('search-not-found');
-        const histCont = document.getElementById('search-history-container');
-        
-        if (query === '') {
-            loadSearchHistory();
-            emptyS.style.display = 'flex'; list.style.display = 'none';
-            loadS.style.display = 'none'; noS.style.display = 'none'; list.innerHTML = '';
-            return;
-        }
-        
-        histCont.style.display = 'none';
-        emptyS.style.display = 'none'; noS.style.display = 'none';
-        list.style.display = 'none'; list.innerHTML = '';
-        loadS.style.display = 'flex'; 
-        
-        clearTimeout(searchTimeout);
-        
-        searchTimeout = setTimeout(() => {
-            const terms = query.split(' ').filter(Boolean);
-            let resultsHTML = '';
-            let count = 0;
-            
-            allMovies.forEach((m, idx) => {
-                const mData = `${m.title || ''} ${m.category || ''} ${m.genres || ''} ${m.description || ''} ${Array.isArray(m.tags) ? m.tags.join(' ') : (m.tags || '')}`.toLowerCase();
-                if (terms.every(t => mData.includes(t))) {
-                    count++;
-                    const isElite = (m.access_level === 'elite' || m.access_level === 'supreme');
-                    const premTag = isElite ? `<span style="color:#f5c518;border:1px solid rgba(245,197,24,0.3);border-radius:4px;padding:2px 5px;"><svg viewBox="0 0 24 24" class="svg-icon-fill" style="margin-right:2px; width:7px; height:7px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> PRO</span>` : '';
-                    resultsHTML += `
-                    <div class="search-card" style="animation-delay:${Math.min(count * 0.04, 0.3)}s" 
-                         onclick="saveSearchQuery('${m.title.replace(/'/g,"\\'")}'); window.goToDetail('${m.id}', '${m.access_level || 'free'}', this)">
-                        <img src="${m.poster}" class="search-poster" loading="lazy">
-                        <div class="search-info">
-                            <div class="search-title">${m.title}</div>
-                            <div class="search-meta">
-                                <span>${m.category || 'Content'}</span>
-                                ${m.type === 'series' && m.seasons ? `<span>${m.seasons.length} Season${m.seasons.length > 1 ? 's' : ''}</span>` : ''}
-                                ${premTag}
-                            </div>
-                            <div class="search-desc">${m.description || ''}</div>
-                        </div>
-                    </div>`;
-                }
-            });
-            loadS.style.display = 'none';
-            if (count === 0) noS.style.display = 'flex';
-            else { 
-                list.innerHTML = resultsHTML; 
-                list.style.display = 'flex'; 
-                
-                // Advanced anime.js entrance stagger for results list 
-                anime({
-                    targets: '.search-card',
-                    translateY: [15, 0],
-                    opacity: [0, 1],
-                    delay: anime.stagger(50),
-                    easing: 'easeOutQuart',
-                    duration: 400
-                });
-            }
-        }, 600); 
-    });
-
+    // ── VIEW ALL OVERLAY SCREEN ──
     window.openViewAll = function(catName) {
         document.getElementById('view-all-screen').classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -1331,6 +966,7 @@
         });
     };
     window.closeViewAll = function() {
+        document.getElementById('view-all-screen').classList.remove('remove');
         document.getElementById('view-all-screen').classList.remove('active');
         document.body.style.overflow = '';
     };
