@@ -8,7 +8,6 @@
     <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Anime.js Required for premium motion aesthetics -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
     <style>
@@ -37,7 +36,7 @@
             background: rgba(0, 0, 0, 0.4); 
             backdrop-filter: blur(35px) saturate(180%); -webkit-backdrop-filter: blur(35px) saturate(180%);
             border-bottom: 1px solid rgba(255,255,255,0.08);
-            opacity: 0; /* Animated on load */
+            opacity: 0; 
         }
         .hdr-left { display: flex; align-items: center; gap: 12px; }
         
@@ -58,16 +57,76 @@
         }
         .logout-hdr-btn:active { transform: scale(0.9); }
 
+        /* ── PAGE LOADER / SKELETON LOADER SCREEN ── */
         .page-loader {
-            position: fixed; inset: 0; background: #000; z-index: 9999;
-            display: flex; align-items: center; justify-content: center; transition: opacity 0.3s;
+            position: fixed; inset: 0; background: var(--bg-main); z-index: 9999;
+            display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
+            transition: opacity 0.3s;
         }
-        .spin {
-            width: 40px; height: 40px; border: 3px solid rgba(244,117,33,0.2);
-            border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite;
+        .sk-shimmer {
+            background: linear-gradient(90deg, #1c1c1e 25%, #2c2c2e 50%, #1c1c1e 75%) !important;
+            background-size: 200% 100% !important;
+            animation: sk-shimmer-anim 1.5s infinite linear !important;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes sk-shimmer-anim {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .sk-hdr {
+            height: 64px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 5%; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;
+        }
+        .sk-hdr-left { display: flex; align-items: center; gap: 12px; }
+        .sk-btn-back { width: 24px; height: 24px; border-radius: 50%; }
+        .sk-title { width: 80px; height: 16px; border-radius: 4px; }
+        .sk-btn-logout { width: 38px; height: 38px; border-radius: 50%; }
 
+        .sk-content-wrapper { padding: 25px 5% 50px; display: flex; flex-direction: column; gap: 30px; }
+        
+        .sk-profile-hero {
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px; padding: 28px 20px 22px;
+            display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center;
+        }
+        .sk-avatar { width: 82px; height: 82px; border-radius: 50%; }
+        .sk-name { width: 140px; height: 22px; border-radius: 6px; }
+        .sk-email { width: 180px; height: 13px; border-radius: 4px; }
+        .sk-badge { width: 130px; height: 26px; border-radius: 20px; }
+
+        .sk-info-box {
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;
+        }
+        .sk-info-row {
+            height: 48px; border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 16px;
+        }
+        .sk-info-row:last-child { border-bottom: none; }
+        .sk-line { height: 12px; border-radius: 4px; }
+        .sk-line.badge { width: 60px; height: 14px; }
+        .sk-line.long { width: 80%; }
+        .sk-line.short { width: 50%; }
+
+        .sk-section { display: flex; flex-direction: column; gap: 15px; }
+        .sk-history-card {
+            display: flex; gap: 16px; background: rgba(255, 255, 255, 0.02); 
+            border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 16px; padding: 12px;
+        }
+        .sk-history-thumb { width: 140px; aspect-ratio: 16/9; border-radius: 10px; flex-shrink: 0; }
+        @media (max-width: 600px) {
+            .sk-history-thumb { width: 120px; }
+        }
+        .sk-history-info { flex: 1; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+
+        .sk-sub-card {
+            background: rgba(255,255,255,0.02); border: 1.5px solid rgba(255,255,255,0.05);
+            border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px;
+        }
+        .sk-sub-header { display: flex; justify-content: space-between; align-items: center; }
+        .sk-sub-line { width: 100%; height: 12px; border-radius: 4px; }
+        .sk-sub-btn { width: 100%; height: 44px; border-radius: 12px; }
+
+        /* ── BODY & CONTENT ── */
         .content-wrapper { padding: 25px 5% 50px; display: flex; flex-direction: column; gap: 30px; }
         .sec-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; color: #fff; display: flex; align-items: center; gap: 8px; }
 
@@ -135,12 +194,31 @@
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
 
-        /* ── HERO PROFILE & ENTRY ANIMATION ── */
+        /* ── HERO PROFILE & BANNER ── */
         .profile-hero {
+            position: relative;
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
             border-radius: 20px; padding: 28px 20px 22px;
             display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;
-            opacity: 0; transform: scale(0.95); /* Handled by Anime.js */
+            opacity: 0; transform: scale(0.95);
+            overflow: hidden;
+        }
+        
+        .profile-hero > *:not(.hero-banner-bg):not(.hero-banner-overlay) { 
+            position: relative; z-index: 1; 
+        }
+        
+        .hero-banner-bg {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0; 
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            opacity: 0.6; z-index: 0;
+            transition: 0.3s ease; pointer-events: none;
+        }
+        
+        .hero-banner-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.95) 100%);
+            z-index: 0; pointer-events: none;
         }
         
         .profile-avatar-wrap {
@@ -176,6 +254,7 @@
             background: rgba(52, 199, 89, 0.15); border: 1px solid rgba(52, 199, 89, 0.4);
             color: #34c759; padding: 5px 14px; border-radius: 20px;
             font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;
+            margin-top: 5px;
         }
 
         .info-box {
@@ -197,6 +276,7 @@
             background: transparent; border: none; color: #fff; font-size: 21px;
             font-weight: 900; outline: none; text-align: center; max-width: 220px; pointer-events: none;
             border-bottom: 1px solid transparent; transition: 0.2s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5); 
         }
         .hero-name-row.editing .hero-name-input {
             pointer-events: auto; border-bottom-color: var(--accent);
@@ -259,8 +339,8 @@
         .editor-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.08); }
         
         .help-link-btn {
-            font-size: 12px; color: var(--accent); font-weight: 700; background: none; border: none;
-            text-align: left; width: fit-content; cursor: pointer; padding: 4px 2px; transition: 0.2s;
+            font-size: 13px; color: var(--accent); font-weight: 700; background: none; border: none;
+            text-align: center; width: 100%; cursor: pointer; padding: 10px 0 0 0; transition: 0.2s;
         }
         .help-link-btn:hover { opacity: 0.8; }
 
@@ -293,7 +373,7 @@
         }
         .soon-close-btn:active { transform: scale(0.97); }
 
-        /* ── REMODELLED CUSTOM POPUP PLAYER ── */
+        /* ── CUSTOM POPUP PLAYER (PLAIN, NO-GLOW, TAP TO TOGGLE) ── */
         .help-video-overlay {
             position: fixed; inset: 0; z-index: 5000; 
             background: rgba(0,0,0,0.5); 
@@ -304,94 +384,114 @@
         .help-video-overlay.active { opacity: 1; visibility: visible; }
         
         .video-box-wrapper {
-            width: 82%; max-width: 310px; aspect-ratio: 9/16; background: #000;
-            border-radius: 22px; border: 2.5px solid var(--accent); position: relative;
+            width: 88%; max-width: 340px; aspect-ratio: 9/16; background: #000;
+            border-radius: 22px; border: 2px solid var(--accent); position: relative;
             overflow: hidden; transform: scale(0.88); transition: 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            box-shadow: none; 
         }
         .help-video-overlay.active .video-box-wrapper { transform: scale(1); }
         
         .video-box-wrapper video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-        /* Loader logic (Avoid overlapping with buttons) */
         .v-loader {
             position: absolute; inset: 0; z-index: 5010;
             display: flex; align-items: center; justify-content: center;
             background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
-            transition: opacity 0.3s ease; pointer-events: none;
+            transition: opacity 0.3s ease, visibility 0.3s ease; 
+            pointer-events: none;
+            visibility: visible; opacity: 1;
         }
-        .v-loader.hidden { opacity: 0; }
+        .v-loader.hidden { opacity: 0; visibility: hidden; }
 
-        /* Premium Center Play / Pause Icon */
+        /* ── USER'S CUSTOM CLIP-PATH ROTATE LOADER ── */
+        .loader {
+          --color-1: #EC6B00;
+          --size: 0.6px;
+
+          width: calc(48 * var(--size));
+          height: calc(48 * var(--size));
+          border-radius: 50%;
+          position: relative;
+          animation: rotate 1s linear infinite;
+        }
+        .loader::before {
+          content: '';
+          box-sizing: border-box;
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          border: calc(5 * var(--size)) solid var(--color-1);
+          animation: prixClipFix 2s linear infinite;
+        }
+
+        @keyframes rotate {
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+
+        @keyframes prixClipFix {
+          0% {
+            clip-path: polygon(50% 50%, 0 0, 0 0, 0 0, 0 0, 0 0);
+          }
+          25% {
+            clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 0, 100% 0, 100% 0);
+          }
+          50% {
+            clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%);
+          }
+          75% {
+            clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%);
+          }
+          100% {
+            clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0);
+          }
+        }
+
         .v-center-play {
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(1);
-            width: 58px; height: 58px; border-radius: 50%;
+            width: 44px; height: 44px; border-radius: 50%;
             background: rgba(244, 117, 33, 0.9); border: none; color: #fff;
-            font-size: 18px; display: flex; align-items: center; justify-content: center;
+            font-size: 15px; display: flex; align-items: center; justify-content: center;
             cursor: pointer; z-index: 5005; 
             transition: opacity 0.3s ease, transform 0.2s ease, visibility 0.3s;
-            box-shadow: 0 4px 15px rgba(244, 117, 33, 0.4);
+            box-shadow: none; 
         }
         .v-center-play:active { transform: translate(-50%, -50%) scale(0.9); }
         .v-center-play.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-        /* Top controls for Fullscreen option */
-        .v-top-controls {
-            position: absolute; top: 0; left: 0; right: 0;
-            padding: 15px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-            display: flex; justify-content: flex-end; z-index: 5005;
-            transition: opacity 0.3s ease, visibility 0.3s;
-        }
-        .v-top-controls.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        
-        .v-fs-btn {
-            background: none; border: none; color: #fff; font-size: 16px; cursor: pointer;
-            width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
-            transition: transform 0.2s;
-        }
-        .v-fs-btn:active { transform: scale(0.85); }
-
-        /* Bottom Controls (Timeline & Audio options) */
         .v-bottom-controls {
             position: absolute; bottom: 0; left: 0; right: 0;
             background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.4) 70%, transparent);
-            padding: 30px 15px 15px; display: flex; flex-direction: column; gap: 12px;
+            padding: 30px 15px 12px; display: flex; flex-direction: column; gap: 8px;
             z-index: 5005; transition: opacity 0.3s ease, visibility 0.3s;
         }
         .v-bottom-controls.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-        .v-time-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+        .v-time-row { display: flex; align-items: center; gap: 8px; width: 100%; }
         .v-current-time, .v-total-time {
-            font-size: 11px; color: #e1e6eb; font-weight: 700; min-width: 32px; text-align: center;
+            font-size: 10px; color: #e1e6eb; font-weight: 700; min-width: 28px; text-align: center;
         }
 
         .v-timeline {
-            flex: 1; height: 4px; background: rgba(255,255,255,0.25); border-radius: 2px;
+            flex: 1; height: 3px; background: rgba(255,255,255,0.25); border-radius: 2px;
             position: relative; cursor: pointer; display: flex; align-items: center;
         }
         .v-progress { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; }
         .v-handle {
-            width: 10px; height: 10px; background: #fff; border-radius: 50%;
+            width: 8px; height: 8px; background: #fff; border-radius: 50%;
             position: absolute; left: 0%; transform: translateX(-50%); transition: transform 0.1s;
         }
         .v-timeline:hover .v-handle { transform: translateX(-50%) scale(1.3); }
 
         .v-buttons-row { display: flex; align-items: center; justify-content: flex-start; }
         .v-mute-btn {
-            background: none; border: none; color: #fff; font-size: 16px; cursor: pointer;
-            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            background: none; border: none; color: #fff; font-size: 14px; cursor: pointer;
+            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
             transition: transform 0.2s;
         }
         .v-mute-btn:active { transform: scale(0.85); }
-
-        /* Native Fullscreen adjustments to keep layout perfect */
-        .video-box-wrapper:fullscreen {
-            width: 100vw; height: 100vh; max-width: none; border-radius: 0; border: none;
-        }
-        .video-box-wrapper:-webkit-full-screen {
-            width: 100vw; height: 100vh; max-width: none; border-radius: 0; border: none;
-        }
 
         #toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(15,15,15,0.95); backdrop-filter: blur(10px); border: 1px solid var(--accent); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); pointer-events: none;}
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
@@ -405,7 +505,62 @@
 </head>
 <body>
 
-    <div class="page-loader" id="main-loader"><div class="spin"></div></div>
+    <!-- SKELETON LOADER SCREEN (EXACTLY MATCHING THE INTERNAL UI LAYOUT) -->
+    <div class="page-loader" id="main-loader">
+        <div class="sk-hdr">
+            <div class="sk-hdr-left">
+                <div class="sk-btn-back sk-shimmer"></div>
+                <div class="sk-title sk-shimmer"></div>
+            </div>
+            <div class="sk-btn-logout sk-shimmer"></div>
+        </div>
+        <div class="sk-content-wrapper">
+            <div class="sk-profile-hero">
+                <div class="sk-avatar sk-shimmer"></div>
+                <div class="sk-name sk-shimmer"></div>
+                <div class="sk-email sk-shimmer"></div>
+                <div class="sk-badge sk-shimmer"></div>
+            </div>
+            
+            <div class="sk-info-box">
+                <div class="sk-info-row">
+                    <div class="sk-line sk-shimmer" style="width: 100px;"></div>
+                    <div class="sk-line sk-shimmer" style="width: 80px;"></div>
+                </div>
+                <div class="sk-info-row">
+                    <div class="sk-line sk-shimmer" style="width: 110px;"></div>
+                    <div class="sk-line sk-shimmer" style="width: 120px;"></div>
+                </div>
+                <div class="sk-info-row">
+                    <div class="sk-line sk-shimmer" style="width: 90px;"></div>
+                    <div class="sk-line sk-shimmer" style="width: 70px;"></div>
+                </div>
+            </div>
+
+            <div class="sk-section">
+                <div class="sk-line sk-shimmer" style="width: 150px; height: 18px; margin-bottom: 5px;"></div>
+                <div class="sk-history-card">
+                    <div class="sk-history-thumb sk-shimmer"></div>
+                    <div class="sk-history-info">
+                        <div class="sk-line sk-shimmer badge"></div>
+                        <div class="sk-line sk-shimmer long"></div>
+                        <div class="sk-line sk-shimmer short"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sk-sub-card">
+                <div class="sk-sub-header">
+                    <div class="sk-line sk-shimmer" style="width: 160px; height: 18px;"></div>
+                    <div class="sk-line sk-shimmer" style="width: 60px; height: 14px; border-radius: 20px;"></div>
+                </div>
+                <div class="sk-sub-line sk-shimmer" style="width: 90%;"></div>
+                <div class="sk-sub-line sk-shimmer" style="width: 85%;"></div>
+                <div class="sk-sub-btn sk-shimmer" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+    </div>
+
     <div id="toast">Message</div>
 
     <div class="del-modal-overlay" id="del-modal">
@@ -433,37 +588,37 @@
             <div class="input-group">
                 <label>Avatar Image / GIF Link</label>
                 <input type="search" id="edit-avatar-field" class="editor-input" placeholder="https://example.com/image.png" autocomplete="off" spellcheck="false">
-                <button class="help-link-btn" onclick="openHelpVideoModal()">How to get link?</button>
             </div>
+            <div class="input-group">
+                <label>Banner Image Link (Background)</label>
+                <input type="search" id="edit-banner-field" class="editor-input" placeholder="https://example.com/banner.png" autocomplete="off" spellcheck="false">
+            </div>
+            
             <div class="editor-actions">
                 <button class="editor-btn-cancel" onclick="closeEditorModal()">Cancel</button>
                 <button class="editor-btn-save" id="save-profile-btn" onclick="saveProfileData()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
             </div>
+
+            <button class="help-link-btn" onclick="openHelpVideoModal()">How to get links?</button>
         </div>
     </div>
 
-    <!-- ── RECONSTRUCTED CINEMATIC PLAYER SCREEN ── -->
     <div class="help-video-overlay" id="help-video-overlay" onclick="closeHelpVideoModal(event)">
-        <div class="video-box-wrapper" onclick="event.stopPropagation()">
+        <div class="video-box-wrapper" id="v-wrapper" onclick="handleWrapperClick(event)">
+             
             <div class="v-loader" id="v-loader">
-                <div class="spin"></div>
+                <span class="loader"></span>
             </div>
 
             <video id="help-player" playsinline loop>
                 <source src="" type="video/mp4"> 
             </video>
 
-            <div class="v-top-controls" id="v-top-controls">
-                <button class="v-fs-btn" id="v-fs-btn" onclick="toggleFullscreenHelp()">
-                    <i class="fas fa-expand"></i>
-                </button>
-            </div>
-
-            <button class="v-center-play" id="v-center-play" onclick="togglePlayHelp()">
+            <button class="v-center-play" id="v-center-play" onclick="event.stopPropagation(); togglePlayHelp()">
                 <i class="fas fa-play"></i>
             </button>
 
-            <div class="v-bottom-controls" id="v-bottom-controls">
+            <div class="v-bottom-controls" id="v-bottom-controls" onclick="event.stopPropagation();">
                 <div class="v-time-row">
                     <span class="v-current-time" id="v-current-time">00:00</span>
                     <div class="v-timeline" id="v-timeline">
@@ -503,6 +658,9 @@
     <div class="content-wrapper">
         
         <div id="basic-info-sec" class="profile-hero">
+            <div class="hero-banner-bg" id="hero-banner-bg"></div>
+            <div class="hero-banner-overlay"></div>
+
             <div class="profile-avatar-wrap">
                 <div class="profile-avatar-box" id="avatar-display-box">
                     <div class="avatar-blur-bg" id="avatar-blur-bg"></div>
@@ -571,7 +729,6 @@
 
     </div>
 
-    <!-- ── CUSTOM PLAYER LOGIC & EVENT LISTENERS ── -->
     <script>
         const helpOverlay = document.getElementById('help-video-overlay');
         const helpPlayer = document.getElementById('help-player');
@@ -582,73 +739,80 @@
         const vHandle = document.getElementById('v-handle');
         const vLoader = document.getElementById('v-loader');
         const vControls = document.getElementById('v-bottom-controls');
-        const vTopControls = document.getElementById('v-top-controls');
-        const vWrapper = document.querySelector('.video-box-wrapper');
+        const vWrapper = document.getElementById('v-wrapper');
         
         let controlsTimeout;
+        let isControlsVisible = true;
 
-        // Auto-hide controls with mouse/touch interaction
-        function resetControls() {
+        window.handleWrapperClick = function(e) {
+            e.stopPropagation();
+            if (isControlsVisible) {
+                hideControls();
+            } else {
+                showControls();
+            }
+        };
+
+        function showControls() {
             vControls.classList.remove('hidden');
-            vTopControls.classList.remove('hidden');
             vCenterPlayBtn.classList.remove('hidden');
+            isControlsVisible = true;
             clearTimeout(controlsTimeout);
             
             if (!helpPlayer.paused) {
                 controlsTimeout = setTimeout(() => {
-                    vControls.classList.add('hidden');
-                    vTopControls.classList.add('hidden');
-                    vCenterPlayBtn.classList.add('hidden');
-                }, 2500); 
+                    hideControls();
+                }, 1500); 
             }
         }
 
-        vWrapper.addEventListener('mousemove', resetControls);
-        vWrapper.addEventListener('touchstart', resetControls);
-        vWrapper.addEventListener('click', resetControls);
-        
-        helpPlayer.addEventListener('play', resetControls);
-        helpPlayer.addEventListener('pause', () => {
-            vControls.classList.remove('hidden');
-            vTopControls.classList.remove('hidden');
-            vCenterPlayBtn.classList.remove('hidden');
-            clearTimeout(controlsTimeout);
-        });
+        function hideControls() {
+            if (helpPlayer.paused) return; 
+            vControls.classList.add('hidden');
+            vCenterPlayBtn.classList.add('hidden');
+            isControlsVisible = false;
+        }
 
-        // Safe visibility rules (Loader hides Play Button to avoid overlapping clashing UI)
-        helpPlayer.addEventListener('waiting', () => {
+        // लोडर को दिखाने और छुपाने का सुधरा हुआ लॉजिक
+        const showLoader = () => {
             vLoader.classList.remove('hidden');
             vCenterPlayBtn.classList.add('hidden');
-        });
-        helpPlayer.addEventListener('loadstart', () => {
-            vLoader.classList.remove('hidden');
-            vCenterPlayBtn.classList.add('hidden');
-        });
-        helpPlayer.addEventListener('playing', () => {
+        };
+        const hideLoader = () => {
             vLoader.classList.add('hidden');
-            vCenterPlayBtn.classList.remove('hidden');
-        });
-        helpPlayer.addEventListener('canplay', () => {
-            vLoader.classList.add('hidden');
-        });
+            if (helpPlayer.paused) {
+                vCenterPlayBtn.classList.remove('hidden');
+            }
+        };
+
+        helpPlayer.addEventListener('play', showControls);
+        helpPlayer.addEventListener('pause', showControls);
+
+        helpPlayer.addEventListener('waiting', showLoader);
+        helpPlayer.addEventListener('loadstart', showLoader);
+        helpPlayer.addEventListener('seeking', showLoader);
+
+        helpPlayer.addEventListener('playing', hideLoader);
+        helpPlayer.addEventListener('canplay', hideLoader);
+        helpPlayer.addEventListener('canplaythrough', hideLoader);
+        helpPlayer.addEventListener('seeked', hideLoader);
 
         window.openHelpVideoModal = function() {
             helpOverlay.classList.add('active');
-            vLoader.classList.remove('hidden');
+            showLoader();
             helpPlayer.src = "https://file-to-link-2-b9adb11c51b5.herokuapp.com/dl/6a4d18060ddf2aacbcba78a5"; 
             helpPlayer.load();
             helpPlayer.play().then(() => {
                 vCenterPlayBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                resetControls();
+                showControls();
+                hideLoader();
             }).catch(() => {
                 vCenterPlayBtn.innerHTML = '<i class="fas fa-play"></i>';
+                hideLoader(); // ऑटोप्ले ब्लॉक होने पर भी लोडर हट जाएगा
             });
         };
 
         window.closeHelpVideoModal = function(e) {
-            if (document.fullscreenElement || document.webkitFullscreenElement) {
-                toggleFullscreenHelp();
-            }
             helpOverlay.classList.remove('active');
             helpPlayer.pause();
             helpPlayer.src = "";
@@ -663,7 +827,6 @@
                 helpPlayer.pause();
                 vCenterPlayBtn.innerHTML = '<i class="fas fa-play"></i>';
             }
-            resetControls();
         };
 
         window.toggleMuteHelp = function() {
@@ -676,43 +839,6 @@
             }
         };
 
-        // Complete fullscreen API orchestration avoiding ugly black bars
-        window.toggleFullscreenHelp = function() {
-            const wrapper = document.querySelector('.video-box-wrapper');
-            const fsIcon = document.querySelector('#v-fs-btn i');
-            
-            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                if (wrapper.requestFullscreen) {
-                    wrapper.requestFullscreen();
-                } else if (wrapper.webkitRequestFullscreen) {
-                    wrapper.webkitRequestFullscreen();
-                }
-                if (fsIcon) fsIcon.className = 'fas fa-compress';
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                }
-                if (fsIcon) fsIcon.className = 'fas fa-expand';
-            }
-        };
-
-        // Synchronize browser native full-screen change triggers
-        document.addEventListener('fullscreenchange', () => {
-            const fsIcon = document.querySelector('#v-fs-btn i');
-            if (fsIcon) {
-                fsIcon.className = document.fullscreenElement ? 'fas fa-compress' : 'fas fa-expand';
-            }
-        });
-        document.addEventListener('webkitfullscreenchange', () => {
-            const fsIcon = document.querySelector('#v-fs-btn i');
-            if (fsIcon) {
-                fsIcon.className = document.webkitFullscreenElement ? 'fas fa-compress' : 'fas fa-expand';
-            }
-        });
-
-        // Formatting digital time (00:00)
         function formatTime(seconds) {
             if (isNaN(seconds)) return "00:00";
             const mins = Math.floor(seconds / 60);
@@ -737,7 +863,7 @@
             vCenterPlayBtn.innerHTML = '<i class="fas fa-redo"></i>';
             vCenterPlayBtn.classList.remove('hidden');
             vControls.classList.remove('hidden');
-            vTopControls.classList.remove('hidden');
+            isControlsVisible = true;
         });
 
         vTimeline.addEventListener('click', (e) => {
@@ -749,7 +875,6 @@
         });
     </script>
 
-    <!-- ── SYSTEM CORE BACKEND LOGIC ── -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
@@ -805,48 +930,20 @@
             }
         };
 
-        // --- HIGH QUALITY STAGGERED ENTRANCE SCHEDULER ---
         function triggerCinematicEntrance() {
-            // Fade-out loading screen smoothly
             anime({
                 targets: '#main-loader',
                 opacity: 0,
                 duration: 500,
                 easing: 'easeOutQuad',
-                complete: () => {
-                    document.getElementById('main-loader').style.display = 'none';
-                }
+                complete: () => { document.getElementById('main-loader').style.display = 'none'; }
             });
 
-            // Clean, progressive rise dynamics
-            anime.timeline({
-                easing: 'easeOutQuart'
-            })
-            .add({
-                targets: '#app-header',
-                translateY: [-64, 0],
-                opacity: [0, 1],
-                duration: 650
-            })
-            .add({
-                targets: '#basic-info-sec',
-                scale: [0.93, 1],
-                opacity: [0, 1],
-                duration: 700
-            }, '-=400')
-            .add({
-                targets: '#general-info-box',
-                translateY: [20, 0],
-                opacity: [0, 1],
-                duration: 600
-            }, '-=500')
-            .add({
-                targets: '#history-sec, #reviews-sec, #sub-sec',
-                translateY: [25, 0],
-                opacity: [0, 1],
-                delay: anime.stagger(120),
-                duration: 750
-            }, '-=400');
+            anime.timeline({ easing: 'easeOutQuart' })
+            .add({ targets: '#app-header', translateY: [-64, 0], opacity: [0, 1], duration: 650 })
+            .add({ targets: '#basic-info-sec', scale: [0.93, 1], opacity: [0, 1], duration: 700 }, '-=400')
+            .add({ targets: '#general-info-box', translateY: [20, 0], opacity: [0, 1], duration: 600 }, '-=500')
+            .add({ targets: '#history-sec, #reviews-sec, #sub-sec', translateY: [25, 0], opacity: [0, 1], delay: anime.stagger(120), duration: 750 }, '-=400');
         }
 
         onAuthStateChanged(auth, async (user) => {
@@ -869,8 +966,6 @@
 
                 await loadProfileData();
                 await fetchHistoryAndReviews();
-                
-                // Execute cinematic staggering entrance
                 triggerCinematicEntrance();
             }
         });
@@ -885,6 +980,10 @@
 
                 const avatarUrl = userProfile.avatarUrl || currentUser.photoURL || "";
                 renderAvatar(avatarUrl, currentUsername);
+                
+                // ऑटोमैटिक बैनर फॉलबैक: यदि कस्टम बैनर नहीं है तो प्रोफाइल फोटो का यूज़ होगा
+                const bannerUrl = userProfile.bannerUrl || avatarUrl || "";
+                renderBanner(bannerUrl);
             } catch(e) { console.error(e); }
         }
 
@@ -918,18 +1017,32 @@
                 fallback.innerText = name.charAt(0).toUpperCase();
             }
         }
+        
+        function renderBanner(url) {
+            const bannerBg = document.getElementById('hero-banner-bg');
+            if (url) {
+                bannerBg.style.backgroundImage = `url('${url}')`;
+            } else {
+                bannerBg.style.backgroundImage = 'none';
+            }
+        }
 
         window.openEditorModal = function() {
             document.getElementById('edit-name-field').value = currentUsername;
-            get(child(dbRef, `users/${currentUser.uid}/profile/avatarUrl`)).then((snap) => {
-                document.getElementById('edit-avatar-field').value = snap.exists() ? snap.val() : "";
+            
+            get(child(dbRef, `users/${currentUser.uid}/profile`)).then((snap) => {
+                if(snap.exists()) {
+                    const p = snap.val();
+                    document.getElementById('edit-avatar-field').value = p.avatarUrl || "";
+                    document.getElementById('edit-banner-field').value = p.bannerUrl || "";
+                }
             });
+            
             document.getElementById('edit-name-error').style.display = 'none';
             
             const modal = document.getElementById('editor-modal');
             modal.classList.add('active');
             
-            // Pop elasticity on dialog
             anime({
                 targets: '#editor-modal .editor-box',
                 scale: [0.9, 1],
@@ -955,21 +1068,13 @@
         window.saveProfileData = async function() {
             const newName = document.getElementById('edit-name-field').value.trim();
             const newAvatar = document.getElementById('edit-avatar-field').value.trim();
+            const newBanner = document.getElementById('edit-banner-field').value.trim();
+            
             const err = document.getElementById('edit-name-error');
             const saveBtn = document.getElementById('save-profile-btn');
 
-            if(!newName) { 
-                err.innerText = "Name field validation failed."; 
-                err.style.display = 'block'; 
-                return; 
-            }
-            
-            // Allowed characters (dots, spaces, hyphens included)
-            if(!/^[a-zA-Z0-9 ._-]+$/.test(newName)) { 
-                err.innerText = "Only letters, numbers, spaces, dots, underscores, and hyphens allowed!"; 
-                err.style.display = 'block'; 
-                return; 
-            }
+            if(!newName) { err.innerText = "Name field validation failed."; err.style.display = 'block'; return; }
+            if(!/^[a-zA-Z0-9 ._-]+$/.test(newName)) { err.innerText = "Only letters, numbers, spaces, dots, underscores, and hyphens allowed!"; err.style.display = 'block'; return; }
 
             saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving';
             saveBtn.style.pointerEvents = 'none';
@@ -977,51 +1082,43 @@
             try {
                 const lowerName = newName.toLowerCase();
                 const lowerCurrentName = currentUsername ? currentUsername.toLowerCase() : "";
-                
-                // Admin checks with case-insensitivity safety
                 const isAdmin = currentUser && currentUser.email && currentUser.email.toLowerCase() === 'z3ro.vx@mail.ru';
 
-                // Check username status registry only if name actually changed
                 if (lowerName !== lowerCurrentName) {
-                    
-                    // Regular user username claim verification
                     if (!isAdmin) {
                         const checkSnap = await get(child(dbRef, `usernames/${lowerName}`));
                         if (checkSnap.exists() && checkSnap.val() !== currentUser.uid) {
-                            err.innerText = "Username variant already claimed."; 
-                            err.style.display = 'block';
+                            err.innerText = "Username variant already claimed."; err.style.display = 'block';
                             saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
                             saveBtn.style.pointerEvents = 'auto';
                             return;
                         }
                     }
-
-                    // Release old registry key
-                    if (lowerCurrentName) {
-                        try {
-                            await remove(ref(db, `usernames/${lowerCurrentName}`));
-                        } catch (removeErr) {
-                            console.warn("Non-blocking old username removal failed:", removeErr);
-                        }
-                    }
-
-                    // Claim new registry key
+                    if (lowerCurrentName) { try { await remove(ref(db, `usernames/${lowerCurrentName}`)); } catch (removeErr) {} }
                     await set(ref(db, `usernames/${lowerName}`), currentUser.uid);
                 }
 
-                // Update standard user profile fields
-                await update(ref(db, `users/${currentUser.uid}/profile`), { username: newName, avatarUrl: newAvatar });
+                await update(ref(db, `users/${currentUser.uid}/profile`), { 
+                    username: newName, 
+                    avatarUrl: newAvatar,
+                    bannerUrl: newBanner
+                });
                 await set(ref(db, `users/${currentUser.uid}/name`), newName);
 
                 currentUsername = newName;
                 document.getElementById('username-display').value = currentUsername;
                 renderAvatar(newAvatar, currentUsername);
+
+                // प्रोफाइल सेव करने पर भी फॉलबैक डिसीजन लागू होगा
+                const activeAvatar = newAvatar || currentUser.photoURL || "";
+                const activeBanner = newBanner || activeAvatar;
+                renderBanner(activeBanner);
                 
                 closeEditorModal();
                 showToast("Profile metrics updated!");
             } catch(e) {
-                console.error("Database Error:", e);
-                err.innerText = "Database mapping exception. Check rules or internet connection."; 
+                console.error(e);
+                err.innerText = "Database mapping exception. Check connection."; 
                 err.style.display = 'block';
             } finally {
                 saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
@@ -1033,44 +1130,23 @@
         let _pendingDelEpKey = null;
 
         window.promptDeleteHistory = function(mId, epKey) {
-            _pendingDelMovieId = mId;
-            _pendingDelEpKey = epKey;
-            
-            const modal = document.getElementById('del-modal');
-            modal.classList.add('active');
-            
-            anime({
-                targets: '#del-modal .del-modal-box',
-                scale: [0.9, 1],
-                opacity: [0, 1],
-                duration: 400,
-                easing: 'easeOutBack'
-            });
+            _pendingDelMovieId = mId; _pendingDelEpKey = epKey;
+            document.getElementById('del-modal').classList.add('active');
+            anime({ targets: '#del-modal .del-modal-box', scale: [0.9, 1], opacity: [0, 1], duration: 400, easing: 'easeOutBack' });
         };
 
         window.closeDelModal = function() {
             anime({
-                targets: '#del-modal .del-modal-box',
-                scale: [1, 0.9],
-                opacity: [1, 0],
-                duration: 300,
-                easing: 'easeInQuad',
-                complete: () => {
-                    document.getElementById('del-modal').classList.remove('active');
-                    _pendingDelMovieId = null;
-                    _pendingDelEpKey = null;
-                }
+                targets: '#del-modal .del-modal-box', scale: [1, 0.9], opacity: [1, 0], duration: 300, easing: 'easeInQuad',
+                complete: () => { document.getElementById('del-modal').classList.remove('active'); _pendingDelMovieId = null; _pendingDelEpKey = null; }
             });
         };
 
         window.confirmDeleteHistory = async function() {
             if(!_pendingDelMovieId || !_pendingDelEpKey) return;
             try {
-                if (_pendingDelEpKey === 'movie') {
-                    await remove(ref(db, `users/${currentUser.uid}/progress/${_pendingDelMovieId}`));
-                } else {
-                    await remove(ref(db, `users/${currentUser.uid}/progress/${_pendingDelMovieId}/${_pendingDelEpKey}`));
-                }
+                if (_pendingDelEpKey === 'movie') { await remove(ref(db, `users/${currentUser.uid}/progress/${_pendingDelMovieId}`)); } 
+                else { await remove(ref(db, `users/${currentUser.uid}/progress/${_pendingDelMovieId}/${_pendingDelEpKey}`)); }
                 showToast("Removed from architecture tracking.");
                 closeDelModal();
                 await fetchHistoryAndReviews(); 
@@ -1080,9 +1156,7 @@
         async function fetchHistoryAndReviews() {
             try {
                 const [moviesSnap, progressSnap, reviewsSnap] = await Promise.all([
-                    get(child(dbRef, `movies`)),
-                    get(child(dbRef, `users/${currentUser.uid}/progress`)),
-                    get(child(dbRef, `reviews`))
+                    get(child(dbRef, `movies`)), get(child(dbRef, `users/${currentUser.uid}/progress`)), get(child(dbRef, `reviews`))
                 ]);
 
                 if (moviesSnap.exists()) {
@@ -1115,8 +1189,7 @@
                                             badge: `S${sIdx + 1} E${eIdx + 1}`, title: movie.title,
                                             desc: epData.ep_title || `Episode ${eIdx + 1}`,
                                             thumb: epData.ep_thumb || movie.backdrop || movie.poster,
-                                            percent: Math.min((epProg.time / epProg.duration) * 100, 100),
-                                            last_watched: epProg.last_watched || 0
+                                            percent: Math.min((epProg.time / epProg.duration) * 100, 100), last_watched: epProg.last_watched || 0
                                         });
                                     }
                                 }
@@ -1126,8 +1199,7 @@
                                 allItems.push({
                                     type: 'movie', movieId: movie.id, title: movie.title,
                                     desc: movie.description || 'No contextual synopsis available.',
-                                    poster: movie.poster, percent: Math.min((prog.time / prog.duration) * 100, 100),
-                                    last_watched: prog.last_watched || 0
+                                    poster: movie.poster, percent: Math.min((prog.time / prog.duration) * 100, 100), last_watched: prog.last_watched || 0
                                 });
                             }
                         }
@@ -1138,40 +1210,22 @@
                         if (item.type === 'series') {
                             historyHtml += `
                             <div class="history-card" onclick="window.location.href='player.html?id=${item.movieId}&s=${item.sIdx}&e=${item.eIdx}'">
-                                <div class="history-thumb">
-                                    <img src="${item.thumb}" loading="lazy">
-                                    <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
-                                    <div class="h-progress-bg"><div class="h-progress-fill" style="width: ${item.percent}%"></div></div>
-                                </div>
-                                <div class="history-info">
-                                    <span class="h-badge">${item.badge}</span>
-                                    <span class="h-title">${item.title}</span>
-                                    <p class="h-desc">${item.desc}</p>
-                                </div>
+                                <div class="history-thumb"><img src="${item.thumb}" loading="lazy"><div class="play-overlay"><i class="fas fa-play-circle"></i></div><div class="h-progress-bg"><div class="h-progress-fill" style="width: ${item.percent}%"></div></div></div>
+                                <div class="history-info"><span class="h-badge">${item.badge}</span><span class="h-title">${item.title}</span><p class="h-desc">${item.desc}</p></div>
                                 <button class="remove-history-btn" onclick="event.stopPropagation(); promptDeleteHistory('${item.movieId}', '${item.epKey}')"><i class="fas fa-trash-alt"></i></button>
                             </div>`;
                         } else {
                             historyHtml += `
                             <div class="history-card" onclick="window.location.href='player.html?id=${item.movieId}'">
-                                <div class="history-thumb movie-thumb">
-                                    <img src="${item.poster}" loading="lazy">
-                                    <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
-                                    <div class="h-progress-bg"><div class="h-progress-fill" style="width: ${item.percent}%"></div></div>
-                                </div>
-                                <div class="history-info">
-                                    <span class="h-badge" style="background: rgba(255,255,255,0.1); color: #ccc;">MOVIE</span>
-                                    <span class="h-title">${item.title}</span>
-                                    <p class="h-desc">${item.desc}</p>
-                                </div>
+                                <div class="history-thumb movie-thumb"><img src="${item.poster}" loading="lazy"><div class="play-overlay"><i class="fas fa-play-circle"></i></div><div class="h-progress-bg"><div class="h-progress-fill" style="width: ${item.percent}%"></div></div></div>
+                                <div class="history-info"><span class="h-badge" style="background: rgba(255,255,255,0.1); color: #ccc;">MOVIE</span><span class="h-title">${item.title}</span><p class="h-desc">${item.desc}</p></div>
                                 <button class="remove-history-btn" onclick="event.stopPropagation(); promptDeleteHistory('${item.movieId}', 'movie')"><i class="fas fa-trash-alt"></i></button>
                             </div>`;
                         }
                     });
 
-                    if(historyHtml !== '') {
-                        document.getElementById('history-sec').style.display = 'block';
-                        document.getElementById('history-container').innerHTML = historyHtml;
-                    } else { document.getElementById('history-sec').style.display = 'none'; }
+                    if(historyHtml !== '') { document.getElementById('history-sec').style.display = 'block'; document.getElementById('history-container').innerHTML = historyHtml; } 
+                    else { document.getElementById('history-sec').style.display = 'none'; }
                 } else { document.getElementById('history-sec').style.display = 'none'; }
 
                 if (reviewsSnap.exists() && allMoviesData.length > 0) {
@@ -1188,12 +1242,7 @@
                         document.getElementById('reviews-sec').style.display = 'block';
                         document.getElementById('reviews-container').innerHTML = myReviews.map(r => {
                             const starsHtml = Array(5).fill(0).map((_,i) => `<i class="fa-solid fa-star" style="color: ${i < r.data.rating ? '#f5c518' : 'rgba(255,255,255,0.1)'}"></i>`).join('');
-                            return `
-                                <div class="my-review-card">
-                                    <div class="rev-movie-title">${r.movieTitle}</div>
-                                    <div class="rev-stars">${starsHtml}</div>
-                                    <div class="rev-text">"${r.data.text}"</div>
-                                </div>`;
+                            return `<div class="my-review-card"><div class="rev-movie-title">${r.movieTitle}</div><div class="rev-stars">${starsHtml}</div><div class="rev-text">"${r.data.text}"</div></div>`;
                         }).join('');
                     }
                 }
@@ -1202,8 +1251,7 @@
 
         window.triggerLogout = function() {
             const btn = document.getElementById('logout-btn');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            btn.style.pointerEvents = 'none';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.style.pointerEvents = 'none';
             setTimeout(() => {
                 signOut(auth).then(() => { window.location.replace('login.html'); })
                 .catch(() => { btn.innerHTML = '<i class="fas fa-power-off"></i>'; btn.style.pointerEvents = 'auto'; });
