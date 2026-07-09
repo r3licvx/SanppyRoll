@@ -1468,11 +1468,42 @@
 
         const isM3U8 = url.toLowerCase().includes('.m3u8') || url.toLowerCase().includes('m3u8');
         const isAppleNative = vid.canPlayType('application/vnd.apple.mpegurl');
+        const isMkv = url.toLowerCase().includes('.mkv') || url.toLowerCase().includes('mkv');
 
         const playNative = (vidUrl, time) => {
             if(hls) { hls.destroy(); hls = null; }
             vid.preload = "auto";
-            vid.src = vidUrl; 
+            
+            // Clear existing <source> elements
+            while (vid.firstChild) {
+                vid.removeChild(vid.firstChild);
+            }
+
+            if (isMkv) {
+                vid.removeAttribute('src');
+                
+                // Chrome and Chromium based browsers play H264 inside Matroska container
+                // if specified as standard WebM/MP4 sources to invoke appropriate demuxers.
+                const s1 = document.createElement('source');
+                s1.src = vidUrl;
+                s1.type = 'video/webm';
+                vid.appendChild(s1);
+                
+                const s2 = document.createElement('source');
+                s2.src = vidUrl;
+                s2.type = 'video/mp4';
+                vid.appendChild(s2);
+
+                const s3 = document.createElement('source');
+                s3.src = vidUrl;
+                s3.type = 'video/x-matroska';
+                vid.appendChild(s3);
+                
+                vid.load();
+            } else {
+                vid.removeAttribute('src');
+                vid.src = vidUrl;
+            }
             
             vid.addEventListener('loadeddata', () => {
                 vid.currentTime = time; 
@@ -1508,7 +1539,11 @@
 
             vid.addEventListener('error', (e) => {
                 console.error("Native Video Load Error", e);
-                if (Hls.isSupported() && !isM3U8) {
+                if (isMkv) {
+                    showToast("MKV playback requires Chrome, Edge or Opera.");
+                    isMediaError = true;
+                    updateBufferingUI();
+                } else if (Hls.isSupported() && !isM3U8) {
                     playHls(vidUrl, time);
                 } else {
                     isMediaError = true;
