@@ -958,26 +958,58 @@
             const err = document.getElementById('edit-name-error');
             const saveBtn = document.getElementById('save-profile-btn');
 
-            if(!newName) { err.innerText = "Name field validation failed."; err.style.display = 'block'; return; }
-            if(!/^[a-zA-Z0-9 ._-]+$/.test(newName)) { err.innerText = "Only letters, numbers, spaces, dots, underscores, and hyphens allowed!"; err.style.display = 'block'; return; }
+            if(!newName) { 
+                err.innerText = "Name field validation failed."; 
+                err.style.display = 'block'; 
+                return; 
+            }
+            
+            // Allowed characters (dots, spaces, hyphens included)
+            if(!/^[a-zA-Z0-9 ._-]+$/.test(newName)) { 
+                err.innerText = "Only letters, numbers, spaces, dots, underscores, and hyphens allowed!"; 
+                err.style.display = 'block'; 
+                return; 
+            }
 
             saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving';
             saveBtn.style.pointerEvents = 'none';
 
             try {
                 const lowerName = newName.toLowerCase();
-                if (lowerName !== currentUsername.toLowerCase()) {
-                    const checkSnap = await get(child(dbRef, `usernames/${lowerName}`));
-                    if (checkSnap.exists() && checkSnap.val() !== currentUser.uid) {
-                        err.innerText = "Username variant already claimed."; err.style.display = 'block';
-                        saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
-                        saveBtn.style.pointerEvents = 'auto';
-                        return;
+                const lowerCurrentName = currentUsername ? currentUsername.toLowerCase() : "";
+                
+                // Admin checks with case-insensitivity safety
+                const isAdmin = currentUser && currentUser.email && currentUser.email.toLowerCase() === 'z3ro.vx@mail.ru';
+
+                // Check username status registry only if name actually changed
+                if (lowerName !== lowerCurrentName) {
+                    
+                    // Regular user username claim verification
+                    if (!isAdmin) {
+                        const checkSnap = await get(child(dbRef, `usernames/${lowerName}`));
+                        if (checkSnap.exists() && checkSnap.val() !== currentUser.uid) {
+                            err.innerText = "Username variant already claimed."; 
+                            err.style.display = 'block';
+                            saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
+                            saveBtn.style.pointerEvents = 'auto';
+                            return;
+                        }
                     }
-                    if(currentUsername) await remove(ref(db, `usernames/${currentUsername.toLowerCase()}`));
+
+                    // Release old registry key
+                    if (lowerCurrentName) {
+                        try {
+                            await remove(ref(db, `usernames/${lowerCurrentName}`));
+                        } catch (removeErr) {
+                            console.warn("Non-blocking old username removal failed:", removeErr);
+                        }
+                    }
+
+                    // Claim new registry key
                     await set(ref(db, `usernames/${lowerName}`), currentUser.uid);
                 }
 
+                // Update standard user profile fields
                 await update(ref(db, `users/${currentUser.uid}/profile`), { username: newName, avatarUrl: newAvatar });
                 await set(ref(db, `users/${currentUser.uid}/name`), newName);
 
@@ -988,7 +1020,9 @@
                 closeEditorModal();
                 showToast("Profile metrics updated!");
             } catch(e) {
-                err.innerText = "Database mapping exception."; err.style.display = 'block';
+                console.error("Database Error:", e);
+                err.innerText = "Database mapping exception. Check rules or internet connection."; 
+                err.style.display = 'block';
             } finally {
                 saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
                 saveBtn.style.pointerEvents = 'auto';
