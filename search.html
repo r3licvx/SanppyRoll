@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Search - SanppyRoll</title>
+    
+    <link rel="icon" type="image/png" href="logo.png">
+    <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+    <style>
+        /* ── CSS VARIABLES ── */
+        :root {
+            --accent: #f47521;
+            --text-muted: rgba(255, 255, 255, 0.4);
+            --bg-dark: #0b0b0e;
+        }
+
+        /* ── CORE ── */
+        *, *::before, *::after {
+            margin: 0; padding: 0; box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent !important;
+            user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+            outline: none;
+        }
+        
+        body, input, button, div, span, p, h1, h2, h3, h4, a {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        body {
+            background: var(--bg-dark); color: #fff; overflow-x: hidden; min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            padding-top: 85px;
+        }
+        img { pointer-events: none; -webkit-user-drag: none; display: block; }
+        a { text-decoration: none; color: inherit; }
+
+        .svg-icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .svg-icon-fill { width: 14px; height: 14px; fill: currentColor; }
+
+        /* ── NAVIGATION NAVBAR ── */
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%; height: 85px; z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 5%;
+            background: linear-gradient(to bottom, rgba(11,11,14,0.95) 0%, rgba(11,11,14,0.8) 75%, transparent 100%);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        }
+        .nav-left { display: flex; align-items: center; gap: 15px; flex: 1; max-width: 75%; }
+        
+        .search-container {
+            flex: 1; height: 46px; display: flex; align-items: center;
+            background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; padding: 0 14px; gap: 10px;
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .search-container:focus-within {
+            border-color: var(--accent);
+            background: rgba(244, 117, 33, 0.04);
+            box-shadow: 0 0 15px rgba(244, 117, 33, 0.15);
+        }
+        .search-input {
+            width: 100%; height: 100%; border: none; outline: none; background: transparent;
+            font-size: 15px; color: #fff; caret-color: var(--accent); font-weight: 500;
+        }
+        .search-input::placeholder { color: rgba(255, 255, 255, 0.35); }
+        .clear-btn {
+            background: transparent; border: none; color: rgba(255,255,255,0.4);
+            cursor: pointer; display: none; align-items: center; justify-content: center;
+        }
+        .clear-btn:active { color: #fff; }
+
+        /* ── PROFILE ICON ── */
+        .profile-btn { 
+            position: relative; width: 36px; height: 36px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+            background: #1a1a1a; border: 2.5px solid transparent; padding: 2px;
+            cursor: pointer; opacity: 0; box-sizing: border-box;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s ease;
+        }
+        .profile-btn.premium-user { border-color: var(--accent); }
+        .profile-btn img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .profile-fallback-avatar {
+            display: flex; align-items: center; justify-content: center;
+            width: 100%; height: 100%; border-radius: 50%;
+            background: linear-gradient(135deg, #f47521, #e00073);
+            color: #fff; font-weight: 900; font-size: 13px;
+        }
+
+        /* ── SEARCH SKELETON LOADERS ── */
+        #skeleton-ui { display: none; flex-direction: column; gap: 14px; padding: 20px 5%; }
+        .sk-card { display: flex; gap: 14px; padding: 10px; background: rgba(255,255,255,0.01); border-radius: 12px; }
+        .sk-poster { width: 75px; height: 110px; border-radius: 8px; flex-shrink: 0; }
+        .sk-info { flex: 1; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+        .sk-title { height: 16px; width: 60%; }
+        .sk-badge { height: 12px; width: 30%; }
+        .sk-desc { height: 12px; width: 85%; }
+        
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.02) 25%, rgba(255, 255, 255, 0.06) 50%, rgba(255, 255, 255, 0.02) 75%);
+            background-size: 200% 100%;
+            animation: shimmer-anim 1.5s infinite linear;
+            border-radius: 4px;
+        }
+        @keyframes shimmer-anim {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ── RECENT SEARCHES HISTORY ── */
+        .history-container { padding: 15px 5% 5px; display: none; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .history-header span { font-size: 12px; font-weight: 700; color: #7e7e82; text-transform: uppercase; letter-spacing: 0.5px; }
+        .clear-all-btn { font-size: 12px; color: var(--accent); font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+        .clear-all-btn:active { opacity: 0.6; }
+        .history-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .h-tag {
+            background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.08);
+            padding: 6px 14px; border-radius: 20px; font-size: 13px; color: #e5e5ea;
+            cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .h-tag:active { background: rgba(244,117,33,0.12); border-color: rgba(244,117,33,0.3); color: var(--accent); }
+        .h-tag-remove { color: rgba(255,255,255,0.35); display: flex; align-items: center; padding: 2px; }
+        .h-tag-remove:active { color: #ff453a; }
+
+        /* ── EMPTY / ERROR STATES ── */
+        .center-message {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.35); text-align: center; gap: 14px;
+            padding: 80px 20px; width: 100%;
+        }
+        .center-message p { font-size: 14px; font-weight: 500; }
+
+        /* ── SEARCH RESULTS ── */
+        .results-list { display: flex; flex-direction: column; gap: 14px; padding: 15px 5% 40px; }
+        
+        .search-card {
+            display: flex; gap: 14px; background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
+            padding: 10px; cursor: pointer; position: relative; overflow: hidden;
+            transition: all 0.2s ease;
+        }
+        .search-card:active { transform: scale(0.98); background: rgba(244, 117, 33, 0.05); border-color: rgba(244, 117, 33, 0.2); }
+        .search-poster { width: 75px; height: 110px; border-radius: 9px; object-fit: cover; flex-shrink: 0; background: #1a1a1f; }
+        
+        .search-info { flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+        .search-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .search-meta { font-size: 10px; color: var(--accent); font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .search-meta span { background: rgba(244,117,33,0.12); padding: 3px 6px; border-radius: 4px; text-transform: uppercase; }
+        .search-desc { font-size: 11px; color: #8e8e93; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* ── SMART PARSED NESTED EPISODES ── */
+        .nested-results-wrapper {
+            background: rgba(255,255,255,0.01); border: 1.5px solid rgba(255,255,255,0.04);
+            border-radius: 14px; margin-bottom: 14px; overflow: hidden;
+        }
+        .nested-header {
+            padding: 12px 14px; background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12px;
+            font-weight: 800; color: var(--accent); text-transform: uppercase;
+            letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;
+        }
+        .episode-card {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.02);
+            cursor: pointer; transition: background 0.18s;
+        }
+        .episode-card:last-child { border-bottom: none; }
+        .episode-card:active { background: rgba(244, 117, 33, 0.08); }
+        .ep-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; padding-right: 10px; }
+        .ep-title { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ep-meta { font-size: 10px; color: #8e8e93; font-weight: 600; }
+        .ep-play-btn {
+            width: 28px; height: 28px; border-radius: 50%; background: #fff;
+            color: #000; display: flex; align-items: center; justify-content: center;
+            font-size: 10px; transition: transform 0.2s; flex-shrink: 0;
+        }
+        .episode-card:active .ep-play-btn { transform: scale(0.9) rotate(360deg); background: var(--accent); color: #fff; }
+
+        /* ── PREMIUM PRO TAG ── */
+        .pro-badge { background: #f5c518 !important; color: #000 !important; font-weight: 900 !important; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-left">
+        <button class="icon-btn" onclick="window.history.back()">
+            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+        <div class="search-container">
+            <svg class="svg-icon" style="color: rgba(255,255,255,0.4);" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="search" class="search-input" id="search-input" placeholder="Search movies, series, episodes..." autocomplete="off" autofocus>
+            <button class="clear-btn" id="clear-btn" onclick="clearSearchField()">
+                <svg class="svg-icon" style="width:14px;height:14px;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+    <button class="profile-btn" onclick="window.location.href='me.html'" id="user-profile-icon">
+        <div class="profile-fallback-avatar">U</div>
+    </button>
+</nav>
+
+<!-- SHIMMER SKELETON LOADER -->
+<div id="skeleton-ui">
+    <div class="sk-card">
+        <div class="skeleton sk-poster"></div>
+        <div class="sk-info">
+            <div class="skeleton sk-title"></div>
+            <div class="skeleton sk-badge"></div>
+            <div class="skeleton sk-desc"></div>
+        </div>
+    </div>
+    <div class="sk-card">
+        <div class="skeleton sk-poster"></div>
+        <div class="sk-info">
+            <div class="skeleton sk-title"></div>
+            <div class="skeleton sk-badge"></div>
+            <div class="skeleton sk-desc"></div>
+        </div>
+    </div>
+    <div class="sk-card">
+        <div class="skeleton sk-poster"></div>
+        <div class="sk-info">
+            <div class="skeleton sk-title"></div>
+            <div class="skeleton sk-badge"></div>
+            <div class="skeleton sk-desc"></div>
+        </div>
+    </div>
+</div>
+
+<!-- SEARCH HISTORY CONTAINER -->
+<div class="history-container" id="history-container">
+    <div class="history-header">
+        <span>Recent Searches</span>
+        <span class="clear-all-btn" onclick="clearAllSearchHistory()">Clear All</span>
+    </div>
+    <div class="history-tags" id="history-tags"></div>
+</div>
+
+<!-- DEFAULT EMPTY STATE -->
+<div id="search-empty-state" class="center-message">
+    <svg class="svg-icon" style="width: 44px; height: 44px; opacity: 0.5;" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+    <p>Discover movies, web series, and specific episodes</p>
+</div>
+
+<!-- NOT FOUND STATE -->
+<div id="search-not-found" class="center-message" style="display:none;">
+    <svg class="svg-icon" style="width: 44px; height: 44px; opacity: 0.5;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M16 16s-1.5-2-4-2-4 2-4 2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+    <p>Nothing found. Double check your keywords or season numbers.</p>
+</div>
+
+<!-- SEARCH RESULTS OUTPUT -->
+<div class="results-list" id="search-results" style="display:none;"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyDnmFVfVSCxXC9shWhz4dw06xtTNBA6vsU",
+        authDomain: "sanppyroll.firebaseapp.com",
+        databaseURL: "https://sanppyroll-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "sanppyroll",
+        storageBucket: "sanppyroll.firebasestorage.app",
+        messagingSenderId: "642736474886",
+        appId: "1:642736474886:web:f0e0e3c04101fddfe02c87"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db);
+    const auth = getAuth(app);
+    
+    let currentUser = null;
+    let userSubPlan = 'free';
+    let allMovies = [];
+    let searchTimeout = null;
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) { window.location.replace('login.html'); return; }
+        currentUser = user;
+        
+        // Setup initial Profile cache matching index.html logic
+        const profileImg = document.getElementById('user-profile-icon');
+        const cachedPic = localStorage.getItem('cachedProfilePic');
+        const cachedName = localStorage.getItem('cachedProfileName') || 'U';
+        const cachedIsPremium = localStorage.getItem('cachedIsPremium') === 'true';
+
+        function updateProfileUI(url, nameStr, isPremium = false) {
+            const initial = (nameStr || 'U').charAt(0).toUpperCase();
+            if (isPremium) profileImg.classList.add('premium-user');
+            else profileImg.classList.remove('premium-user');
+            profileImg.style.opacity = '1';
+
+            if (url) {
+                profileImg.innerHTML = `<img src="${url}" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'profile-fallback-avatar\\'>${initial}</div>';">`;
+            } else {
+                profileImg.innerHTML = `<div class="profile-fallback-avatar">${initial}</div>`;
+            }
+        }
+
+        updateProfileUI(cachedPic, cachedName, cachedIsPremium);
+
+        // Fetch direct updates from DB (Custom pic strictly takes precedence)
+        try {
+            const subSnap = await get(child(dbRef, `users/${user.uid}/subscription`));
+            let isPremiumPlan = false;
+            if (subSnap.exists() && subSnap.val().plan && subSnap.val().expiry > Date.now()) {
+                userSubPlan = subSnap.val().plan;
+                isPremiumPlan = true;
+            }
+            localStorage.setItem('cachedIsPremium', isPremiumPlan ? 'true' : 'false');
+            
+            const profileSnap = await get(child(dbRef, `users/${user.uid}/profile`));
+            let finalUrl = user.photoURL;
+            let finalName = user.displayName || user.email;
+
+            if (profileSnap.exists()) {
+                const pData = profileSnap.val();
+                if (pData.avatarUrl) finalUrl = pData.avatarUrl;
+                if (pData.username) finalName = pData.username;
+            }
+            updateProfileUI(finalUrl, finalName, isPremiumPlan);
+            if (finalUrl) localStorage.setItem('cachedProfilePic', finalUrl);
+            localStorage.setItem('cachedProfileName', finalName);
+        } catch(e) { console.error(e); }
+
+        loadContentAndCache();
+    });
+
+    // Cache-first loading of movie content for super-fast search
+    async function loadContentAndCache() {
+        const cachedRaw = sessionStorage.getItem('snappy_index_cache');
+        if (cachedRaw) {
+            try {
+                const cached = JSON.parse(cachedRaw);
+                allMovies = cached.movies || [];
+                if (allMovies.length > 0) return;
+            } catch(e) {}
+        }
+        
+        try {
+            const snap = await get(child(dbRef, 'movies'));
+            if (snap.exists()) {
+                const data = snap.val();
+                allMovies = Object.keys(data).map(k => ({ id: k, ...data[k] }));
+            }
+        } catch(e) { console.error("Database fetch failed: ", e); }
+    }
+
+    // ── ADVANCED SMART SHORTHAND PARSER ──
+    function parseSearchQuery(query) {
+        let seasonNum = null;
+        let episodeNum = null;
+
+        // Pattern for Season: s1, s01, season 1, season01
+        const seasonMatch = query.match(/(?:s|season\s*)(\d+)/i);
+        if (seasonMatch) seasonNum = parseInt(seasonMatch[1], 10);
+
+        // Pattern for Episode: e1, e01, ep1, episode 1, episode01
+        const epMatch = query.match(/(?:e|ep|episode\s*)(\d+)/i);
+        if (epMatch) episodeNum = parseInt(epMatch[1], 10);
+
+        // Get sanitized query by removing matched season/episode tokens
+        let cleanQuery = query
+            .replace(/(?:s|season\s*)\d+/i, '')
+            .replace(/(?:e|ep|episode\s*)\d+/i, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        return { cleanQuery, seasonNum, episodeNum };
+    }
+
+    // ── SEARCH LOGIC & INTERACTION ──
+    const searchInput = document.getElementById('search-input');
+    const clearBtn = document.getElementById('clear-btn');
+    const skeletonUI = document.getElementById('skeleton-ui');
+    const emptyState = document.getElementById('search-empty-state');
+    const notFoundState = document.getElementById('search-not-found');
+    const resultsContainer = document.getElementById('search-results');
+
+    searchInput.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        if (val !== '') {
+            clearBtn.style.display = 'flex';
+            executeSearch(val);
+        } else {
+            clearBtn.style.display = 'none';
+            resetToInitialState();
+        }
+    });
+
+    window.clearSearchField = function() {
+        searchInput.value = '';
+        clearBtn.style.display = 'none';
+        resetToInitialState();
+        searchInput.focus();
+    };
+
+    function resetToInitialState() {
+        resultsContainer.style.display = 'none';
+        resultsContainer.innerHTML = '';
+        notFoundState.style.display = 'none';
+        skeletonUI.style.display = 'none';
+        emptyState.style.display = 'flex';
+        loadSearchHistory();
+    }
+
+    function executeSearch(rawQuery) {
+        emptyState.style.display = 'none';
+        notFoundState.style.display = 'none';
+        resultsContainer.style.display = 'none';
+        skeletonUI.style.display = 'flex';
+
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const parsed = parseSearchQuery(rawQuery.toLowerCase());
+            const terms = parsed.cleanQuery.split(' ').filter(Boolean);
+
+            let matches = [];
+
+            allMovies.forEach(m => {
+                const targetText = `${m.title || ''} ${m.category || ''} ${m.genres || ''} ${m.description || ''} ${Array.isArray(m.tags) ? m.tags.join(' ') : (m.tags || '')}`.toLowerCase();
+                
+                // Securely check if clean query terms match item metadata
+                const textMatches = terms.every(t => targetText.includes(t));
+
+                if (textMatches) {
+                    let episodeMatches = [];
+                    // S01/E01 logic matches for web series
+                    if (m.type === 'series' && m.seasons) {
+                        m.seasons.forEach((season, sIdx) => {
+                            const curSeasonNum = season.season_number || (sIdx + 1);
+                            
+                            // Check if matched season is requested
+                            if (parsed.seasonNum === null || curSeasonNum === parsed.seasonNum) {
+                                if (season.episodes) {
+                                    season.episodes.forEach((episode, eIdx) => {
+                                        const curEpNum = episode.episode_number || (eIdx + 1);
+                                        
+                                        // Check if matched episode is requested
+                                        if (parsed.episodeNum === null || curEpNum === parsed.episodeNum) {
+                                            episodeMatches.push({
+                                                seasonNum: curSeasonNum,
+                                                episodeNum: curEpNum,
+                                                episodeTitle: episode.title || `Episode ${curEpNum}`,
+                                                videoLinks: episode.video_links || []
+                                            });
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+
+                    // If user specifically requested a season or episode but series matches nothing, skip
+                    if ((parsed.seasonNum !== null || parsed.episodeNum !== null) && m.type === 'series' && episodeMatches.length === 0) {
+                        return;
+                    }
+
+                    matches.push({
+                        movie: m,
+                        episodeMatches: episodeMatches,
+                        isTargeted: (parsed.seasonNum !== null || parsed.episodeNum !== null)
+                    });
+                }
+            });
+
+            renderResults(matches, rawQuery);
+        }, 550); // Debounce duration
+    }
+
+    // ── RENDER COMPLETED SEARCH CARDS ──
+    function renderResults(results, rawQuery) {
+        skeletonUI.style.display = 'none';
+        resultsContainer.innerHTML = '';
+
+        if (results.length === 0) {
+            resultsContainer.style.display = 'none';
+            notFoundState.style.display = 'flex';
+            return;
+        }
+
+        notFoundState.style.display = 'none';
+        resultsContainer.style.display = 'flex';
+
+        results.forEach(res => {
+            const m = res.movie;
+            const isElite = (m.access_level === 'elite' || m.access_level === 'supreme');
+            const premiumTag = isElite ? `<span class="pro-badge"><svg viewBox="0 0 24 24" class="svg-icon-fill" style="margin-right:2px; width:7px; height:7px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> PRO</span>` : '';
+            
+            let cardHtml = '';
+
+            // If user did a deep target query S01/E01, render matching season episodes directly inside
+            if (res.isTargeted && res.episodeMatches.length > 0) {
+                cardHtml += `
+                <div class="nested-results-wrapper">
+                    <div class="nested-header">
+                        <i class="fa-solid fa-folder-open"></i> Matches in: ${m.title}
+                    </div>
+                    <div class="search-card" onclick="saveSearchQuery('${m.title.replace(/'/g,"\\'")}'); goToDetail('${m.id}', '${m.access_level || 'free'}')">
+                        <img src="${m.poster}" class="search-poster" loading="lazy">
+                        <div class="search-info">
+                            <div class="search-title">${m.title}</div>
+                            <div class="search-meta">
+                                <span>${m.category || 'Series'}</span>
+                                <span>${m.seasons ? m.seasons.length : 1} Seasons</span>
+                                ${premiumTag}
+                            </div>
+                            <div class="search-desc">${m.description || ''}</div>
+                        </div>
+                    </div>`;
+
+                res.episodeMatches.forEach(ep => {
+                    cardHtml += `
+                    <div class="episode-card" onclick="saveSearchQuery('${m.title.replace(/'/g,"\\'")}'); goToPlayer('${m.id}', '${m.access_level || 'free'}', ${ep.seasonNum}, ${ep.episodeNum})">
+                        <div class="ep-left">
+                            <span class="ep-title">${ep.episodeTitle}</span>
+                            <span class="ep-meta">Season ${ep.seasonNum} • Episode ${ep.episodeNum}</span>
+                        </div>
+                        <div class="ep-play-btn">
+                            <i class="fa-solid fa-play"></i>
+                        </div>
+                    </div>`;
+                });
+
+                cardHtml += `</div>`;
+            } else {
+                // Otherwise render a standard premium list card
+                cardHtml = `
+                <div class="search-card" onclick="saveSearchQuery('${m.title.replace(/'/g,"\\'")}'); goToDetail('${m.id}', '${m.access_level || 'free'}')">
+                    <img src="${m.poster}" class="search-poster" loading="lazy">
+                    <div class="search-info">
+                        <div class="search-title">${m.title}</div>
+                        <div class="search-meta">
+                            <span>${m.category || 'Video'}</span>
+                            ${m.type === 'series' && m.seasons ? `<span>${m.seasons.length} Season${m.seasons.length > 1 ? 's' : ''}</span>` : ''}
+                            ${premiumTag}
+                        </div>
+                        <div class="search-desc">${m.description || ''}</div>
+                    </div>
+                </div>`;
+            }
+
+            resultsContainer.innerHTML += cardHtml;
+        });
+
+        // Soft entry anime.js stagger
+        anime({
+            targets: '.search-card, .nested-results-wrapper',
+            translateY: [15, 0],
+            opacity: [0, 1],
+            delay: anime.stagger(45),
+            easing: 'easeOutQuart',
+            duration: 400
+        });
+    }
+
+    // ── SECURE DIRECT PLAYER & DETAIL REDIRECTION ──
+    window.goToDetail = function(id, accessLevel) {
+        if (!checkSubscriptionAccess(accessLevel)) { window.location.href = 'subscription.html'; return; }
+        window.location.href = `detail.html?id=${id}`;
+    };
+
+    window.goToPlayer = function(id, accessLevel, seasonNum, epNum) {
+        if (!checkSubscriptionAccess(accessLevel)) { window.location.href = 'subscription.html'; return; }
+        window.location.href = `player.html?id=${id}&s=${seasonNum}&e=${epNum}`;
+    };
+
+    function checkSubscriptionAccess(level) {
+        if (level === 'any_sub' && userSubPlan === 'free') return false;
+        if (level === 'elite' && (userSubPlan === 'free' || userSubPlan === 'starter')) return false;
+        if (level === 'supreme' && userSubPlan !== 'supreme') return false;
+        return true;
+    }
+
+    // ── SECURE LOCAL HISTORY MANAGER ──
+    window.saveSearchQuery = function(title) {
+        if (!title || !title.trim()) return;
+        let hist = JSON.parse(localStorage.getItem('snappy_search_history') || '[]');
+        hist = hist.filter(q => q.toLowerCase() !== title.toLowerCase());
+        hist.unshift(title.trim());
+        if (hist.length > 8) hist.pop(); // Limit to max 8 tags
+        localStorage.setItem('snappy_search_history', JSON.stringify(hist));
+    };
+
+    window.loadSearchHistory = function() {
+        const hist = JSON.parse(localStorage.getItem('snappy_search_history') || '[]');
+        const container = document.getElementById('history-container');
+        const tagsDiv = document.getElementById('history-tags');
+
+        if (hist.length > 0) {
+            tagsDiv.innerHTML = hist.map((q, i) => `
+            <div class="h-tag">
+                <span onclick="fillAndSearch('${q.replace(/'/g,"\\'")}');">${q}</span>
+                <span class="h-tag-remove" onclick="removeHistoryItem(${i}, event)">
+                    <svg viewBox="0 0 24 24" class="svg-icon" style="width:12px;height:12px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </span>
+            </div>`).join('');
+            container.style.display = 'block';
+        } else {
+            container.style.display = 'none';
+        }
+    };
+
+    window.clearAllSearchHistory = function() {
+        localStorage.removeItem('snappy_search_history');
+        loadSearchHistory();
+    };
+
+    window.removeHistoryItem = function(index, event) {
+        event.stopPropagation();
+        let hist = JSON.parse(localStorage.getItem('snappy_search_history') || '[]');
+        hist.splice(index, 1);
+        localStorage.setItem('snappy_search_history', JSON.stringify(hist));
+        loadSearchHistory();
+    };
+
+    window.fillAndSearch = function(query) {
+        searchInput.value = query;
+        clearBtn.style.display = 'flex';
+        executeSearch(query);
+    };
+
+    // Load history on boot
+    loadSearchHistory();
+</script>
+</body>
+</html>
