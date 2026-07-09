@@ -11,6 +11,30 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
+    <!-- INSTANT PROFILE LOAD (ZERO DELAY) -->
+    <script>
+        (function() {
+            const cachedPic = localStorage.getItem('cachedProfilePic');
+            const cachedName = localStorage.getItem('cachedProfileName') || 'U';
+            const isPremium = localStorage.getItem('cachedIsPremium') === 'true';
+            
+            window.addEventListener('DOMContentLoaded', () => {
+                const profileBtn = document.getElementById('user-profile-icon');
+                if (!profileBtn) return;
+                
+                if (isPremium) profileBtn.classList.add('premium-user');
+                const initial = cachedName.charAt(0).toUpperCase();
+                
+                if (cachedPic) {
+                    profileBtn.innerHTML = `<img src="${cachedPic}" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'profile-fallback-avatar\\'>${initial}</div>';">`;
+                } else {
+                    profileBtn.innerHTML = `<div class="profile-fallback-avatar">${initial}</div>`;
+                }
+                profileBtn.style.opacity = '1';
+            });
+        })();
+    </script>
+
     <style>
         /* ── CSS VARIABLES ── */
         :root {
@@ -33,77 +57,91 @@
         body {
             background: var(--bg-dark); color: #fff; overflow-x: hidden; min-height: 100vh;
             -webkit-font-smoothing: antialiased;
-            padding-top: 85px;
+            padding-top: 80px;
         }
         img { pointer-events: none; -webkit-user-drag: none; display: block; }
-        a { text-decoration: none; color: inherit; }
 
-        .svg-icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-        .svg-icon-fill { width: 14px; height: 14px; fill: currentColor; }
-
-        /* ── NAVIGATION NAVBAR ── */
-        .navbar {
-            position: fixed; top: 0; left: 0; width: 100%; height: 85px; z-index: 1000;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 5%;
-            background: linear-gradient(to bottom, rgba(11,11,14,0.95) 0%, rgba(11,11,14,0.8) 75%, transparent 100%);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        }
-        .nav-left { display: flex; align-items: center; gap: 15px; flex: 1; max-width: 75%; }
+        .svg-icon { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
         
-        .search-container {
-            flex: 1; height: 46px; display: flex; align-items: center;
-            background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px; padding: 0 14px; gap: 10px;
-            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        /* ── ULTRA PREMIUM NAVBAR ── */
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%; height: 80px; z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 4%; gap: 12px;
+            background: rgba(11, 11, 14, 0.85);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
         }
-        .search-container:focus-within {
-            border-color: var(--accent);
-            background: rgba(244, 117, 33, 0.04);
-            box-shadow: 0 0 15px rgba(244, 117, 33, 0.15);
+        
+        .back-btn {
+            width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; background: transparent; border: none; color: #fff;
+            cursor: pointer; transition: background 0.2s, transform 0.2s; flex-shrink: 0;
         }
+        .back-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.9); }
+        .back-btn .svg-icon { stroke-width: 3px; width: 24px; height: 24px; margin-right: 2px; }
+        
+        /* ── SLEEK SEARCH BAR ── */
+        .search-wrapper {
+            flex: 1; height: 44px; display: flex; align-items: center; gap: 10px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1.5px solid transparent; border-radius: 22px;
+            padding: 0 16px; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative; overflow: hidden;
+        }
+        .search-wrapper:focus-within {
+            background: rgba(244, 117, 33, 0.05);
+            border-color: rgba(244, 117, 33, 0.4);
+            box-shadow: 0 0 18px rgba(244, 117, 33, 0.15);
+        }
+        .search-icon { color: rgba(255, 255, 255, 0.4); width: 18px; height: 18px; transition: color 0.3s; }
+        .search-wrapper:focus-within .search-icon { color: var(--accent); }
+        
         .search-input {
-            width: 100%; height: 100%; border: none; outline: none; background: transparent;
-            font-size: 15px; color: #fff; caret-color: var(--accent); font-weight: 500;
+            flex: 1; height: 100%; border: none; outline: none; background: transparent;
+            font-size: 15px; color: #fff; font-weight: 500; caret-color: var(--accent);
         }
         .search-input::placeholder { color: rgba(255, 255, 255, 0.35); }
+        
         .clear-btn {
             background: transparent; border: none; color: rgba(255,255,255,0.4);
             cursor: pointer; display: none; align-items: center; justify-content: center;
+            width: 24px; height: 24px; border-radius: 50%;
         }
-        .clear-btn:active { color: #fff; }
+        .clear-btn:active { color: #fff; background: rgba(255,255,255,0.1); }
+        .clear-btn .svg-icon { width: 14px; height: 14px; stroke-width: 3; }
 
         /* ── PROFILE ICON ── */
         .profile-btn { 
-            position: relative; width: 36px; height: 36px; border-radius: 50%; 
+            position: relative; width: 38px; height: 38px; border-radius: 50%; 
             display: flex; align-items: center; justify-content: center;
             background: #1a1a1a; border: 2.5px solid transparent; padding: 2px;
-            cursor: pointer; opacity: 0; box-sizing: border-box;
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s ease;
+            cursor: pointer; opacity: 0; box-sizing: border-box; flex-shrink: 0;
+            transition: transform 0.2s, border-color 0.3s ease;
         }
         .profile-btn.premium-user { border-color: var(--accent); }
-        .profile-btn img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .profile-btn:active { transform: scale(0.9); }
+        .profile-btn img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
         .profile-fallback-avatar {
             display: flex; align-items: center; justify-content: center;
             width: 100%; height: 100%; border-radius: 50%;
             background: linear-gradient(135deg, #f47521, #e00073);
-            color: #fff; font-weight: 900; font-size: 13px;
+            color: #fff; font-weight: 900; font-size: 14px;
         }
 
         /* ── SEARCH SKELETON LOADERS ── */
-        #skeleton-ui { display: none; flex-direction: column; gap: 14px; padding: 20px 5%; }
-        .sk-card { display: flex; gap: 14px; padding: 10px; background: rgba(255,255,255,0.01); border-radius: 12px; }
-        .sk-poster { width: 75px; height: 110px; border-radius: 8px; flex-shrink: 0; }
-        .sk-info { flex: 1; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
-        .sk-title { height: 16px; width: 60%; }
-        .sk-badge { height: 12px; width: 30%; }
-        .sk-desc { height: 12px; width: 85%; }
+        #skeleton-ui { display: none; flex-direction: column; gap: 14px; padding: 20px 4%; }
+        .sk-card { display: flex; gap: 14px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 14px; border: 1px solid rgba(255,255,255,0.03); }
+        .sk-poster { width: 75px; height: 110px; border-radius: 9px; flex-shrink: 0; }
+        .sk-info { flex: 1; display: flex; flex-direction: column; gap: 12px; justify-content: center; }
+        .sk-title { height: 16px; width: 65%; border-radius: 4px; }
+        .sk-badge { height: 12px; width: 35%; border-radius: 4px; }
+        .sk-desc { height: 12px; width: 90%; border-radius: 4px; }
         
         .skeleton {
-            background: linear-gradient(90deg, rgba(255, 255, 255, 0.02) 25%, rgba(255, 255, 255, 0.06) 50%, rgba(255, 255, 255, 0.02) 75%);
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.02) 25%, rgba(255, 255, 255, 0.07) 50%, rgba(255, 255, 255, 0.02) 75%);
             background-size: 200% 100%;
             animation: shimmer-anim 1.5s infinite linear;
-            border-radius: 4px;
         }
         @keyframes shimmer-anim {
             0% { background-position: 200% 0; }
@@ -111,98 +149,100 @@
         }
 
         /* ── RECENT SEARCHES HISTORY ── */
-        .history-container { padding: 15px 5% 5px; display: none; }
-        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .history-header span { font-size: 12px; font-weight: 700; color: #7e7e82; text-transform: uppercase; letter-spacing: 0.5px; }
-        .clear-all-btn { font-size: 12px; color: var(--accent); font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+        .history-container { padding: 20px 4% 5px; display: none; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .history-header span { font-size: 12px; font-weight: 800; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.8px; }
+        .clear-all-btn { font-size: 12px; color: var(--accent); font-weight: 700; cursor: pointer; transition: opacity 0.2s; text-transform: none !important; letter-spacing: 0 !important; }
         .clear-all-btn:active { opacity: 0.6; }
-        .history-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        
+        .history-tags { display: flex; flex-wrap: wrap; gap: 9px; }
         .h-tag {
-            background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.08);
-            padding: 6px 14px; border-radius: 20px; font-size: 13px; color: #e5e5ea;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+            padding: 7px 14px; border-radius: 20px; font-size: 13px; color: #e5e5ea;
             cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 500;
             transition: all 0.2s ease;
         }
-        .h-tag:active { background: rgba(244,117,33,0.12); border-color: rgba(244,117,33,0.3); color: var(--accent); }
+        .h-tag:active { background: rgba(244,117,33,0.15); border-color: rgba(244,117,33,0.3); color: var(--accent); }
         .h-tag-remove { color: rgba(255,255,255,0.35); display: flex; align-items: center; padding: 2px; }
         .h-tag-remove:active { color: #ff453a; }
 
         /* ── EMPTY / ERROR STATES ── */
         .center-message {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: rgba(255,255,255,0.35); text-align: center; gap: 14px;
-            padding: 80px 20px; width: 100%;
+            color: rgba(255,255,255,0.35); text-align: center; gap: 16px;
+            padding: 90px 20px; width: 100%;
         }
-        .center-message p { font-size: 14px; font-weight: 500; }
+        .center-message p { font-size: 15px; font-weight: 500; letter-spacing: 0.2px; }
 
         /* ── SEARCH RESULTS ── */
-        .results-list { display: flex; flex-direction: column; gap: 14px; padding: 15px 5% 40px; }
+        .results-list { display: flex; flex-direction: column; gap: 14px; padding: 15px 4% 50px; }
         
         .search-card {
-            display: flex; gap: 14px; background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
+            display: flex; gap: 14px; background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,255,255,0.05); border-radius: 14px;
             padding: 10px; cursor: pointer; position: relative; overflow: hidden;
             transition: all 0.2s ease;
         }
-        .search-card:active { transform: scale(0.98); background: rgba(244, 117, 33, 0.05); border-color: rgba(244, 117, 33, 0.2); }
+        .search-card:active { transform: scale(0.97); background: rgba(244, 117, 33, 0.06); border-color: rgba(244, 117, 33, 0.25); }
         .search-poster { width: 75px; height: 110px; border-radius: 9px; object-fit: cover; flex-shrink: 0; background: #1a1a1f; }
         
         .search-info { flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
         .search-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .search-meta { font-size: 10px; color: var(--accent); font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-        .search-meta span { background: rgba(244,117,33,0.12); padding: 3px 6px; border-radius: 4px; text-transform: uppercase; }
-        .search-desc { font-size: 11px; color: #8e8e93; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .search-meta { font-size: 10px; color: var(--accent); font-weight: 800; margin-bottom: 7px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .search-meta span { background: rgba(244,117,33,0.12); padding: 3px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .search-desc { font-size: 12px; color: #8e8e93; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-weight: 500; }
 
         /* ── SMART PARSED NESTED EPISODES ── */
         .nested-results-wrapper {
-            background: rgba(255,255,255,0.01); border: 1.5px solid rgba(255,255,255,0.04);
-            border-radius: 14px; margin-bottom: 14px; overflow: hidden;
+            background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 14px; margin-bottom: 6px; overflow: hidden;
         }
         .nested-header {
-            padding: 12px 14px; background: rgba(255,255,255,0.02);
-            border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12px;
+            padding: 12px 14px; background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 11px;
             font-weight: 800; color: var(--accent); text-transform: uppercase;
-            letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;
+            letter-spacing: 0.8px; display: flex; align-items: center; gap: 8px;
         }
         .episode-card {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.02);
+            padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.03);
             cursor: pointer; transition: background 0.18s;
         }
         .episode-card:last-child { border-bottom: none; }
         .episode-card:active { background: rgba(244, 117, 33, 0.08); }
         .ep-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; padding-right: 10px; }
-        .ep-title { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ep-meta { font-size: 10px; color: #8e8e93; font-weight: 600; }
+        .ep-title { font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ep-meta { font-size: 11px; color: #8e8e93; font-weight: 600; }
         .ep-play-btn {
-            width: 28px; height: 28px; border-radius: 50%; background: #fff;
+            width: 30px; height: 30px; border-radius: 50%; background: #fff;
             color: #000; display: flex; align-items: center; justify-content: center;
-            font-size: 10px; transition: transform 0.2s; flex-shrink: 0;
+            transition: transform 0.2s, background 0.2s; flex-shrink: 0;
         }
-        .episode-card:active .ep-play-btn { transform: scale(0.9) rotate(360deg); background: var(--accent); color: #fff; }
+        .ep-play-btn i { font-size: 10px; margin-left: 2px; }
+        .episode-card:active .ep-play-btn { transform: scale(0.9); background: var(--accent); color: #fff; }
 
-        /* ── PREMIUM PRO TAG ── */
         .pro-badge { background: #f5c518 !important; color: #000 !important; font-weight: 900 !important; }
     </style>
 </head>
 <body>
 
+<!-- PREMIUM NAVBAR -->
 <nav class="navbar">
-    <div class="nav-left">
-        <button class="icon-btn" onclick="window.history.back()">
-            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        </button>
-        <div class="search-container">
-            <svg class="svg-icon" style="color: rgba(255,255,255,0.4);" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input type="search" class="search-input" id="search-input" placeholder="Search movies, series, episodes..." autocomplete="off" autofocus>
-            <button class="clear-btn" id="clear-btn" onclick="clearSearchField()">
-                <svg class="svg-icon" style="width:14px;height:14px;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-        </div>
-    </div>
-    <button class="profile-btn" onclick="window.location.href='me.html'" id="user-profile-icon">
-        <div class="profile-fallback-avatar">U</div>
+    <button class="back-btn" onclick="window.history.back()">
+        <svg class="svg-icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
     </button>
+    
+    <div class="search-wrapper">
+        <svg class="svg-icon search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="search" class="search-input" id="search-input" placeholder="Search movies, anime, episodes..." autocomplete="off" autofocus>
+        <button class="clear-btn" id="clear-btn" onclick="clearSearchField()">
+            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+    </div>
+
+    <button class="profile-btn" onclick="window.location.href='me.html'" id="user-profile-icon"></button>
 </nav>
 
 <!-- SHIMMER SKELETON LOADER -->
@@ -244,14 +284,14 @@
 
 <!-- DEFAULT EMPTY STATE -->
 <div id="search-empty-state" class="center-message">
-    <svg class="svg-icon" style="width: 44px; height: 44px; opacity: 0.5;" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+    <svg class="svg-icon" style="width: 48px; height: 48px; opacity: 0.4;" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>
     <p>Discover movies, web series, and specific episodes</p>
 </div>
 
 <!-- NOT FOUND STATE -->
 <div id="search-not-found" class="center-message" style="display:none;">
-    <svg class="svg-icon" style="width: 44px; height: 44px; opacity: 0.5;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M16 16s-1.5-2-4-2-4 2-4 2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
-    <p>Nothing found. Double check your keywords or season numbers.</p>
+    <svg class="svg-icon" style="width: 48px; height: 48px; opacity: 0.4;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M16 16s-1.5-2-4-2-4 2-4 2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+    <p>Nothing found.<br>Double check your keywords or season numbers.</p>
 </div>
 
 <!-- SEARCH RESULTS OUTPUT -->
@@ -286,28 +326,7 @@
         if (!user) { window.location.replace('login.html'); return; }
         currentUser = user;
         
-        // Setup initial Profile cache matching index.html logic
-        const profileImg = document.getElementById('user-profile-icon');
-        const cachedPic = localStorage.getItem('cachedProfilePic');
-        const cachedName = localStorage.getItem('cachedProfileName') || 'U';
-        const cachedIsPremium = localStorage.getItem('cachedIsPremium') === 'true';
-
-        function updateProfileUI(url, nameStr, isPremium = false) {
-            const initial = (nameStr || 'U').charAt(0).toUpperCase();
-            if (isPremium) profileImg.classList.add('premium-user');
-            else profileImg.classList.remove('premium-user');
-            profileImg.style.opacity = '1';
-
-            if (url) {
-                profileImg.innerHTML = `<img src="${url}" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'profile-fallback-avatar\\'>${initial}</div>';">`;
-            } else {
-                profileImg.innerHTML = `<div class="profile-fallback-avatar">${initial}</div>`;
-            }
-        }
-
-        updateProfileUI(cachedPic, cachedName, cachedIsPremium);
-
-        // Fetch direct updates from DB (Custom pic strictly takes precedence)
+        // Background DB sync to ensure cache is 100% updated for UI later
         try {
             const subSnap = await get(child(dbRef, `users/${user.uid}/subscription`));
             let isPremiumPlan = false;
@@ -317,6 +336,10 @@
             }
             localStorage.setItem('cachedIsPremium', isPremiumPlan ? 'true' : 'false');
             
+            const profileBtn = document.getElementById('user-profile-icon');
+            if (isPremiumPlan) profileBtn.classList.add('premium-user');
+            else profileBtn.classList.remove('premium-user');
+
             const profileSnap = await get(child(dbRef, `users/${user.uid}/profile`));
             let finalUrl = user.photoURL;
             let finalName = user.displayName || user.email;
@@ -326,15 +349,20 @@
                 if (pData.avatarUrl) finalUrl = pData.avatarUrl;
                 if (pData.username) finalName = pData.username;
             }
-            updateProfileUI(finalUrl, finalName, isPremiumPlan);
+            
             if (finalUrl) localStorage.setItem('cachedProfilePic', finalUrl);
             localStorage.setItem('cachedProfileName', finalName);
-        } catch(e) { console.error(e); }
+            
+            // Only update DOM if pic changed directly
+            if(finalUrl && profileBtn.querySelector('img')?.src !== finalUrl) {
+                profileBtn.innerHTML = `<img src="${finalUrl}">`;
+            }
+        } catch(e) {}
 
         loadContentAndCache();
     });
 
-    // Cache-first loading of movie content for super-fast search
+    // ── CACHE-FIRST MOVIE LOADING ──
     async function loadContentAndCache() {
         const cachedRaw = sessionStorage.getItem('snappy_index_cache');
         if (cachedRaw) {
@@ -354,20 +382,17 @@
         } catch(e) { console.error("Database fetch failed: ", e); }
     }
 
-    // ── ADVANCED SMART SHORTHAND PARSER ──
+    // ── SMART SHORTHAND PARSER (S01 / E01) ──
     function parseSearchQuery(query) {
         let seasonNum = null;
         let episodeNum = null;
 
-        // Pattern for Season: s1, s01, season 1, season01
         const seasonMatch = query.match(/(?:s|season\s*)(\d+)/i);
         if (seasonMatch) seasonNum = parseInt(seasonMatch[1], 10);
 
-        // Pattern for Episode: e1, e01, ep1, episode 1, episode01
         const epMatch = query.match(/(?:e|ep|episode\s*)(\d+)/i);
         if (epMatch) episodeNum = parseInt(epMatch[1], 10);
 
-        // Get sanitized query by removing matched season/episode tokens
         let cleanQuery = query
             .replace(/(?:s|season\s*)\d+/i, '')
             .replace(/(?:e|ep|episode\s*)\d+/i, '')
@@ -377,13 +402,22 @@
         return { cleanQuery, seasonNum, episodeNum };
     }
 
-    // ── SEARCH LOGIC & INTERACTION ──
+    // ── SEARCH INTERACTION ──
     const searchInput = document.getElementById('search-input');
     const clearBtn = document.getElementById('clear-btn');
     const skeletonUI = document.getElementById('skeleton-ui');
     const emptyState = document.getElementById('search-empty-state');
     const notFoundState = document.getElementById('search-not-found');
     const resultsContainer = document.getElementById('search-results');
+
+    // Anime.js entry animation for the search bar
+    anime({
+        targets: '.search-wrapper',
+        scale: [0.95, 1],
+        opacity: [0, 1],
+        easing: 'easeOutQuart',
+        duration: 800
+    });
 
     searchInput.addEventListener('input', (e) => {
         const val = e.target.value.trim();
@@ -416,6 +450,7 @@
         emptyState.style.display = 'none';
         notFoundState.style.display = 'none';
         resultsContainer.style.display = 'none';
+        document.getElementById('history-container').style.display = 'none';
         skeletonUI.style.display = 'flex';
 
         clearTimeout(searchTimeout);
@@ -428,29 +463,24 @@
             allMovies.forEach(m => {
                 const targetText = `${m.title || ''} ${m.category || ''} ${m.genres || ''} ${m.description || ''} ${Array.isArray(m.tags) ? m.tags.join(' ') : (m.tags || '')}`.toLowerCase();
                 
-                // Securely check if clean query terms match item metadata
                 const textMatches = terms.every(t => targetText.includes(t));
 
                 if (textMatches) {
                     let episodeMatches = [];
-                    // S01/E01 logic matches for web series
                     if (m.type === 'series' && m.seasons) {
                         m.seasons.forEach((season, sIdx) => {
                             const curSeasonNum = season.season_number || (sIdx + 1);
                             
-                            // Check if matched season is requested
                             if (parsed.seasonNum === null || curSeasonNum === parsed.seasonNum) {
                                 if (season.episodes) {
                                     season.episodes.forEach((episode, eIdx) => {
                                         const curEpNum = episode.episode_number || (eIdx + 1);
                                         
-                                        // Check if matched episode is requested
                                         if (parsed.episodeNum === null || curEpNum === parsed.episodeNum) {
                                             episodeMatches.push({
                                                 seasonNum: curSeasonNum,
                                                 episodeNum: curEpNum,
                                                 episodeTitle: episode.title || `Episode ${curEpNum}`,
-                                                videoLinks: episode.video_links || []
                                             });
                                         }
                                     });
@@ -459,7 +489,6 @@
                         });
                     }
 
-                    // If user specifically requested a season or episode but series matches nothing, skip
                     if ((parsed.seasonNum !== null || parsed.episodeNum !== null) && m.type === 'series' && episodeMatches.length === 0) {
                         return;
                     }
@@ -473,10 +502,10 @@
             });
 
             renderResults(matches, rawQuery);
-        }, 550); // Debounce duration
+        }, 500); 
     }
 
-    // ── RENDER COMPLETED SEARCH CARDS ──
+    // ── RENDER RESULTS ──
     function renderResults(results, rawQuery) {
         skeletonUI.style.display = 'none';
         resultsContainer.innerHTML = '';
@@ -493,18 +522,17 @@
         results.forEach(res => {
             const m = res.movie;
             const isElite = (m.access_level === 'elite' || m.access_level === 'supreme');
-            const premiumTag = isElite ? `<span class="pro-badge"><svg viewBox="0 0 24 24" class="svg-icon-fill" style="margin-right:2px; width:7px; height:7px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> PRO</span>` : '';
+            const premiumTag = isElite ? `<span class="pro-badge"><svg viewBox="0 0 24 24" class="svg-icon-fill" style="margin-right:2px; width:8px; height:8px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> PRO</span>` : '';
             
             let cardHtml = '';
 
-            // If user did a deep target query S01/E01, render matching season episodes directly inside
             if (res.isTargeted && res.episodeMatches.length > 0) {
                 cardHtml += `
                 <div class="nested-results-wrapper">
                     <div class="nested-header">
-                        <i class="fa-solid fa-folder-open"></i> Matches in: ${m.title}
+                        <i class="fa-solid fa-list-ul"></i> Matches found in: ${m.title}
                     </div>
-                    <div class="search-card" onclick="saveSearchQuery('${m.title.replace(/'/g,"\\'")}'); goToDetail('${m.id}', '${m.access_level || 'free'}')">
+                    <div class="search-card" style="border:none; border-radius:0; border-bottom:1px solid rgba(255,255,255,0.05);" onclick="saveSearchQuery('${m.title.replace(/'/g,"\\'")}'); goToDetail('${m.id}', '${m.access_level || 'free'}')">
                         <img src="${m.poster}" class="search-poster" loading="lazy">
                         <div class="search-info">
                             <div class="search-title">${m.title}</div>
@@ -529,17 +557,15 @@
                         </div>
                     </div>`;
                 });
-
                 cardHtml += `</div>`;
             } else {
-                // Otherwise render a standard premium list card
                 cardHtml = `
                 <div class="search-card" onclick="saveSearchQuery('${m.title.replace(/'/g,"\\'")}'); goToDetail('${m.id}', '${m.access_level || 'free'}')">
                     <img src="${m.poster}" class="search-poster" loading="lazy">
                     <div class="search-info">
                         <div class="search-title">${m.title}</div>
                         <div class="search-meta">
-                            <span>${m.category || 'Video'}</span>
+                            <span>${m.category || 'Content'}</span>
                             ${m.type === 'series' && m.seasons ? `<span>${m.seasons.length} Season${m.seasons.length > 1 ? 's' : ''}</span>` : ''}
                             ${premiumTag}
                         </div>
@@ -551,18 +577,17 @@
             resultsContainer.innerHTML += cardHtml;
         });
 
-        // Soft entry anime.js stagger
         anime({
             targets: '.search-card, .nested-results-wrapper',
-            translateY: [15, 0],
+            translateY: [20, 0],
             opacity: [0, 1],
-            delay: anime.stagger(45),
+            delay: anime.stagger(50),
             easing: 'easeOutQuart',
-            duration: 400
+            duration: 500
         });
     }
 
-    // ── SECURE DIRECT PLAYER & DETAIL REDIRECTION ──
+    // ── REDIRECTION ──
     window.goToDetail = function(id, accessLevel) {
         if (!checkSubscriptionAccess(accessLevel)) { window.location.href = 'subscription.html'; return; }
         window.location.href = `detail.html?id=${id}`;
@@ -580,13 +605,13 @@
         return true;
     }
 
-    // ── SECURE LOCAL HISTORY MANAGER ──
+    // ── SEARCH HISTORY ──
     window.saveSearchQuery = function(title) {
         if (!title || !title.trim()) return;
         let hist = JSON.parse(localStorage.getItem('snappy_search_history') || '[]');
         hist = hist.filter(q => q.toLowerCase() !== title.toLowerCase());
         hist.unshift(title.trim());
-        if (hist.length > 8) hist.pop(); // Limit to max 8 tags
+        if (hist.length > 8) hist.pop();
         localStorage.setItem('snappy_search_history', JSON.stringify(hist));
     };
 
@@ -600,7 +625,7 @@
             <div class="h-tag">
                 <span onclick="fillAndSearch('${q.replace(/'/g,"\\'")}');">${q}</span>
                 <span class="h-tag-remove" onclick="removeHistoryItem(${i}, event)">
-                    <svg viewBox="0 0 24 24" class="svg-icon" style="width:12px;height:12px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    <svg class="svg-icon" style="width:14px;height:14px;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </span>
             </div>`).join('');
             container.style.display = 'block';
@@ -628,7 +653,6 @@
         executeSearch(query);
     };
 
-    // Load history on boot
     loadSearchHistory();
 </script>
 </body>
