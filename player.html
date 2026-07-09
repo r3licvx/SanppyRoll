@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -236,20 +236,75 @@
         .yt-ripple i { font-size: 28px; margin-bottom: 8px; opacity: 0.9; }
         .yt-ripple span { font-size: 13px; font-weight: 400; }
 
-        /* MODIFIED LOADER CSS */
+        /* --- PRECISE CLEAN CLOUD LOADER STYLE --- */
         .loader-wrapper {
             position: absolute; inset: 0;
             z-index: 100; pointer-events: none; display: flex; justify-content: center; align-items: center;
             opacity: 0; visibility: hidden; transition: opacity 0.3s;
         }
-        .loader-content { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .netflix-loader { width: 35px; height: 35px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--accent); animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loader-text { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.85); text-shadow: 0 2px 10px rgba(0,0,0,0.8); transition: color 0.3s;}
+        .loader-content { display: flex; flex-direction: column; align-items: center; gap: 15px; }
         
+        .loader {
+            --cloud-color: var(--accent);
+            --arrows-color: #ffffff;
+            --time-animation: 1.2s;
+            transform: scale(0.65); 
+            display: inline-block;
+        }
+
+        .loader #cloud {
+            width: 80px;
+            height: 80px;
+        }
+
+        .loader #cloud rect {
+            fill: var(--cloud-color);
+        }
+
+        .loader #cloud g:nth-child(3) {
+            transform-origin: 50% 72.8938%;
+            fill: var(--arrows-color);
+            filter: drop-shadow(0 0 6px rgba(0,0,0,0.85));
+            animation: rotation var(--time-animation) linear infinite;
+        }
+
+        .loader #shapes g g circle {
+            animation: cloud calc(var(--time-animation) * 2) linear infinite;
+        }
+
+        .loader #shapes g g circle:nth-child(2) {
+            animation-delay: calc((var(--time-animation) * 2) / -3);
+        }
+
+        .loader #shapes g g circle:nth-child(3) {
+            animation-delay: calc((var(--time-animation) * 2) / -1.5);
+        }
+
+        .loader svg #lines g line {
+            stroke-width: 5;
+            transform-origin: 50% 50%;
+            rotate: -65deg;
+            animation: lines calc(var(--time-animation) / 1.33) linear infinite;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes lines {
+            0% { transform: translateY(-10px); }
+            100% { transform: translateY(8px); }
+        }
+
+        @keyframes cloud {
+            0% { cx: 20; cy: 60; r: 15; }
+            50% { cx: 50; cy: 45; r: 20; }
+            100% { cx: 80; cy: 60; r: 15; }
+        }
+
         .video-container.loading .loader-wrapper { opacity: 1; visibility: visible; }
-        .video-container.error-state .netflix-loader { display: none; }
-        .video-container.error-state .loader-text { color: #ff453a; font-size: 14px; font-weight: 600; }
 
         .tap-layer { position: absolute; inset: 0; z-index: 5; cursor: pointer; -webkit-touch-callout: none; user-select: none; }
 
@@ -439,6 +494,41 @@
         .sk-ep-badge { height: 16px; width: 60px; border-radius: 6px; }
         .sk-ep-title { height: 14px; width: 130px; }
         .sk-ep-desc { height: 11px; width: 85%; }
+
+        /* --- PRECISE LOCKING STYLE RESTORATION --- */
+        .settings-menu .quality-btn.locked-quality .lock-icon-q {
+            display: inline-block;
+            color: #FFD700;
+            font-size: 10px;
+            margin-left: auto;
+        }
+        
+        .modal-content #upgrade-overlay.active {
+            display: flex !important;
+        }
+        
+        #upgrade-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11,11,14,0.95); z-index: 120;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            color: #fff; gap: 15px; text-align: center; padding: 20px;
+        }
+        #upgrade-overlay.active {
+            display: flex !important;
+        }
+        #upgrade-overlay h3 {
+            font-size: 18px; font-weight: 700; color: #fff;
+        }
+        #upgrade-overlay p {
+            font-size: 13px; color: var(--text-muted); max-width: 280px; line-height: 1.5;
+        }
+        #upgrade-overlay .upgrade-now-btn {
+            background: var(--accent); color: #fff; border: none; padding: 10px 24px;
+            border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        #upgrade-overlay .upgrade-now-btn:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -452,8 +542,61 @@
             
             <div class="loader-wrapper" id="loader">
                 <div class="loader-content">
-                    <div class="netflix-loader"></div>
-                    <div class="loader-text" id="loader-text">Loading...</div>
+                    <!-- Clean Premium Animated Cloud Loader -->
+                    <div class="loader">
+                      <svg id="cloud" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                        <defs>
+                          <filter id="roundness">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="1.5"></feGaussianBlur>
+                            <feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 20 -10"></feColorMatrix>
+                          </filter>
+                          <mask id="shapes">
+                            <g fill="white">
+                              <polygon points="50 37.5 80 75 20 75 50 37.5"></polygon>
+                              <circle cx="20" cy="60" r="15"></circle>
+                              <circle cx="80" cy="60" r="15"></circle>
+                              <g>
+                                <circle cx="20" cy="60" r="15"></circle>
+                                <circle cx="20" cy="60" r="15"></circle>
+                                <circle cx="20" cy="60" r="15"></circle>
+                              </g>
+                            </g>
+                          </mask>
+                          <mask id="clipping" clipPathUnits="userSpaceOnUse">
+                            <g id="lines" filter="url(#roundness)">
+                              <g mask="url(#shapes)" stroke="white">
+                                <line x1="-50" y1="-40" x2="150" y2="-40"></line>
+                                <line x1="-50" y1="-31" x2="150" y2="-31"></line>
+                                <line x1="-50" y1="-22" x2="150" y2="-22"></line>
+                                <line x1="-50" y1="-13" x2="150" y2="-13"></line>
+                                <line x1="-50" y1="-4" x2="150" y2="-4"></line>
+                                <line x1="-50" y1="5" x2="150" y2="5"></line>
+                                <line x1="-50" y1="14" x2="150" y2="14"></line>
+                                <line x1="-50" y1="23" x2="150" y2="23"></line>
+                                <line x1="-50" y1="32" x2="150" y2="32"></line>
+                                <line x1="-50" y1="41" x2="150" y2="41"></line>
+                                <line x1="-50" y1="50" x2="150" y2="50"></line>
+                                <line x1="-50" y1="59" x2="150" y2="59"></line>
+                                <line x1="-50" y1="68" x2="150" y2="68"></line>
+                                <line x1="-50" y1="77" x2="150" y2="77"></line>
+                                <line x1="-50" y1="86" x2="150" y2="86"></line>
+                                <line x1="-50" y1="95" x2="150" y2="95"></line>
+                                <line x1="-50" y1="104" x2="150" y2="104"></line>
+                                <line x1="-50" y1="113" x2="150" y2="113"></line>
+                                <line x1="-50" y1="122" x2="150" y2="122"></line>
+                                <line x1="-50" y1="131" x2="150" y2="131"></line>
+                                <line x1="-50" y1="140" x2="150" y2="140"></line>
+                              </g>
+                            </g>
+                          </mask>
+                        </defs>
+                        <rect x="0" y="0" width="100" height="100" rx="0" ry="0" mask="url(#clipping)"></rect>
+                        <g>
+                          <path d="M33.52,68.12 C35.02,62.8 39.03,58.52 44.24,56.69 C49.26,54.93 54.68,55.61 59.04,58.4 C59.04,58.4 56.24,60.53 56.24,60.53 C55.45,61.13 55.68,62.37 56.63,62.64 C56.63,62.64 67.21,65.66 67.21,65.66 C67.98,65.88 68.75,65.3 68.74,64.5 C68.74,64.5 68.68,53.5 68.68,53.5 C68.67,52.51 67.54,51.95 66.75,52.55 C66.75,52.55 64.04,54.61 64.04,54.61 C57.88,49.79 49.73,48.4 42.25,51.03 C35.2,53.51 29.78,59.29 27.74,66.49 C27.29,68.08 28.22,69.74 29.81,70.19 C30.09,70.27 30.36,70.31 30.63,70.31 C31.94,70.31 33.14,69.44 33.52,68.12Z"></path>
+                          <path d="M69.95,74.85 C68.35,74.4 66.7,75.32 66.25,76.92 C64.74,82.24 60.73,86.51 55.52,88.35 C50.51,90.11 45.09,89.43 40.73,86.63 C40.73,86.63 43.53,84.51 43.53,84.51 C44.31,83.91 44.08,82.67 43.13,82.4 C43.13,82.4 32.55,79.38 32.55,79.38 C31.78,79.16 31.02,79.74 31.02,80.54 C31.02,80.54 31.09,91.54 31.09,91.54 C31.09,92.53 32.22,93.09 33.01,92.49 C33.01,92.49 35.72,90.43 35.72,90.43 C39.81,93.63 44.77,95.32 49.84,95.32 C52.41,95.32 55,94.89 57.51,94.01 C64.56,91.53 69.99,85.75 72.02,78.55 C72.47,76.95 71.54,75.3 69.95,74.85Z"></path>
+                        </g>
+                      </svg>
+                    </div>
                 </div>
             </div>
             
@@ -469,9 +612,12 @@
             <div class="center-overlay" id="speed-overlay"><span>2x Speed</span> <i class="fa-solid fa-forward grad-icon"></i></div>
             <div class="center-overlay" id="q-msg-overlay"><span id="q-msg-text">Quality Selected</span></div>
             <div class="center-overlay" id="msg-overlay"><span id="msg-text">Fit to Screen</span></div>
+            
+            <!-- Standard Subscription Premium Unlock UI Overlay Restored -->
             <div class="center-overlay" id="upgrade-overlay">
-                <i class="fa-solid fa-lock lock-icon-q" style="display:inline-block; font-size:12px; margin-right:4px;"></i> 
+                <i class="fa-solid fa-lock" style="font-size:12px; margin-right:4px; color: #FFD700;"></i> 
                 <span id="upgrade-msg-text">Upgrade Plan</span>
+                <button class="upgrade-now-btn" style="background: var(--accent); color: #fff; border: none; padding: 4px 10px; border-radius: 12px; font-size: 11px; margin-left: 8px; cursor: pointer;" onclick="window.location.href='subscription.html'">Upgrade</button>
             </div>
 
             <audio id="ext-audio" preload="auto" style="display: none;"></audio>
@@ -518,7 +664,7 @@
     </div> 
     
     <div id="below-content">
-        <!-- Rendered Dynamically via JS (Skeleton Layout first, then Firebase Content) -->
+        <!-- Rendered Dynamically via JS -->
     </div> 
 </div>
 
@@ -544,7 +690,7 @@
             </div>
         </div>
         <div class="modal-body" id="comments-list">
-            <div style="text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 40px;">Loading comments...</div>
+            <!-- Loading Comment Skeletons are populated dynamically inside JS -->
         </div>
         <div class="chat-input-area">
             <input type="search" class="comment-input" id="new-comment-text" placeholder="Add a comment..." maxlength="400" autocomplete="off" autocorrect="off" enterkeyhint="send">
@@ -612,7 +758,6 @@
     const upgradeMsgText = document.getElementById("upgrade-msg-text");
     const belowContent = document.getElementById("below-content");
 
-    // NEW LOADER ELEMENTS
     const loaderText = document.getElementById("loader-text");
     let vidError = false;
     let audError = false;
@@ -638,7 +783,7 @@
     let qTimer = null;
     let loadingTimeout = null; 
 
-    // BUFFERRING STATE TRACKERS
+    // BUFFERING STATE TRACKERS
     let isVidBuffering = false;
     let isAudBuffering = false;
     let isMediaError = false;
@@ -748,42 +893,14 @@
         setTimeout(() => t.classList.remove('show'), 2000);
     }
 
-    function showMediaError(type) {
-        isMediaError = true;
-        if(type === 'video') vidError = true;
-        if(type === 'audio') audError = true;
-
-        player.classList.add('loading');
-        player.classList.add('error-state');
-
-        let msg = "Playback Stream Expired";
-        if(vidError && !audError && hasExtAudio) msg = "Video Stream Expired or Unauthorized";
-        if(audError && !vidError) msg = "Audio Resource Link Expired";
-        if(vidError && audError) msg = "Streaming Link Expired";
-
-        loaderText.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 20px;">
-                <i class="fa-solid fa-circle-exclamation" style="font-size: 32px; color: var(--accent);"></i>
-                <span style="font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: center;">${msg}</span>
-            </div>
-        `;
-    }
-
+    // Standard buffering UI trigger without disturbing screen messages
     function updateBufferingUI() {
         if(isMediaError || vidError || audError) return; 
 
-        if (hasExtAudio && isAudBuffering && !isVidBuffering) {
-            loaderText.innerText = "Buffering Audio...";
-            player.classList.add('loading'); 
-        } else if (hasExtAudio && isVidBuffering && !isAudBuffering) {
-            loaderText.innerText = "Buffering Video...";
-            player.classList.add('loading'); 
-        } else if (isVidBuffering || isAudBuffering) {
-            loaderText.innerText = "Buffering...";
+        if (isVidBuffering || isAudBuffering) {
             player.classList.add("loading");
         } else {
             player.classList.remove("loading");
-            loaderText.innerText = "";
         }
     }
     
@@ -816,9 +933,7 @@
         document.getElementById("curr").innerText = fmt(virtualCurrentTime);
         
         clearTimeout(seekDebounceTimeout);
-        
         player.classList.add('loading');
-        loaderText.innerText = "Seeking...";
         
         seekDebounceTimeout = setTimeout(() => {
             vid.currentTime = virtualCurrentTime;
@@ -1081,7 +1196,7 @@
         sIdx = newS; eIdx = newE; savedTimeLoaded = false; lastFirebaseSaveTime = 0; intendedPlayState = true; targetResumeTime = 0;
         
         isVidBuffering = false; isAudBuffering = false; isMediaError = false; vidError = false; audError = false;
-        player.classList.remove('error-state'); loaderText.innerText = "Loading..."; updateBufferingUI();
+        player.classList.remove('error-state'); updateBufferingUI();
 
         if(hls) { hls.destroy(); hls = null; }
         if(hlsAudio) { hlsAudio.destroy(); hlsAudio = null; } 
@@ -1175,7 +1290,7 @@
         
         updateTitle(null);
         
-        // Dynamic Backdrop Rendering (Contain Mode preserved without cropping default)
+        // Dynamic Backdrop Rendering
         if (backdropImg) {
             vid.style.backgroundImage = `url('${backdropImg}')`;
             vid.style.backgroundSize = "cover";
@@ -1260,12 +1375,19 @@
         wrapper.style.display = 'block';
     }
 
-    extAud.onerror = () => { showMediaError('audio'); };
-    vid.onerror = () => { showMediaError('video'); };
+    extAud.onerror = () => { 
+        isMediaError = true;
+        audError = true;
+        updateBufferingUI();
+    };
+    vid.onerror = () => { 
+        isMediaError = true;
+        vidError = true;
+        updateBufferingUI();
+    };
 
     async function loadAudio(url, startTime = 0) {
         isAudBuffering = false; isMediaError = false; audError = false; 
-        if(!vidError) player.classList.remove('error-state'); loaderText.innerText = "Loading...";
 
         if(hlsAudio) { hlsAudio.destroy(); hlsAudio = null; }
         extAud.pause();
@@ -1275,7 +1397,11 @@
         const isAppleNative = extAud.canPlayType('application/vnd.apple.mpegurl');
 
         if (Hls.isSupported() && !isAppleNative && isM3U8) {
-            hlsAudio = new Hls({ startPosition: startTime });
+            hlsAudio = new Hls({ 
+                startPosition: startTime,
+                enableWorker: true,
+                lowLatencyMode: true
+            });
             hlsAudio.loadSource(url);
             hlsAudio.attachMedia(extAud);
             hlsAudio.on(Hls.Events.MANIFEST_PARSED, function () {
@@ -1297,7 +1423,6 @@
 
     async function loadVideo(url, startTime = 0) {
         isVidBuffering = false; isMediaError = false; vidError = false; 
-        if(!audError) player.classList.remove('error-state'); loaderText.innerText = "Loading...";
         player.classList.add('loading');
         targetResumeTime = startTime; 
         document.getElementById("curr").innerText = fmt(startTime);
@@ -1354,14 +1479,24 @@
                 if (Hls.isSupported() && !isM3U8) {
                     playHls(vidUrl, time);
                 } else {
-                    showMediaError('video');
+                    isMediaError = true;
+                    updateBufferingUI();
                 }
             }, {once: true});
         };
 
         const playHls = (vidUrl, time) => {
             if(hls) { hls.destroy(); hls = null; }
-            hls = new Hls({ startPosition: time }); 
+            hls = new Hls({ 
+                startPosition: time,
+                maxBufferLength: 30, /* Prevent pipeline request lockups with latency buffers */
+                maxMaxBufferLength: 60,
+                enableWorker: true,
+                lowLatencyMode: true,
+                backBufferLength: 15,
+                fragLoadingMaxRetry: 5,
+                manifestLoadingMaxRetry: 5
+            }); 
             hls.loadSource(vidUrl); hls.attachMedia(vid);
             hls.on(Hls.Events.MANIFEST_PARSED, function () { 
                 vid.currentTime = time; 
@@ -1374,7 +1509,8 @@
                     console.error("HLS Error", data);
                     if(isM3U8) playNative(vidUrl, time);
                     else {
-                        showMediaError('video');
+                        isMediaError = true;
+                        updateBufferingUI();
                     }
                 }
             });
@@ -1482,6 +1618,7 @@
     };
     playBtn.onclick = (e) => { popBtn(e.currentTarget); if(vid.paused || !intendedPlayState) doPlay(); else doPause(); };
 
+    // ORIGINAL LOCK / SUBSCRIPTION RESTRICTIONS (Completely Retained & Protected)
     function isQualityAllowed(src) {
         if (!src) return true;
         if (src.req_plan) {
@@ -1496,7 +1633,31 @@
         return true; 
     }
 
+    // SILENT STALL PREVENTION PIPELINE (Ensures continuous fetching/playing behind scenes)
+    let lastLoggedTime = -1;
+    let silentStallTimer = 0;
+    setInterval(() => {
+        if (intendedPlayState && !vid.paused && !isDragging && !isSeekingDebouncing) {
+            if (vid.currentTime === lastLoggedTime && vid.readyState < 3) {
+                silentStallTimer++;
+                if (silentStallTimer >= 3) { // 3 seconds stuck in buffer stall
+                    if (hls) {
+                        hls.recoverMediaError(); // Recovery attempt without disrupting screen
+                    } else {
+                        vid.currentTime = vid.currentTime + 0.1; // Silent buffer nudge
+                    }
+                    silentStallTimer = 0;
+                }
+            } else {
+                silentStallTimer = 0;
+            }
+            lastLoggedTime = vid.currentTime;
+        }
+    }, 1000);
+
     function setupManualQualityMenu() {
+        upgradeOverlay.classList.remove('active');
+
         if (videoSources.length <= 1) { 
             settingsBtn.style.display = 'none'; qualityMenu.innerHTML = ''; 
             if (videoSources.length === 1 && !isQualityAllowed(videoSources[0])) {
@@ -1711,7 +1872,6 @@
     let isDragging = false; 
     const getClientX = (e) => (e.changedTouches && e.changedTouches.length > 0) ? e.changedTouches[0].clientX : (e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX || 0);
     
-    // Scrubbing timeline performs fluid visual changes, deferring the physical seek until drag release.
     const updateTimelineVisuals = (e) => {
         const rect = pArea.getBoundingClientRect(); 
         let pos = Math.max(0, Math.min((getClientX(e) - rect.left) / rect.width, 1)); 
@@ -1743,7 +1903,6 @@
         targetResumeTime = targetFinalTime; 
         
         player.classList.add('loading');
-        loaderText.innerText = "Seeking...";
         
         vid.currentTime = targetFinalTime; 
         if(hasExtAudio) {
@@ -1853,9 +2012,32 @@
         input.focus();
     }
 
+    // COMMENT SKELETON RENDER FUNCTION
+    function renderCommentSkeletons() {
+        let count = 3;
+        let skeletonsHtml = '';
+        for (let i = 0; i < count; i++) {
+            skeletonsHtml += `
+                <div class="comment-box" style="margin-bottom: 20px;">
+                    <div class="skeleton" style="width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;"></div>
+                    <div class="c-content" style="margin-left: 12px; display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                        <div class="skeleton" style="height: 14px; width: 35%; border-radius: 4px;"></div>
+                        <div class="skeleton" style="height: 12px; width: 85%; border-radius: 4px;"></div>
+                        <div class="skeleton" style="height: 12px; width: 60%; border-radius: 4px;"></div>
+                        <div style="display: flex; gap: 15px; margin-top: 4px;">
+                            <div class="skeleton" style="height: 12px; width: 45px; border-radius: 4px;"></div>
+                            <div class="skeleton" style="height: 12px; width: 45px; border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        return skeletonsHtml;
+    }
+
     window.loadComments = async function() {
         const listEl = document.getElementById('comments-list');
-        listEl.innerHTML = '<div style="text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 40px;">Loading comments... <i class="fa-solid fa-spinner fa-spin" style="margin-left: 8px;"></i></div>';
+        listEl.innerHTML = renderCommentSkeletons();
         
         try {
             const commentPath = (sIdx !== null && eIdx !== null) ? `reviews/${movieId}_s${sIdx}_e${eIdx}` : `reviews/${movieId}`;
