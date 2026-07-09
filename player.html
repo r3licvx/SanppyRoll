@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content, viewport-fit=cover">
+    
+    <!-- Third-Party Domain & Hotlinking Referrer Bypass -->
+    <meta name="referrer" content="no-referrer">
+    
     <title>SanppyRoll - Watch</title>
     
     <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
@@ -242,7 +246,17 @@
             z-index: 100; pointer-events: none; display: flex; justify-content: center; align-items: center;
             opacity: 0; visibility: hidden; transition: opacity 0.3s;
         }
-        .loader-content { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        
+        /* Smooth Transition for Loader Shift */
+        .loader-content { 
+            display: flex; flex-direction: column; align-items: center; gap: 15px; 
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        
+        /* Shifting Loader Upward When Controls are Active */
+        .video-container.show-controls .loader-content {
+            transform: translateY(-30px);
+        }
         
         .loader {
             --cloud-color: var(--accent);
@@ -620,8 +634,8 @@
                 <button class="upgrade-now-btn" style="background: var(--accent); color: #fff; border: none; padding: 4px 10px; border-radius: 12px; font-size: 11px; margin-left: 8px; cursor: pointer;" onclick="window.location.href='subscription.html'">Upgrade</button>
             </div>
 
-            <audio id="ext-audio" preload="auto" style="display: none;"></audio>
-            <video id="main-video" playsinline></video>
+            <audio id="ext-audio" preload="auto" referrerpolicy="no-referrer" style="display: none;"></audio>
+            <video id="main-video" playsinline referrerpolicy="no-referrer"></video>
             
             <div class="tap-layer" id="tap-layer"></div>
             
@@ -932,10 +946,25 @@
         miniProg.style.width = pct + "%";
         document.getElementById("curr").innerText = fmt(virtualCurrentTime);
         
+        // Quietly stop current chunk fetches to prevent server requests pile-up
+        if (hls) {
+            hls.stopLoad();
+        }
+        if (hlsAudio) {
+            hlsAudio.stopLoad();
+        }
+
         clearTimeout(seekDebounceTimeout);
         player.classList.add('loading');
         
         seekDebounceTimeout = setTimeout(() => {
+            // Re-enable and request fresh seek range chunks from third-party server
+            if (hls) {
+                hls.startLoad();
+            }
+            if (hlsAudio) {
+                hlsAudio.startLoad();
+            }
             vid.currentTime = virtualCurrentTime;
             if (hasExtAudio && !isNaN(extAud.duration)) {
                 extAud.currentTime = virtualCurrentTime;
@@ -1400,7 +1429,10 @@
             hlsAudio = new Hls({ 
                 startPosition: startTime,
                 enableWorker: true,
-                lowLatencyMode: true
+                lowLatencyMode: true,
+                xhrSetup: function (xhr, url) {
+                    xhr.withCredentials = false; // Prevents origin credentials mismatches
+                }
             });
             hlsAudio.loadSource(url);
             hlsAudio.attachMedia(extAud);
@@ -1489,13 +1521,16 @@
             if(hls) { hls.destroy(); hls = null; }
             hls = new Hls({ 
                 startPosition: time,
-                maxBufferLength: 30, /* Prevent pipeline request lockups with latency buffers */
+                maxBufferLength: 30, 
                 maxMaxBufferLength: 60,
                 enableWorker: true,
                 lowLatencyMode: true,
                 backBufferLength: 15,
                 fragLoadingMaxRetry: 5,
-                manifestLoadingMaxRetry: 5
+                manifestLoadingMaxRetry: 5,
+                xhrSetup: function (xhr, url) {
+                    xhr.withCredentials = false; // Mimics standard anonymous fetch
+                }
             }); 
             hls.loadSource(vidUrl); hls.attachMedia(vid);
             hls.on(Hls.Events.MANIFEST_PARSED, function () { 
@@ -1506,11 +1541,10 @@
             });
             hls.on(Hls.Events.ERROR, function (event, data) {
                 if (data.fatal) {
-                    console.error("HLS Error", data);
+                    console.error("HLS Error encountered", data);
                     if(isM3U8) playNative(vidUrl, time);
                     else {
-                        isMediaError = true;
-                        updateBufferingUI();
+                        hls.recoverMediaError(); // Continuous silent self-recovery
                     }
                 }
             });
@@ -1888,6 +1922,12 @@
         isDragging = true; 
         pArea.classList.add("dragging"); 
         updateTimelineVisuals(e); 
+        if (hls) {
+            hls.stopLoad();
+        }
+        if (hlsAudio) {
+            hlsAudio.stopLoad();
+        }
     };
     const dragMove = (e) => { 
         if (isDragging) {
@@ -1904,6 +1944,13 @@
         
         player.classList.add('loading');
         
+        if (hls) {
+            hls.startLoad();
+        }
+        if (hlsAudio) {
+            hlsAudio.startLoad();
+        }
+
         vid.currentTime = targetFinalTime; 
         if(hasExtAudio) {
             extAud.currentTime = targetFinalTime; 
