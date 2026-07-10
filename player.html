@@ -99,10 +99,33 @@
             margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.95;
             text-shadow: 0 2px 10px rgba(0,0,0,0.8);
         }
+
+        /* Header logo specific styling */
+        .header-logo-container {
+            display: block; 
+            flex-shrink: 0;
+            margin-left: 15px;
+            pointer-events: auto;
+        }
+        .header-logo-img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
         
         @media (max-width: 768px) {
             .title-wrapper { display: none; } 
             .top-header { padding: 15px 20px; }
+            /* Mobile par default hide rahega logo */
+            .header-logo-container {
+                display: none;
+            }
+            /* Only fullscreen par mobile me logo show hoga */
+            .video-container:fullscreen .header-logo-container,
+            .video-container:-webkit-full-screen .header-logo-container {
+                display: block !important;
+            }
         }
 
         .center-overlay {
@@ -240,82 +263,69 @@
         .yt-ripple i { font-size: 28px; margin-bottom: 8px; opacity: 0.9; }
         .yt-ripple span { font-size: 13px; font-weight: 400; }
 
-        /* --- PRECISE CLEAN CLOUD LOADER STYLE --- */
+        /* --- ADVANCED ROTATING DYNAMIC LOADER --- */
         .loader-wrapper {
             position: absolute; inset: 0;
             z-index: 100; pointer-events: none; display: flex; justify-content: center; align-items: center;
             opacity: 0; visibility: hidden; transition: opacity 0.3s;
         }
         
-        /* Smooth Transition for Loader Shift */
         .loader-content { 
             display: flex; flex-direction: column; align-items: center; gap: 15px; 
             transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         
-        /* Shifting Loader Upward When Controls are Active */
         .video-container.show-controls .loader-content {
             transform: translateY(-30px);
         }
-        
-        .loader {
-            --cloud-color: var(--accent);
-            --arrows-color: #ffffff;
-            --time-animation: 1.2s;
-            transform: scale(0.65); 
+
+        /* Responsive Custom Wave Loader Rules (Tailwind Classes Mapped to Native CSS) */
+        .custom-loader {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            height: 24px;
+        }
+        .custom-loader span {
+            width: 3px;
+            background-color: var(--accent);
+            border-radius: 4px;
+            transform-origin: center;
+            animation: spinner-wave 0.9s ease-in-out infinite;
             display: inline-block;
         }
+        .custom-loader span:nth-child(1) { height: 10px; animation-delay: 0s; }
+        .custom-loader span:nth-child(2) { height: 16px; animation-delay: 0.12s; }
+        .custom-loader span:nth-child(3) { height: 22px; animation-delay: 0.24s; }
+        .custom-loader span:nth-child(4) { height: 16px; animation-delay: 0.36s; }
+        .custom-loader span:nth-child(5) { height: 10px; animation-delay: 0.48s; }
 
-        .loader #cloud {
-            width: 80px;
-            height: 80px;
+        /* Auto-Sizing Wave Design in Fullscreen Mode (Precisely 43px high) [1] */
+        .video-container:fullscreen .custom-loader,
+        .video-container:-webkit-full-screen .custom-loader {
+            gap: 5px;
+            height: 43px;
         }
-
-        .loader #cloud rect {
-            fill: var(--cloud-color);
+        .video-container:fullscreen .custom-loader span,
+        .video-container:-webkit-full-screen .custom-loader span {
+            width: 5px;
+            border-radius: 6px;
         }
+        .video-container:fullscreen .custom-loader span:nth-child(1),
+        .video-container:-webkit-full-screen .custom-loader span:nth-child(1) { height: 18px; }
+        .video-container:fullscreen .custom-loader span:nth-child(2),
+        .video-container:-webkit-full-screen .custom-loader span:nth-child(2) { height: 28px; }
+        .video-container:fullscreen .custom-loader span:nth-child(3),
+        .video-container:-webkit-full-screen .custom-loader span:nth-child(3) { height: 38px; }
+        .video-container:fullscreen .custom-loader span:nth-child(4),
+        .video-container:-webkit-full-screen .custom-loader span:nth-child(4) { height: 28px; }
+        .video-container:fullscreen .custom-loader span:nth-child(5),
+        .video-container:-webkit-full-screen .custom-loader span:nth-child(5) { height: 18px; }
 
-        .loader #cloud g:nth-child(3) {
-            transform-origin: 50% 72.8938%;
-            fill: var(--arrows-color);
-            filter: drop-shadow(0 0 6px rgba(0,0,0,0.85));
-            animation: rotation var(--time-animation) linear infinite;
-        }
-
-        .loader #shapes g g circle {
-            animation: cloud calc(var(--time-animation) * 2) linear infinite;
-        }
-
-        .loader #shapes g g circle:nth-child(2) {
-            animation-delay: calc((var(--time-animation) * 2) / -3);
-        }
-
-        .loader #shapes g g circle:nth-child(3) {
-            animation-delay: calc((var(--time-animation) * 2) / -1.5);
-        }
-
-        .loader svg #lines g line {
-            stroke-width: 5;
-            transform-origin: 50% 50%;
-            rotate: -65deg;
-            animation: lines calc(var(--time-animation) / 1.33) linear infinite;
-        }
-
-        @keyframes rotation {
-            0% { transform: rotate(0deg); }
-            50% { transform: rotate(180deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes lines {
-            0% { transform: translateY(-10px); }
-            100% { transform: translateY(8px); }
-        }
-
-        @keyframes cloud {
-            0% { cx: 20; cy: 60; r: 15; }
-            50% { cx: 50; cy: 45; r: 20; }
-            100% { cx: 80; cy: 60; r: 15; }
+        @keyframes spinner-wave {
+            0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+            50% { transform: scaleY(1); opacity: 1; }
         }
 
         .video-container.loading .loader-wrapper { opacity: 1; visibility: visible; }
@@ -360,7 +370,7 @@
         
         #episode-list { display: flex; flex-direction: column; gap: 10px; }
         .ep-card { display: flex; gap: 12px; background: rgba(255, 255, 255, 0.02); padding: 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: all 0.2s; align-items: center; }
-        .ep-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(244, 117, 33, 0.4);}
+        .ep-card:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(244, 117, 33, 0.4);}
         .ep-card:active { transform: scale(0.98); }
         
         .ep-thumb { width: 110px; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; position: relative; flex-shrink: 0; background: #111; }
@@ -392,11 +402,38 @@
         .modal-body::-webkit-scrollbar { width: 3px; }
         .modal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
         
-        .comment-box { display: flex; gap: 12px; margin-bottom: 5px;}
+        /* --- VISUAL THREAD CONNECTOR STYLING FOR REPLIES --- */
+        .comment-box { display: flex; gap: 12px; margin-bottom: 5px; position: relative;}
+        
+        .comment-box.is-reply {
+            margin-left: 45px;
+            position: relative;
+        }
+
+        /* Distinct vertical gap before the very first nested reply */
+        .comment-box.is-reply:first-of-type {
+            margin-top: 10px;
+        }
+
+        /* Precise visual connection line stretching over the gaps */
+        .comment-box.is-reply::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: -20px;
+            width: 16px;
+            height: 38px;
+            border-left: 1.5px solid rgba(255, 255, 255, 0.12);
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.12);
+            border-bottom-left-radius: 8px;
+            pointer-events: none;
+        }
+
+        .c-avatar-wrapper { cursor: pointer; }
+        .c-name { font-size: 13px; font-weight: 600; color: #f1f1f1; margin-bottom: 4px; display: flex; align-items: center; cursor: pointer; }
         .c-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: #333;}
         .c-content { display: flex; flex-direction: column; flex: 1; padding-right: 5px;}
-        .c-name { font-size: 13px; font-weight: 600; color: #f1f1f1; margin-bottom: 4px; display: flex; align-items: center;}
-        .c-time { font-size: 11px; font-weight: 400; color: var(--text-muted); margin-left: 8px; }
+        .c-time { font-size: 11px; font-weight: 400; color: var(--text-muted); margin-left: 8px; cursor: default; }
         .c-text { font-size: 14px; font-weight: 400; color: #fff; line-height: 1.4; word-wrap: break-word; white-space: pre-wrap;}
         .c-text.truncated { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .read-more-btn { background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; padding: 0; margin-top: 5px; font-weight: 400; text-align: left; display: inline-block; width: max-content; outline: none;}
@@ -408,6 +445,8 @@
         .c-action-btn:hover { opacity: 1; color: var(--accent); }
         .c-action-btn.delete-btn { color: #ff453a; margin-left: auto; }
         .c-action-btn.delete-btn:hover { color: #ff6b63; }
+        .c-action-btn.pin-btn { color: var(--text-muted); }
+        .c-action-btn.pin-btn:hover { color: var(--accent); }
         
         .chat-input-area { padding: 15px 25px 20px; background: var(--bg-main); border-top: 1px solid rgba(255,255,255,0.05); z-index: 10; display: flex; gap: 10px; align-items: center;}
         .comment-input { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.05); color: #fff; font-size: 14px; font-weight: 400; outline: none; padding: 12px 18px; border-radius: 30px; transition: 0.2s;}
@@ -418,7 +457,7 @@
         .verified-tick { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; margin-left: 6px; flex-shrink: 0; }
         .verified-tick i { font-size: 8px; color: #fff; }
 
-        #toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(15,15,15,0.95); backdrop-filter: blur(10px); border: 1px solid var(--accent); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 400; z-index: 9999; opacity: 0; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
+        #toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(15,15,15,0.95); backdrop-filter: blur(10px); border: 1px solid var(--accent); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
         .del-modal-overlay {
@@ -556,60 +595,12 @@
             
             <div class="loader-wrapper" id="loader">
                 <div class="loader-content">
-                    <!-- Clean Premium Animated Cloud Loader -->
-                    <div class="loader">
-                      <svg id="cloud" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                        <defs>
-                          <filter id="roundness">
-                            <feGaussianBlur in="SourceGraphic" stdDeviation="1.5"></feGaussianBlur>
-                            <feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 20 -10"></feColorMatrix>
-                          </filter>
-                          <mask id="shapes">
-                            <g fill="white">
-                              <polygon points="50 37.5 80 75 20 75 50 37.5"></polygon>
-                              <circle cx="20" cy="60" r="15"></circle>
-                              <circle cx="80" cy="60" r="15"></circle>
-                              <g>
-                                <circle cx="20" cy="60" r="15"></circle>
-                                <circle cx="20" cy="60" r="15"></circle>
-                                <circle cx="20" cy="60" r="15"></circle>
-                              </g>
-                            </g>
-                          </mask>
-                          <mask id="clipping" clipPathUnits="userSpaceOnUse">
-                            <g id="lines" filter="url(#roundness)">
-                              <g mask="url(#shapes)" stroke="white">
-                                <line x1="-50" y1="-40" x2="150" y2="-40"></line>
-                                <line x1="-50" y1="-31" x2="150" y2="-31"></line>
-                                <line x1="-50" y1="-22" x2="150" y2="-22"></line>
-                                <line x1="-50" y1="-13" x2="150" y2="-13"></line>
-                                <line x1="-50" y1="-4" x2="150" y2="-4"></line>
-                                <line x1="-50" y1="5" x2="150" y2="5"></line>
-                                <line x1="-50" y1="14" x2="150" y2="14"></line>
-                                <line x1="-50" y1="23" x2="150" y2="23"></line>
-                                <line x1="-50" y1="32" x2="150" y2="32"></line>
-                                <line x1="-50" y1="41" x2="150" y2="41"></line>
-                                <line x1="-50" y1="50" x2="150" y2="50"></line>
-                                <line x1="-50" y1="59" x2="150" y2="59"></line>
-                                <line x1="-50" y1="68" x2="150" y2="68"></line>
-                                <line x1="-50" y1="77" x2="150" y2="77"></line>
-                                <line x1="-50" y1="86" x2="150" y2="86"></line>
-                                <line x1="-50" y1="95" x2="150" y2="95"></line>
-                                <line x1="-50" y1="104" x2="150" y2="104"></line>
-                                <line x1="-50" y1="113" x2="150" y2="113"></line>
-                                <line x1="-50" y1="122" x2="150" y2="122"></line>
-                                <line x1="-50" y1="131" x2="150" y2="131"></line>
-                                <line x1="-50" y1="140" x2="150" y2="140"></line>
-                              </g>
-                            </g>
-                          </mask>
-                        </defs>
-                        <rect x="0" y="0" width="100" height="100" rx="0" ry="0" mask="url(#clipping)"></rect>
-                        <g>
-                          <path d="M33.52,68.12 C35.02,62.8 39.03,58.52 44.24,56.69 C49.26,54.93 54.68,55.61 59.04,58.4 C59.04,58.4 56.24,60.53 56.24,60.53 C55.45,61.13 55.68,62.37 56.63,62.64 C56.63,62.64 67.21,65.66 67.21,65.66 C67.98,65.88 68.75,65.3 68.74,64.5 C68.74,64.5 68.68,53.5 68.68,53.5 C68.67,52.51 67.54,51.95 66.75,52.55 C66.75,52.55 64.04,54.61 64.04,54.61 C57.88,49.79 49.73,48.4 42.25,51.03 C35.2,53.51 29.78,59.29 27.74,66.49 C27.29,68.08 28.22,69.74 29.81,70.19 C30.09,70.27 30.36,70.31 30.63,70.31 C31.94,70.31 33.14,69.44 33.52,68.12Z"></path>
-                          <path d="M69.95,74.85 C68.35,74.4 66.7,75.32 66.25,76.92 C64.74,82.24 60.73,86.51 55.52,88.35 C50.51,90.11 45.09,89.43 40.73,86.63 C40.73,86.63 43.53,84.51 43.53,84.51 C44.31,83.91 44.08,82.67 43.13,82.4 C43.13,82.4 32.55,79.38 32.55,79.38 C31.78,79.16 31.02,79.74 31.02,80.54 C31.02,80.54 31.09,91.54 31.09,91.54 C31.09,92.53 32.22,93.09 33.01,92.49 C33.01,92.49 35.72,90.43 35.72,90.43 C39.81,93.63 44.77,95.32 49.84,95.32 C52.41,95.32 55,94.89 57.51,94.01 C64.56,91.53 69.99,85.75 72.02,78.55 C72.47,76.95 71.54,75.3 69.95,74.85Z"></path>
-                        </g>
-                      </svg>
+                    <div class="custom-loader" role="status" aria-label="loading">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
                     </div>
                 </div>
             </div>
@@ -620,6 +611,10 @@
                     <div class="title-wrapper">
                         <h1 id="video-title-text">Loading...</h1>
                     </div>
+                </div>
+                <!-- Dynamic Header Logo (Always visible on PC, Fullscreen only on Mobile) [1] -->
+                <div class="header-logo-container">
+                    <img src="logo.png" alt="Logo" class="header-logo-img">
                 </div>
             </div>
             
@@ -709,6 +704,49 @@
         <div class="chat-input-area">
             <input type="search" class="comment-input" id="new-comment-text" placeholder="Add a comment..." maxlength="400" autocomplete="off" autocorrect="off" enterkeyhint="send">
             <button class="post-comment-btn" onclick="postComment()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- FLOATING PROFILE PREVIEW MODAL POPUP (EXACT me.html SCHEMATICS) -->
+<div class="del-modal-overlay" id="profile-popup-overlay" style="z-index: 5000;" onclick="closeProfilePopup()">
+    <div class="del-modal-box" style="width: 90%; max-width: 320px; padding: 0; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.15);" onclick="event.stopPropagation()">
+        
+        <!-- Skeleton Loading Preview for Profile Popup (Custom Shimmer State) -->
+        <div id="popup-skeleton" style="padding: 28px 20px 22px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+            <div class="skeleton" style="width: 82px; height: 82px; border-radius: 50%;"></div>
+            <div class="skeleton" style="width: 140px; height: 22px; border-radius: 6px;"></div>
+            <div class="skeleton" style="width: 100px; height: 26px; border-radius: 20px;"></div>
+        </div>
+
+        <!-- Real Dynamic Profile Container -->
+        <div id="popup-real-content" style="display: none; flex-direction: column; width: 100%;">
+            <div class="profile-hero" style="border: none; border-radius: 0; padding: 28px 20px 22px; background: rgba(255,255,255,0.02); position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; width: 100%;">
+                
+                <!-- UPPER CORNER SECTION FOR BRANDING & BADGE (Subscription Badge Swapped with Logo) -->
+                <div style="position: absolute; top: 12px; left: 12px; z-index: 10;">
+                    <!-- Sleek Website Logo on Top Left -->
+                    <img src="logo.png" style="width: 20px; height: 22px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));" onerror="this.style.display='none';">
+                </div>
+
+                <div class="hero-banner-bg" id="popup-banner-bg" style="position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.6; z-index: 0; pointer-events: none; filter: blur(5px); transform: scale(1.15);"></div>
+                <div class="hero-banner-overlay" style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.95) 100%); z-index: 0; pointer-events: none;"></div>
+                
+                <div class="profile-avatar-wrap" style="position: relative; display: inline-block; width: 88px; height: 88px; margin-bottom: 5px; z-index: 1;">
+                    <div class="profile-avatar-box" id="popup-avatar-box" style="width: 82px; height: 82px; border-radius: 50%; border: 3px solid var(--accent); display: block; overflow: hidden; position: relative; background: #1a1a1a; margin: 0 auto;">
+                        <div class="avatar-blur-bg" id="popup-avatar-blur-bg" style="position: absolute; inset: 0; background-size: cover; background-position: center; filter: blur(8px); transform: scale(1.2); opacity: 0.6; z-index: 1;"></div>
+                        <div class="profile-avatar-fallback" id="popup-avatar-fallback" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 900; color: #fff; background: linear-gradient(135deg, var(--accent), #e00073); position: relative; z-index: 2;">?</div>
+                    </div>
+                </div>
+
+                <div class="hero-name-row" style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 5px; z-index: 1;">
+                    <span id="popup-username" style="font-size: 21px; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="padding: 15px; background: #1c1c1e; display: flex; justify-content: center; border-top: 1px solid rgba(255,255,255,0.08);">
+            <button class="del-modal-cancel" style="width: 100%; max-width: 150px; padding: 10px;" onclick="closeProfilePopup()">Close</button>
         </div>
     </div>
 </div>
@@ -855,24 +893,24 @@
             
             <div id="below-content-real" style="display: none;">
                 <div class="video-info-section">
-                    <h1 id="yt-title" class="yt-title">Loading...</h1>
-                    <p id="yt-desc" class="yt-desc"></p>
+                    <h1 id="yt-title" class="yt-title" style="opacity: 0;">Loading...</h1>
+                    <p id="yt-desc" class="yt-desc" style="opacity: 0;"></p>
                 </div>
                 
                 <div class="details-section">
                     <div class="action-row">
                         <button class="action-btn" onclick="openComments()"><i class="fa-solid fa-comment-dots"></i> Comments</button>
-                        <button class="action-btn" onclick="shareContent()"><i class="fa-solid fa-share-nodes"></i> Share</button>
-                        <button class="action-btn" onclick="window.location.href='mailto:SanppyRoll@protonmail.com'"><i class="fa-solid fa-envelope"></i> Contact</button>
+                        <button class="action-btn" onclick="shareContent()" style="opacity: 0;"><i class="fa-solid fa-share-nodes"></i> Share</button>
+                        <button class="action-btn" onclick="window.location.href='mailto:SanppyRoll@protonmail.com'" style="opacity: 0;"><i class="fa-solid fa-envelope"></i> Contact</button>
                     </div>
                     
-                    <div class="series-container" id="series-selector" style="display: none;">
+                    <div class="series-container" id="series-selector" style="display: none; opacity: 0;">
                         <div class="season-tabs" id="season-tabs"></div>
                         <div id="episode-list"></div>
                     </div>
                 </div>
                 
-                <div class="recommendations-section" id="recommendations-section" style="display: none;">
+                <div class="recommendations-section" id="recommendations-section" style="display: none; opacity: 0;">
                     <h3 class="row-title"><i class="fa-solid fa-bolt" style="color: var(--accent);"></i> More Like This</h3>
                     <div class="posters-scroll" id="recommendations-list"></div>
                 </div>
@@ -990,7 +1028,15 @@
         }, 50);
     });
     
-    window.addEventListener('beforeunload', () => { forceFirebaseSync(); });
+    window.addEventListener('beforeunload', () => { 
+        vid.pause();
+        extAud.pause();
+        forceFirebaseSync(); 
+    });
+    window.addEventListener('pagehide', () => {
+        vid.pause();
+        extAud.pause();
+    });
     
     window.popBtn = (el) => {
         if(!el) return;
@@ -1079,6 +1125,10 @@
     }
 
     window.exitAndGoBack = () => {
+        vid.pause();
+        extAud.pause();
+        vid.removeAttribute('src');
+        extAud.removeAttribute('src');
         if (document.fullscreenElement) {
             document.exitFullscreen();
             if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
@@ -1092,6 +1142,22 @@
     const fitNames = ['Original Size (Contain)', 'Stretch (Fill)', 'Zoom to Crop (Cover)', 'Scale 1.15x', 'Scale 1.25x'];
     let currentFit = 0;
     
+    // Toggle replies view state (collapse/expand) [5]
+    window.toggleRepliesVisibility = function(parentId) {
+        const container = document.getElementById(`extra-replies-${parentId}`);
+        const btn = document.getElementById(`replies-btn-${parentId}`);
+        if (!container || !btn) return;
+        if (container.style.display === 'none') {
+            container.style.display = 'block';
+            const count = container.querySelectorAll('.comment-box').length;
+            btn.innerHTML = `<i class="fa-solid fa-chevron-up"></i> Hide replies`;
+        } else {
+            container.style.display = 'none';
+            const count = container.querySelectorAll('.comment-box').length;
+            btn.innerHTML = `<i class="fa-solid fa-chevron-down"></i> View ${count} more replies`;
+        }
+    }
+
     function showMsg(msg) {
         msgText.innerText = msg; msgOverlay.classList.add('active');
         setTimeout(() => msgOverlay.classList.remove('active'), 1500);
@@ -1667,7 +1733,9 @@
         if (hasExtAudio && extAud.readyState < 3) { 
             vid.pause(); isAudBuffering = true; updateBufferingUI(); return;
         }
-        isVidBuffering = false; isMediaError = false; updateBufferingUI();
+        isVidBuffering = false; isAudBuffering = false; isMediaError = false; 
+        updateBufferingUI();
+        player.classList.remove("loading"); // Force hide loader immediately when playing [1]
         if(hasExtAudio && intendedPlayState && !extAud.paused) {
             if(Math.abs(vid.currentTime - extAud.currentTime) > 0.15) extAud.currentTime = vid.currentTime;
         }
@@ -1677,7 +1745,9 @@
         if (vid.readyState < 3) {
             extAud.pause(); isVidBuffering = true; updateBufferingUI(); return;
         }
-        isAudBuffering = false; isMediaError = false; updateBufferingUI();
+        isVidBuffering = false; isAudBuffering = false; isMediaError = false; 
+        updateBufferingUI();
+        player.classList.remove("loading"); // Force hide loader immediately when playing [1]
     });
     
     vid.addEventListener('ratechange', () => { if(hasExtAudio) extAud.playbackRate = vid.playbackRate; });
@@ -2030,6 +2100,11 @@
             document.getElementById("curr").innerText = fmt(vid.currentTime); 
         }
         
+        // Safety lock: If the video is playing and moving forward, ensure loader is completely hidden [1]
+        if (!vid.paused && vid.currentTime > 0 && !isVidBuffering && !isAudBuffering) {
+            player.classList.remove("loading");
+        }
+        
         if (currentUser && intendedPlayState && (vid.currentTime - lastFirebaseSaveTime > 30)) { 
             const epKey = (sIdx !== null && eIdx !== null) ? `s${sIdx}_e${eIdx}` : 'movie';
             const progressObj = { time: vid.currentTime, duration: vid.duration || 0, last_watched: new Date().getTime() };
@@ -2117,6 +2192,126 @@
         return skeletonsHtml;
     }
 
+    /* --- PROFILE MODAL INTERACTIVE POPUP LOAD LOGIC (Fixed Skeleton Delay & Verification Badge Integration) --- */
+    window.openProfilePopup = async function(uid) {
+        const overlay = document.getElementById('profile-popup-overlay');
+        const usernameEl = document.getElementById('popup-username');
+        const bannerBg = document.getElementById('popup-banner-bg');
+        const avatarBlurBg = document.getElementById('popup-avatar-blur-bg');
+        const avatarFallback = document.getElementById('popup-avatar-fallback');
+        
+        // Render Skeleton Shimmer layout initially
+        document.getElementById('popup-skeleton').style.display = 'flex';
+        document.getElementById('popup-real-content').style.display = 'none';
+        
+        bannerBg.style.backgroundImage = 'none';
+        avatarBlurBg.style.backgroundImage = 'none';
+        avatarFallback.style.display = 'flex';
+        avatarFallback.innerText = "?";
+        
+        const box = document.getElementById('popup-avatar-box');
+        const existingImg = box.querySelector('.profile-avatar-img');
+        if (existingImg) existingImg.remove();
+        
+        overlay.classList.add('active');
+        
+        // Guarantee skeleton displays for exactly 1 second to showcase clean shimmer state
+        const delayPromise = new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // DB fetch pipeline run concurrently
+        const fetchPromise = (async () => {
+            const profileSnap = await get(ref(db, `users/${uid}/profile`));
+            const subSnap = await get(ref(db, `users/${uid}/subscription`));
+            return { profileSnap, subSnap };
+        })();
+        
+        try {
+            // Block until both visual timer & network data complete [2]
+            const [_, data] = await Promise.all([delayPromise, fetchPromise]);
+            const { profileSnap, subSnap } = data;
+            
+            let profileData = profileSnap.exists() ? profileSnap.val() : {};
+            let name = profileData.username || "User";
+            let avatarUrl = profileData.avatarUrl || "";
+            let bannerUrl = profileData.bannerUrl || avatarUrl || "";
+            
+            // Premium/Verified check
+            let isPremium = false;
+            if (subSnap.exists()) {
+                const sub = subSnap.val();
+                if (sub && sub.plan && sub.expiry && Date.now() < sub.expiry) {
+                    if (sub.plan !== 'free') {
+                        isPremium = true;
+                    }
+                }
+            }
+            
+            // Appends verified badge next to the username if active [1]
+            usernameEl.innerHTML = `<span>@${name.replace(/\s+/g, '')}</span>` + 
+                (isPremium ? `<span class="verified-tick" title="Subscribed" style="margin-left: 6px; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="fa-solid fa-check" style="font-size: 8px; color: #fff;"></i></span>` : '');
+            
+            if (avatarUrl) {
+                avatarBlurBg.style.backgroundImage = `url('${avatarUrl}')`;
+                avatarFallback.style.display = 'none';
+                
+                const img = document.createElement('img');
+                img.src = avatarUrl;
+                img.className = 'profile-avatar-img';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.style.position = 'relative';
+                img.style.zIndex = '2';
+                img.style.display = 'block';
+                img.onerror = () => {
+                    img.remove();
+                    avatarBlurBg.style.backgroundImage = 'none';
+                    avatarFallback.style.display = 'flex';
+                    avatarFallback.innerText = name.charAt(0).toUpperCase();
+                };
+                box.appendChild(img);
+            } else {
+                avatarBlurBg.style.backgroundImage = 'none';
+                avatarFallback.style.display = 'flex';
+                avatarFallback.innerText = name.charAt(0).toUpperCase();
+            }
+            
+            if (bannerUrl) {
+                bannerBg.style.backgroundImage = `url('${bannerUrl}')`;
+            } else {
+                bannerBg.style.backgroundImage = 'none';
+            }
+            
+            // Transition view to real loaded content smoothly
+            document.getElementById('popup-skeleton').style.display = 'none';
+            document.getElementById('popup-real-content').style.display = 'flex';
+            
+        } catch(e) {
+            console.error(e);
+            usernameEl.innerText = "Error loading profile";
+            document.getElementById('popup-skeleton').style.display = 'none';
+            document.getElementById('popup-real-content').style.display = 'flex';
+        }
+    }
+    
+    window.closeProfilePopup = function() {
+        document.getElementById('profile-popup-overlay').classList.remove('active');
+    }
+
+    /* --- ADMIN CHOOSE PIN/UNPIN LOGIC --- */
+    window.togglePinComment = async function(revId, currentlyPinned) {
+        const commentPath = (sIdx !== null && eIdx !== null) 
+            ? `reviews/${movieId}_s${sIdx}_e${eIdx}/${revId}` 
+            : `reviews/${movieId}/${revId}`;
+        try {
+            await update(ref(db, commentPath), { isPinned: !currentlyPinned });
+            showToast(!currentlyPinned ? "Comment Pinned!" : "Comment Unpinned!");
+            loadComments();
+        } catch(e) {
+            showToast("Failed to toggle pin state");
+        }
+    }
+
     window.loadComments = async function() {
         const listEl = document.getElementById('comments-list');
         listEl.innerHTML = renderCommentSkeletons();
@@ -2128,8 +2323,8 @@
             if(snap.exists()) {
                 let revs = [];
                 snap.forEach(child => { revs.push({ id: child.key, ...child.val() }); });
-                revs.sort((a,b) => b.timestamp - a.timestamp);
                 
+                // Get Unique UIDs of authors
                 let uniqueUids = [...new Set(revs.map(r => r.uid))];
                 revs.forEach(r => { if(r.replyToUid) uniqueUids.push(r.replyToUid); });
                 uniqueUids = [...new Set(uniqueUids)];
@@ -2154,21 +2349,70 @@
                     let cleanLiveUsername = currentLiveName.replace(/\s+/g, '').toLowerCase();
                     usernameToLatestMap[cleanLiveUsername] = currentLiveName.replace(/\s+/g, '');
                 }
+
+                // Split comments into Root parents and Replies
+                let rootComments = [];
+                let replies = [];
+
+                revs.forEach(r => {
+                    if (r.replyToUid) {
+                        replies.push(r);
+                    } else {
+                        rootComments.push(r);
+                        r.childrenReplies = []; 
+                    }
+                });
+
+                // Map replies under their closest/correct parent thread
+                replies.forEach(reply => {
+                    let parentComment = rootComments
+                        .filter(p => p.uid === reply.replyToUid && p.timestamp < reply.timestamp)
+                        .sort((a,b) => b.timestamp - a.timestamp)[0];
+                    
+                    if (parentComment) {
+                        parentComment.childrenReplies.push(reply);
+                    } else {
+                        let anyParent = rootComments.find(p => p.uid === reply.replyToUid);
+                        if (anyParent) {
+                            anyParent.childrenReplies.push(reply);
+                        } else {
+                            // Fallback: If parent thread is lost, render as root so it doesn't vanish
+                            reply.childrenReplies = [];
+                            rootComments.push(reply);
+                        }
+                    }
+                });
+
+                // Sort root comments: Pinned first, then newest timestamp
+                rootComments.sort((a,b) => {
+                    const pinA = a.isPinned ? 1 : 0;
+                    const pinB = b.isPinned ? 1 : 0;
+                    if (pinA !== pinB) return pinB - pinA;
+                    return b.timestamp - a.timestamp;
+                });
+
+                // Sort children replies chronologically (oldest to newest) inside the thread
+                rootComments.forEach(p => {
+                    if (p.childrenReplies) {
+                        p.childrenReplies.sort((a,b) => a.timestamp - b.timestamp);
+                    }
+                });
                 
                 let html = '';
-                revs.forEach(r => {
-                    let uData = usersCache[r.uid] || {};
-                    let dName = uData.username || uData.name || uData.displayName || r.name || "User";
+                rootComments.forEach(p => {
+                    let pinIndicator = p.isPinned ? `<div style="font-size: 10px; color: var(--accent); margin-bottom: 4px; display: flex; align-items: center; gap: 4px;"><i class="fa-solid fa-thumbtack"></i> Pinned</div>` : '';
+                    
+                    let uData = usersCache[p.uid] || {};
+                    let dName = uData.username || uData.name || uData.displayName || p.name || "User";
                     let cleanCurrentName = dName.replace(/\s+/g, '');
                     
-                    let textStr = (r.text || '').replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    let textStr = (p.text || '').replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     
-                    if (r.replyToUid && r.replyToName) {
-                        let targetUserData = usersCache[r.replyToUid] || {};
-                        let targetLiveName = targetUserData.username || targetUserData.name || targetUserData.displayName || r.replyToName;
+                    if (p.replyToUid && p.replyToName) {
+                        let targetUserData = usersCache[p.replyToUid] || {};
+                        let targetLiveName = targetUserData.username || targetUserData.name || targetUserData.displayName || p.replyToName;
                         let cleanLiveTargetName = targetLiveName.replace(/\s+/g, '');
-                        
-                        let regex = new RegExp(`@${r.replyToName}`, 'i');
+                        let regex = new RegExp(`@${p.replyToName}`, 'i');
                         textStr = textStr.replace(regex, `@${cleanLiveTargetName}`);
                     }
                     
@@ -2178,48 +2422,165 @@
                         return `<span style="color: var(--accent); font-weight: 600;">@${latestMappedName}</span>`;
                     });
                     
-                    let isOwner = currentUser && r.uid === currentUser.uid;
-                    let likesObj = r.likes || {};
+                    let isOwner = currentUser && p.uid === currentUser.uid;
+                    let likesObj = p.likes || {};
                     let likeCount = typeof likesObj === 'object' ? Object.keys(likesObj).length : 0;
                     let hasLiked = currentUser && typeof likesObj === 'object' ? !!likesObj[currentUser.uid] : false;
                     
-                    const isVerified = r.isVerified === true; 
+                    const isVerified = p.isVerified === true; 
                     const verifiedHtml = isVerified ? `<span class="verified-tick" title="Subscribed"><i class="fa-solid fa-check"></i></span>` : '';
                     
+                    let pinBtnHtml = '';
+                    if (currentUser && currentUser.email === 'z3ro.vx@mail.ru') {
+                        pinBtnHtml = `
+                        <button class="c-action-btn pin-btn" onclick="togglePinComment('${p.id}', ${!!p.isPinned})" style="color: ${p.isPinned ? 'var(--accent)' : ''}; opacity: ${p.isPinned ? '1' : '0.7'}">
+                            <i class="fa-solid fa-thumbtack" style="${p.isPinned ? 'transform: rotate(45deg);' : ''}"></i> ${p.isPinned ? 'Unpin' : 'Pin'}
+                        </button>
+                        `;
+                    }
+
                     let imgAvatarHtml = '';
-                    let customAvatarUrl = uData.avatarUrl || uData.photoURL || uData.photoUrl || r.photoURL || "";
+                    let customAvatarUrl = uData.avatarUrl || uData.photoURL || uData.photoUrl || p.photoURL || "";
                     
                     if(customAvatarUrl) {
-                        imgAvatarHtml = `<div class="c-avatar-wrapper" style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; position: relative; flex-shrink: 0; border: 1.5px solid var(--accent); background: #1a1a1a;">
+                        imgAvatarHtml = `<div class="c-avatar-wrapper" onclick="openProfilePopup('${p.uid}')" style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; position: relative; flex-shrink: 0; border: 1.5px solid var(--accent); background: #1a1a1a; cursor: pointer;">
                             <img src="${customAvatarUrl}" class="c-avatar" style="width:100%; height:100%; object-fit: cover;" referrerpolicy="no-referrer" onerror="this.style.display='none'; this.parentNode.querySelector('.fallback-c-letter').style.display='flex';">
                             <div class="fallback-c-letter" style="display:none; width:100%; height:100%; align-items:center; justify-content:center; background:linear-gradient(135deg, var(--accent), #e00073); color:#fff; font-size:14px; font-weight:800;">${dName.charAt(0).toUpperCase()}</div>
                         </div>`;
                     } else {
-                        imgAvatarHtml = `<div class="c-avatar-wrapper" style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent), #e00073); color: #fff; font-size: 14px; font-weight: 800; flex-shrink: 0; border: 1.5px solid var(--accent);">
+                        imgAvatarHtml = `<div class="c-avatar-wrapper" onclick="openProfilePopup('${p.uid}')" style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent), #e00073); color: #fff; font-size: 14px; font-weight: 800; flex-shrink: 0; border: 1.5px solid var(--accent); cursor: pointer;">
                             ${dName.charAt(0).toUpperCase()}
                         </div>`;
                     }
 
                     let textHtml = '';
                     if(textStr.length > 150) {
-                        textHtml = `<div class="c-text truncated" id="txt-${r.id}">${textStr}</div><button class="read-more-btn" onclick="document.getElementById('txt-${r.id}').classList.remove('truncated'); this.remove();">Read more</button>`;
+                        textHtml = `<div class="c-text truncated" id="txt-${p.id}">${textStr}</div><button class="read-more-btn" onclick="document.getElementById('txt-${p.id}').classList.remove('truncated'); this.remove();">Read more</button>`;
                     } else {
                         textHtml = `<div class="c-text">${textStr}</div>`;
                     }
 
-                    html += `
-                    <div class="comment-box" id="comment-${r.id}" style="opacity: 0;">
-                        ${imgAvatarHtml}
-                        <div class="c-content" style="margin-left: 4px;">
-                            <div class="c-name">@${cleanCurrentName} ${verifiedHtml}<span class="c-time">${timeAgo(r.timestamp)}</span></div>
-                            ${textHtml}
-                            <div class="c-actions">
-                                <button class="c-action-btn" onclick="toggleLike('${r.id}')" style="${hasLiked ? 'color: var(--accent); opacity: 1;' : ''}">
-                                    <i class="${hasLiked ? 'fa-solid' : 'fa-regular'} fa-thumbs-up"></i> ${likeCount > 0 ? likeCount : ''}
+                    // Build HTML for children replies
+                    let repliesHtml = '';
+                    let extraRepliesHtml = '';
+                    
+                    if (p.childrenReplies && p.childrenReplies.length > 0) {
+                        p.childrenReplies.forEach((r, idx) => {
+                            let ruData = usersCache[r.uid] || {};
+                            let rdName = ruData.username || ruData.name || ruData.displayName || r.name || "User";
+                            let rCleanName = rdName.replace(/\s+/g, '');
+                            
+                            let rTextStr = (r.text || '').replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                            
+                            if (r.replyToUid && r.replyToName) {
+                                let rTargetUserData = usersCache[r.replyToUid] || {};
+                                let rTargetLiveName = rTargetUserData.username || rTargetUserData.name || rTargetUserData.displayName || r.replyToName;
+                                let rCleanLiveTargetName = rTargetLiveName.replace(/\s+/g, '');
+                                let rRegex = new RegExp(`@${r.replyToName}`, 'i');
+                                rTextStr = rTextStr.replace(rRegex, `@${rCleanLiveTargetName}`);
+                            }
+                            
+                            rTextStr = rTextStr.replace(/@(\S+)/g, (match, p1) => {
+                                let extractedUser = p1.toLowerCase();
+                                let latestMappedName = usernameToLatestMap[extractedUser] || p1;
+                                return `<span style="color: var(--accent); font-weight: 600;">@${latestMappedName}</span>`;
+                            });
+
+                            let rIsOwner = currentUser && r.uid === currentUser.uid;
+                            let rLikesObj = r.likes || {};
+                            let rLikeCount = typeof rLikesObj === 'object' ? Object.keys(rLikesObj).length : 0;
+                            let rHasLiked = currentUser && typeof rLikesObj === 'object' ? !!rLikesObj[currentUser.uid] : false;
+                            
+                            const rIsVerified = r.isVerified === true;
+                            const rVerifiedHtml = rIsVerified ? `<span class="verified-tick" title="Subscribed"><i class="fa-solid fa-check"></i></span>` : '';
+                            
+                            let rPinBtnHtml = '';
+                            if (currentUser && currentUser.email === 'z3ro.vx@mail.ru') {
+                                rPinBtnHtml = `
+                                <button class="c-action-btn pin-btn" onclick="togglePinComment('${r.id}', ${!!r.isPinned})" style="color: ${r.isPinned ? 'var(--accent)' : ''}; opacity: ${r.isPinned ? '1' : '0.7'}">
+                                    <i class="fa-solid fa-thumbtack" style="${r.isPinned ? 'transform: rotate(45deg);' : ''}"></i> ${r.isPinned ? 'Unpin' : 'Pin'}
                                 </button>
-                                <button class="c-action-btn" onclick="replyTo('${cleanCurrentName}', '${r.uid}')"><i class="fa-solid fa-reply"></i> Reply</button>
-                                ${isOwner || (currentUser && currentUser.email === 'z3ro.vx@mail.ru') ? `<button class="c-action-btn delete-btn" onclick="deleteComment('${r.id}')"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+                                `;
+                            }
+
+                            let rAvatarHtml = '';
+                            let rCustomAvatarUrl = ruData.avatarUrl || ruData.photoURL || ruData.photoUrl || r.photoURL || "";
+                            
+                            if(rCustomAvatarUrl) {
+                                rAvatarHtml = `<div class="c-avatar-wrapper" onclick="openProfilePopup('${r.uid}')" style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; position: relative; flex-shrink: 0; border: 1.5px solid var(--accent); background: #1a1a1a; cursor: pointer;">
+                                    <img src="${rCustomAvatarUrl}" class="c-avatar" style="width:100%; height:100%; object-fit: cover;" referrerpolicy="no-referrer" onerror="this.style.display='none'; this.parentNode.querySelector('.fallback-c-letter').style.display='flex';">
+                                    <div class="fallback-c-letter" style="display:none; width:100%; height:100%; align-items:center; justify-content:center; background:linear-gradient(135deg, var(--accent), #e00073); color:#fff; font-size:14px; font-weight:800;">${rdName.charAt(0).toUpperCase()}</div>
+                                </div>`;
+                            } else {
+                                rAvatarHtml = `<div class="c-avatar-wrapper" onclick="openProfilePopup('${r.uid}')" style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent), #e00073); color: #fff; font-size: 14px; font-weight: 800; flex-shrink: 0; border: 1.5px solid var(--accent); cursor: pointer;">
+                                    ${rdName.charAt(0).toUpperCase()}
+                                </div>`;
+                            }
+
+                            let rTextHtml = '';
+                            if(rTextStr.length > 150) {
+                                rTextHtml = `<div class="c-text truncated" id="txt-${r.id}">${rTextStr}</div><button class="read-more-btn" onclick="document.getElementById('txt-${r.id}').classList.remove('truncated'); this.remove();">Read more</button>`;
+                            } else {
+                                rTextHtml = `<div class="c-text">${rTextStr}</div>`;
+                            }
+
+                            let singleReplyHtml = `
+                            <div class="comment-box is-reply" id="comment-${r.id}" style="opacity: 0;">
+                                ${rAvatarHtml}
+                                <div class="c-content" style="margin-left: 4px;">
+                                    <div class="c-name" onclick="openProfilePopup('${r.uid}')">@${rCleanName} ${rVerifiedHtml}<span class="c-time">${timeAgo(r.timestamp)}</span></div>
+                                    ${rTextHtml}
+                                    <div class="c-actions">
+                                        <button class="c-action-btn ${rHasLiked ? 'liked-by-me' : ''}" onclick="toggleLike('${r.id}')" style="${rHasLiked ? 'color: var(--accent); opacity: 1;' : ''}">
+                                            <i class="${rHasLiked ? 'fa-solid' : 'fa-regular'} fa-thumbs-up"></i> <span>${rLikeCount > 0 ? rLikeCount : ''}</span>
+                                        </button>
+                                        <button class="c-action-btn" onclick="replyTo('${rCleanName}', '${r.uid}')"><i class="fa-solid fa-reply"></i> Reply</button>
+                                        ${rPinBtnHtml}
+                                        ${rIsOwner || (currentUser && currentUser.email === 'z3ro.vx@mail.ru') ? `<button class="c-action-btn delete-btn" onclick="deleteComment('${r.id}')"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+                                    </div>
+                                </div>
+                            </div>`;
+
+                            if (idx < 3) {
+                                repliesHtml += singleReplyHtml;
+                            } else {
+                                extraRepliesHtml += singleReplyHtml;
+                            }
+                        });
+                    }
+
+                    html += `
+                    <div class="comment-box" id="comment-${p.id}" style="opacity: 0; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; gap: 12px; width: 100%;">
+                            ${imgAvatarHtml}
+                            <div class="c-content" style="margin-left: 4px;">
+                                ${pinIndicator}
+                                <div class="c-name" onclick="openProfilePopup('${p.uid}')">@${cleanCurrentName} ${verifiedHtml}<span class="c-time">${timeAgo(p.timestamp)}</span></div>
+                                ${textHtml}
+                                <div class="c-actions">
+                                    <button class="c-action-btn ${hasLiked ? 'liked-by-me' : ''}" onclick="toggleLike('${p.id}')" style="${hasLiked ? 'color: var(--accent); opacity: 1;' : ''}">
+                                        <i class="${hasLiked ? 'fa-solid' : 'fa-regular'} fa-thumbs-up"></i> <span>${likeCount > 0 ? likeCount : ''}</span>
+                                    </button>
+                                    <button class="c-action-btn" onclick="replyTo('${cleanCurrentName}', '${p.uid}')"><i class="fa-solid fa-reply"></i> Reply</button>
+                                    ${pinBtnHtml}
+                                    ${isOwner || (currentUser && currentUser.email === 'z3ro.vx@mail.ru') ? `<button class="c-action-btn delete-btn" onclick="deleteComment('${p.id}')"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+                                </div>
                             </div>
+                        </div>
+                        
+                        <!-- Replies Thread Container (Keeps conversations organized chronologically) -->
+                        <div class="replies-thread-container" style="display: flex; flex-direction: column; width: 100%;">
+                            ${repliesHtml}
+                            
+                            <!-- Extra Hidden Replies Toggle Handler [5] -->
+                            ${p.childrenReplies.length > 3 ? `
+                                <div class="extra-replies" id="extra-replies-${p.id}" style="display: none; width: 100%;">
+                                    ${extraRepliesHtml}
+                                </div>
+                                <button class="c-action-btn" id="replies-btn-${p.id}" onclick="toggleRepliesVisibility('${p.id}')" style="margin-left: 45px; margin-top: 6px; font-weight: 600; color: var(--accent); display: flex; align-items: center; gap: 6px; width: max-content;">
+                                    <i class="fa-solid fa-chevron-down"></i> View ${p.childrenReplies.length - 3} more replies
+                                </button>
+                            ` : ''}
                         </div>
                     </div>`;
                 });
@@ -2246,6 +2607,7 @@
         }
     }
 
+    /* --- OPTIMISTIC UI INSTANT COMMENT WRITING PIPELINE --- */
     window.postComment = async function() {
         if(!currentUser) { showToast("Login to comment!"); return; }
         const input = document.getElementById('new-comment-text');
@@ -2275,15 +2637,83 @@
             reviewData.replyToName = replyName;
         }
         if(currentUser.photoURL) reviewData.photoURL = currentUser.photoURL;
+
+        // Instant Dynamic DOM injection before Network Sync
+        let cleanCurrentName = reviewData.name.replace(/\s+/g, '');
+        let textStr = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        if (replyUid && replyName) {
+            let rRegex = new RegExp(`@${replyName}`, 'i');
+            textStr = textStr.replace(rRegex, `<span style="color: var(--accent); font-weight: 600;">@${replyName}</span>`);
+        }
         
+        let verifiedHtml = reviewData.isVerified ? `<span class="verified-tick" title="Subscribed"><i class="fa-solid fa-check"></i></span>` : '';
+        let imgAvatarHtml = '';
+        if(currentUser.photoURL) {
+            imgAvatarHtml = `<div class="c-avatar-wrapper" onclick="openProfilePopup('${currentUser.uid}')" style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; position: relative; flex-shrink: 0; border: 1.5px solid var(--accent); background: #1a1a1a; cursor: pointer;">
+                <img src="${currentUser.photoURL}" class="c-avatar" style="width:100%; height:100%; object-fit: cover;" referrerpolicy="no-referrer">
+            </div>`;
+        } else {
+            imgAvatarHtml = `<div class="c-avatar-wrapper" onclick="openProfilePopup('${currentUser.uid}')" style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent), #e00073); color: #fff; font-size: 14px; font-weight: 800; flex-shrink: 0; border: 1.5px solid var(--accent); cursor: pointer;">
+                ${reviewData.name.charAt(0).toUpperCase()}
+            </div>`;
+        }
+
+        let replyClass = replyUid ? 'is-reply' : '';
+        let optCommentHtml = `
+        <div class="comment-box ${replyClass}" id="comment-${reviewId}" style="opacity: 1;">
+            ${imgAvatarHtml}
+            <div class="c-content" style="margin-left: 4px;">
+                <div class="c-name" onclick="openProfilePopup('${currentUser.uid}')">@${cleanCurrentName} ${verifiedHtml}<span class="c-time">Just now</span></div>
+                <div class="c-text">${textStr}</div>
+                <div class="c-actions">
+                    <button class="c-action-btn" onclick="toggleLike('${reviewId}')">
+                        <i class="fa-regular fa-thumbs-up"></i> <span></span>
+                    </button>
+                    <button class="c-action-btn" onclick="replyTo('${cleanCurrentName}', '${currentUser.uid}')"><i class="fa-solid fa-reply"></i> Reply</button>
+                    <button class="c-action-btn delete-btn" onclick="deleteComment('${reviewId}')"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+            </div>
+        </div>`;
+
+        const listEl = document.getElementById('comments-list');
+        if (listEl.innerHTML.includes('No comments yet')) {
+            listEl.innerHTML = '';
+        }
+
+        if (replyUid) {
+            const parentThread = document.querySelector(`.comment-box`); 
+            if (parentThread) {
+                const threadCont = parentThread.querySelector('.replies-thread-container');
+                if (threadCont) {
+                    threadCont.insertAdjacentHTML('beforeend', optCommentHtml);
+                } else {
+                    listEl.insertAdjacentHTML('afterbegin', optCommentHtml);
+                }
+            } else {
+                listEl.insertAdjacentHTML('afterbegin', optCommentHtml);
+            }
+        } else {
+            const firstChild = listEl.querySelector('.comment-box');
+            if (firstChild) {
+                firstChild.insertAdjacentHTML('beforebegin', optCommentHtml);
+            } else {
+                listEl.insertAdjacentHTML('afterbegin', optCommentHtml);
+            }
+        }
+
+        // Wipe inputs instantly
+        input.value = ''; 
+        currentReplyToUid = null;
+        currentReplyToName = "";
+
+        // Background write task execution
         try { 
             const commentPath = (sIdx !== null && eIdx !== null) ? `reviews/${movieId}_s${sIdx}_e${eIdx}/${reviewId}` : `reviews/${movieId}/${reviewId}`;
             await set(ref(db, commentPath), reviewData); 
-            input.value = ''; 
-            currentReplyToUid = null;
-            currentReplyToName = "";
-            loadComments(); 
-        } catch(e) { showToast("Error posting comment."); }
+        } catch(e) { 
+            showToast("Error posting comment."); 
+            loadComments(); // Revert back to database state on failure
+        }
     }
     
     document.getElementById('new-comment-text').addEventListener('keypress', (e) => { if(e.key === 'Enter') postComment(); });
@@ -2315,25 +2745,52 @@
         } catch(e) { showToast("Error deleting comment!"); }
     }
 
+    /* --- OPTIMISTIC UI INSTANT LIKES PIPELINE --- */
     window.toggleLike = async function(revId) {
         if(!currentUser) { showToast("Login to like!"); return; }
+        
+        const btn = document.querySelector(`#comment-${revId} .c-action-btn:first-child`);
+        if(!btn) return;
+        
+        const icon = btn.querySelector('i');
+        const countSpan = btn.querySelector('span');
+        
+        const isCurrentlyLiked = btn.classList.contains('liked-by-me');
+        let currentCount = parseInt(countSpan.innerText.trim()) || 0;
+        
+        // Instant Local UI State Swap
+        if (isCurrentlyLiked) {
+            btn.style.color = '';
+            btn.style.opacity = '0.7';
+            btn.classList.remove('liked-by-me');
+            icon.className = 'fa-regular fa-thumbs-up';
+            let newCount = currentCount - 1;
+            countSpan.innerText = newCount > 0 ? newCount : '';
+        } else {
+            btn.style.color = 'var(--accent)';
+            btn.style.opacity = '1';
+            btn.classList.add('liked-by-me');
+            icon.className = 'fa-solid fa-thumbs-up';
+            let newCount = currentCount + 1;
+            countSpan.innerText = newCount;
+        }
         
         const revPath = (sIdx !== null && eIdx !== null) ? `reviews/${movieId}_s${sIdx}_e${eIdx}/${revId}` : `reviews/${movieId}/${revId}`;
         const likePath = `${revPath}/likes/${currentUser.uid}`;
         
         try {
-            const revSnap = await get(ref(db, revPath));
-            if(revSnap.exists() && typeof revSnap.val().likes === 'number') {
-                await set(ref(db, `${revPath}/likes`), null);
-            }
+            // Background database sync
             const snap = await get(ref(db, likePath));
             if (snap.exists()) {
                 await remove(ref(db, likePath)); 
             } else {
                 await set(ref(db, likePath), true); 
             }
+        } catch(e) { 
+            // Silent fallback in case of errors
+            showToast("Error updating like!");
             loadComments(); 
-        } catch(e) { showToast("Error toggling like!"); }
+        }
     }
 </script>
 </body>
