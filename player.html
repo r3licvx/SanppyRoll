@@ -370,7 +370,7 @@
         
         #episode-list { display: flex; flex-direction: column; gap: 10px; }
         .ep-card { display: flex; gap: 12px; background: rgba(255, 255, 255, 0.02); padding: 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: all 0.2s; align-items: center; }
-        .ep-card:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(244, 117, 33, 0.4);}
+        .ep-card:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(244, 117, 33, 0.4); }
         .ep-card:active { transform: scale(0.98); }
         
         .ep-thumb { width: 110px; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; position: relative; flex-shrink: 0; background: #111; }
@@ -405,14 +405,17 @@
         /* --- VISUAL THREAD CONNECTOR STYLING FOR REPLIES --- */
         .comment-box { display: flex; gap: 12px; margin-bottom: 5px; position: relative;}
         
+        /* ── ADJUSTED REPLY SPACING AND THREAD LINES ── */
         .comment-box.is-reply {
             margin-left: 45px;
+            margin-top: 14px;
+            margin-bottom: 4px;
             position: relative;
         }
 
         /* Distinct vertical gap before the very first nested reply */
         .comment-box.is-reply:first-of-type {
-            margin-top: 10px;
+            margin-top: 12px;
         }
 
         /* Precise visual connection line stretching over the gaps */
@@ -420,9 +423,9 @@
             content: '';
             position: absolute;
             left: -24px;
-            top: -20px;
+            top: -18px;
             width: 16px;
-            height: 38px;
+            height: 36px;
             border-left: 1.5px solid rgba(255, 255, 255, 0.12);
             border-bottom: 1.5px solid rgba(255, 255, 255, 0.12);
             border-bottom-left-radius: 8px;
@@ -457,7 +460,7 @@
         .verified-tick { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; margin-left: 6px; flex-shrink: 0; }
         .verified-tick i { font-size: 8px; color: #fff; }
 
-        #toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(15,15,15,0.95); backdrop-filter: blur(10px); border: 1px solid var(--accent); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
+        #toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(10px); border: 1px solid var(--accent); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
         .del-modal-overlay {
@@ -835,6 +838,9 @@
     let qTimer = null;
     let loadingTimeout = null; 
 
+    // CURRENT USER CACHED METADATA FOR INSTANT CHAT INJECTIONS
+    let currentUserProfile = {};
+
     // BUFFERING STATE TRACKERS
     let isVidBuffering = false;
     let isAudBuffering = false;
@@ -1047,6 +1053,17 @@
     onAuthStateChanged(auth, async (user) => {
         if (!user) { window.location.replace('index.html'); return; }
         currentUser = user;
+
+        // FETCH AND CACHE LOGGED-IN USER PROFILE DETAILS FOR INSTANT DOM INJECTIONS
+        try {
+            const profileSnap = await get(child(dbRef, `users/${user.uid}/profile`));
+            if (profileSnap.exists()) {
+                currentUserProfile = profileSnap.val();
+            }
+        } catch(e) {
+            console.error("Error caching current user profile metadata:", e);
+        }
+
         if(movieId) {
             try {
                 const prefSnap = await get(child(dbRef, `users/${currentUser.uid}/settings`));
@@ -2192,7 +2209,7 @@
         return skeletonsHtml;
     }
 
-    /* --- PROFILE MODAL INTERACTIVE POPUP LOAD LOGIC (Fixed Skeleton Delay & Verification Badge Integration) --- */
+    /* --- PROFILE MODAL INTERACTIVE POPUP LOAD LOGIC --- */
     window.openProfilePopup = async function(uid) {
         const overlay = document.getElementById('profile-popup-overlay');
         const usernameEl = document.getElementById('popup-username');
@@ -2626,7 +2643,7 @@
         const reviewId = 'rev_' + Date.now();
         const reviewData = { 
             uid: currentUser.uid, 
-            name: currentUser.displayName || currentUser.email.split('@')[0], 
+            name: currentUserProfile.username || currentUser.displayName || currentUser.email.split('@')[0], 
             text: text, 
             timestamp: Date.now(),
             isVerified: (userSubPlan && userSubPlan !== 'free') ? true : false
@@ -2636,7 +2653,12 @@
             reviewData.replyToUid = replyUid;
             reviewData.replyToName = replyName;
         }
-        if(currentUser.photoURL) reviewData.photoURL = currentUser.photoURL;
+        
+        // Use custom avatar from me.html if cached, otherwise fallback to standard auth details
+        const activeAvatar = currentUserProfile.avatarUrl || currentUser.photoURL || "";
+        if(activeAvatar) {
+            reviewData.photoURL = activeAvatar;
+        }
 
         // Instant Dynamic DOM injection before Network Sync
         let cleanCurrentName = reviewData.name.replace(/\s+/g, '');
@@ -2648,9 +2670,9 @@
         
         let verifiedHtml = reviewData.isVerified ? `<span class="verified-tick" title="Subscribed"><i class="fa-solid fa-check"></i></span>` : '';
         let imgAvatarHtml = '';
-        if(currentUser.photoURL) {
+        if(activeAvatar) {
             imgAvatarHtml = `<div class="c-avatar-wrapper" onclick="openProfilePopup('${currentUser.uid}')" style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; position: relative; flex-shrink: 0; border: 1.5px solid var(--accent); background: #1a1a1a; cursor: pointer;">
-                <img src="${currentUser.photoURL}" class="c-avatar" style="width:100%; height:100%; object-fit: cover;" referrerpolicy="no-referrer">
+                <img src="${activeAvatar}" class="c-avatar" style="width:100%; height:100%; object-fit: cover;" referrerpolicy="no-referrer">
             </div>`;
         } else {
             imgAvatarHtml = `<div class="c-avatar-wrapper" onclick="openProfilePopup('${currentUser.uid}')" style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent), #e00073); color: #fff; font-size: 14px; font-weight: 800; flex-shrink: 0; border: 1.5px solid var(--accent); cursor: pointer;">
@@ -2731,18 +2753,46 @@
     document.getElementById('del-modal').addEventListener('click', function(e) {
         if (e.target === this) _closeDelModal();
     });
+
+    // ── REMOVE COMMENT WITHOUT LOADING SKELETON RE-LOADS ──
     document.getElementById('del-modal-confirm').onclick = async function() {
         if (!_pendingDeleteId) return;
         const revId = _pendingDeleteId;
         _closeDelModal();
+        
         const commentPath = (sIdx !== null && eIdx !== null)
             ? `reviews/${movieId}_s${sIdx}_e${eIdx}/${revId}`
             : `reviews/${movieId}/${revId}`;
+            
         try {
             await remove(ref(db, commentPath));
             showToast("Comment deleted.");
-            loadComments();
-        } catch(e) { showToast("Error deleting comment!"); }
+            
+            // Animate and remove comment element from DOM instantly without reloading skeleton state
+            const targetComment = document.getElementById(`comment-${revId}`);
+            if (targetComment) {
+                anime({
+                    targets: targetComment,
+                    opacity: 0,
+                    height: 0,
+                    paddingTop: 0,
+                    paddingBottom: 0,
+                    marginTop: 0,
+                    marginBottom: 0,
+                    duration: 350,
+                    easing: 'easeInQuad',
+                    complete: () => {
+                        targetComment.remove();
+                        const listEl = document.getElementById('comments-list');
+                        if (listEl && listEl.querySelectorAll('.comment-box').length === 0) {
+                            listEl.innerHTML = '<div style="text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 40px;">No comments yet. Be the first!</div>';
+                        }
+                    }
+                });
+            }
+        } catch(e) { 
+            showToast("Error deleting comment!"); 
+        }
     }
 
     /* --- OPTIMISTIC UI INSTANT LIKES PIPELINE --- */

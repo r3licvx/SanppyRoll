@@ -337,12 +337,61 @@
             -webkit-touch-callout: default !important;
         }
         .editor-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.08); }
-        
-        .help-link-btn {
-            font-size: 13px; color: var(--accent); font-weight: 700; background: none; border: none;
-            text-align: center; width: 100%; cursor: pointer; padding: 10px 0 0 0; transition: 0.2s;
+
+        /* ── CUSTOM FILE UPLOAD STYLES ── */
+        .upload-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 8px 12px;
+            border-radius: 12px;
         }
-        .help-link-btn:hover { opacity: 0.8; }
+        .upload-trigger-btn {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .upload-trigger-btn:hover {
+            opacity: 0.9;
+        }
+        .upload-filename-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+        .upload-progress-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 6px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+            padding: 4px 8px;
+        }
+        .upload-progress-bar {
+            height: 4px;
+            background: var(--accent);
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+        .upload-progress-percent {
+            font-size: 10px;
+            color: var(--accent);
+            font-weight: 700;
+            white-space: nowrap;
+        }
 
         .editor-actions { display: flex; gap: 10px; margin-top: 5px; }
         .editor-btn-cancel { flex: 1; background: rgba(255,255,255,0.06); border: none; color: #fff; padding: 12px; border-radius: 12px; font-size: 13px; cursor: pointer; }
@@ -372,126 +421,6 @@
             border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s;
         }
         .soon-close-btn:active { transform: scale(0.97); }
-
-        /* ── CUSTOM POPUP PLAYER (PLAIN, NO-GLOW, TAP TO TOGGLE) ── */
-        .help-video-overlay {
-            position: fixed; inset: 0; z-index: 5000; 
-            background: rgba(0,0,0,0.5); 
-            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; visibility: hidden; transition: 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-        .help-video-overlay.active { opacity: 1; visibility: visible; }
-        
-        .video-box-wrapper {
-            width: 88%; max-width: 340px; aspect-ratio: 9/16; background: #000;
-            border-radius: 22px; border: 2px solid var(--accent); position: relative;
-            overflow: hidden; transform: scale(0.88); transition: 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-            box-shadow: none; 
-        }
-        .help-video-overlay.active .video-box-wrapper { transform: scale(1); }
-        
-        .video-box-wrapper video { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-        .v-loader {
-            position: absolute; inset: 0; z-index: 5010;
-            display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
-            transition: opacity 0.3s ease, visibility 0.3s ease; 
-            pointer-events: none;
-            visibility: visible; opacity: 1;
-        }
-        .v-loader.hidden { opacity: 0; visibility: hidden; }
-
-        /* ── USER'S CUSTOM CLIP-PATH ROTATE LOADER ── */
-        .loader {
-          --color-1: #EC6B00;
-          --size: 0.6px;
-
-          width: calc(48 * var(--size));
-          height: calc(48 * var(--size));
-          border-radius: 50%;
-          position: relative;
-          animation: rotate 1s linear infinite;
-        }
-        .loader::before {
-          content: '';
-          box-sizing: border-box;
-          position: absolute;
-          inset: 0;
-          border-radius: 50%;
-          border: calc(5 * var(--size)) solid var(--color-1);
-          animation: prixClipFix 2s linear infinite;
-        }
-
-        @keyframes rotate {
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-
-        @keyframes prixClipFix {
-          0% {
-            clip-path: polygon(50% 50%, 0 0, 0 0, 0 0, 0 0, 0 0);
-          }
-          25% {
-            clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 0, 100% 0, 100% 0);
-          }
-          50% {
-            clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%);
-          }
-          75% {
-            clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%);
-          }
-          100% {
-            clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0);
-          }
-        }
-
-        .v-center-play {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(1);
-            width: 44px; height: 44px; border-radius: 50%;
-            background: rgba(244, 117, 33, 0.9); border: none; color: #fff;
-            font-size: 15px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 5005; 
-            transition: opacity 0.3s ease, transform 0.2s ease, visibility 0.3s;
-            box-shadow: none; 
-        }
-        .v-center-play:active { transform: translate(-50%, -50%) scale(0.9); }
-        .v-center-play.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-
-        .v-bottom-controls {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.4) 70%, transparent);
-            padding: 30px 15px 12px; display: flex; flex-direction: column; gap: 8px;
-            z-index: 5005; transition: opacity 0.3s ease, visibility 0.3s;
-        }
-        .v-bottom-controls.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-
-        .v-time-row { display: flex; align-items: center; gap: 8px; width: 100%; }
-        .v-current-time, .v-total-time {
-            font-size: 10px; color: #e1e6eb; font-weight: 700; min-width: 28px; text-align: center;
-        }
-
-        .v-timeline {
-            flex: 1; height: 3px; background: rgba(255,255,255,0.25); border-radius: 2px;
-            position: relative; cursor: pointer; display: flex; align-items: center;
-        }
-        .v-progress { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; }
-        .v-handle {
-            width: 8px; height: 8px; background: #fff; border-radius: 50%;
-            position: absolute; left: 0%; transform: translateX(-50%); transition: transform 0.1s;
-        }
-        .v-timeline:hover .v-handle { transform: translateX(-50%) scale(1.3); }
-
-        .v-buttons-row { display: flex; align-items: center; justify-content: flex-start; }
-        .v-mute-btn {
-            background: none; border: none; color: #fff; font-size: 14px; cursor: pointer;
-            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-            transition: transform 0.2s;
-        }
-        .v-mute-btn:active { transform: scale(0.85); }
 
         #toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(15,15,15,0.95); backdrop-filter: blur(10px); border: 1px solid var(--accent); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); pointer-events: none;}
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
@@ -585,53 +514,40 @@
                 <input type="search" id="edit-name-field" class="editor-input" placeholder="Enter your name" autocomplete="off" spellcheck="false">
                 <span class="error-msg" id="edit-name-error"></span>
             </div>
+            
             <div class="input-group">
-                <label>Avatar Image / GIF Link</label>
-                <input type="search" id="edit-avatar-field" class="editor-input" placeholder="https://example.com/image.png" autocomplete="off" spellcheck="false">
+                <label>Avatar (Profile Picture)</label>
+                <div class="upload-wrapper">
+                    <input type="file" id="edit-avatar-file" accept="image/*" style="display: none;">
+                    <button type="button" class="upload-trigger-btn" onclick="document.getElementById('edit-avatar-file').click()"><i class="fa-solid fa-cloud-arrow-up"></i> Choose File</button>
+                    <span class="upload-filename-label" id="avatar-filename">No file chosen</span>
+                </div>
+                <div class="upload-progress-container" id="avatar-progress-container" style="display: none;">
+                    <div style="flex: 1; background: rgba(255,255,255,0.1); height: 4px; border-radius: 2px; overflow: hidden;">
+                        <div class="upload-progress-bar" id="avatar-progress-bar"></div>
+                    </div>
+                    <span class="upload-progress-percent" id="avatar-progress-percent">0%</span>
+                </div>
             </div>
+
             <div class="input-group">
-                <label>Banner Image Link (Background)</label>
-                <input type="search" id="edit-banner-field" class="editor-input" placeholder="https://example.com/banner.png" autocomplete="off" spellcheck="false">
+                <label>Banner Image (Background)</label>
+                <div class="upload-wrapper">
+                    <input type="file" id="edit-banner-file" accept="image/*" style="display: none;">
+                    <button type="button" class="upload-trigger-btn" onclick="document.getElementById('edit-banner-file').click()"><i class="fa-solid fa-cloud-arrow-up"></i> Choose File</button>
+                    <span class="upload-filename-label" id="banner-filename">No file chosen</span>
+                </div>
+                <div class="upload-progress-container" id="banner-progress-container" style="display: none;">
+                    <div style="flex: 1; background: rgba(255,255,255,0.1); height: 4px; border-radius: 2px; overflow: hidden;">
+                        <div class="upload-progress-bar" id="banner-progress-bar"></div>
+                    </div>
+                    <span class="upload-progress-percent" id="banner-progress-percent">0%</span>
+                </div>
             </div>
             
             <div class="editor-actions">
                 <button class="editor-btn-cancel" onclick="closeEditorModal()">Cancel</button>
                 <button class="editor-btn-save" id="save-profile-btn" onclick="saveProfileData()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
-            </div>
-
-            <button class="help-link-btn" onclick="openHelpVideoModal()">How to get links?</button>
-        </div>
-    </div>
-
-    <div class="help-video-overlay" id="help-video-overlay" onclick="closeHelpVideoModal(event)">
-        <div class="video-box-wrapper" id="v-wrapper" onclick="handleWrapperClick(event)">
-             
-            <div class="v-loader" id="v-loader">
-                <span class="loader"></span>
-            </div>
-
-            <video id="help-player" playsinline loop>
-                <source src="" type="video/mp4"> 
-            </video>
-
-            <button class="v-center-play" id="v-center-play" onclick="event.stopPropagation(); togglePlayHelp()">
-                <i class="fas fa-play"></i>
-            </button>
-
-            <div class="v-bottom-controls" id="v-bottom-controls" onclick="event.stopPropagation();">
-                <div class="v-time-row">
-                    <span class="v-current-time" id="v-current-time">00:00</span>
-                    <div class="v-timeline" id="v-timeline">
-                        <div class="v-progress" id="v-progress"></div>
-                        <div class="v-handle" id="v-handle"></div>
-                    </div>
-                    <span class="v-total-time" id="v-total-time">00:00</span>
-                </div>
-                <div class="v-buttons-row">
-                    <button class="v-mute-btn" id="v-mute-btn" onclick="toggleMuteHelp()">
-                        <i class="fas fa-volume-up"></i>
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -728,152 +644,6 @@
         </div>
 
     </div>
-
-    <script>
-        const helpOverlay = document.getElementById('help-video-overlay');
-        const helpPlayer = document.getElementById('help-player');
-        const vCenterPlayBtn = document.getElementById('v-center-play');
-        const vMuteBtn = document.getElementById('v-mute-btn');
-        const vTimeline = document.getElementById('v-timeline');
-        const vProgress = document.getElementById('v-progress');
-        const vHandle = document.getElementById('v-handle');
-        const vLoader = document.getElementById('v-loader');
-        const vControls = document.getElementById('v-bottom-controls');
-        const vWrapper = document.getElementById('v-wrapper');
-        
-        let controlsTimeout;
-        let isControlsVisible = true;
-
-        window.handleWrapperClick = function(e) {
-            e.stopPropagation();
-            if (isControlsVisible) {
-                hideControls();
-            } else {
-                showControls();
-            }
-        };
-
-        function showControls() {
-            vControls.classList.remove('hidden');
-            vCenterPlayBtn.classList.remove('hidden');
-            isControlsVisible = true;
-            clearTimeout(controlsTimeout);
-            
-            if (!helpPlayer.paused) {
-                controlsTimeout = setTimeout(() => {
-                    hideControls();
-                }, 1500); 
-            }
-        }
-
-        function hideControls() {
-            if (helpPlayer.paused) return; 
-            vControls.classList.add('hidden');
-            vCenterPlayBtn.classList.add('hidden');
-            isControlsVisible = false;
-        }
-
-        // लोडर को दिखाने और छुपाने का सुधरा हुआ लॉजिक
-        const showLoader = () => {
-            vLoader.classList.remove('hidden');
-            vCenterPlayBtn.classList.add('hidden');
-        };
-        const hideLoader = () => {
-            vLoader.classList.add('hidden');
-            if (helpPlayer.paused) {
-                vCenterPlayBtn.classList.remove('hidden');
-            }
-        };
-
-        helpPlayer.addEventListener('play', showControls);
-        helpPlayer.addEventListener('pause', showControls);
-
-        helpPlayer.addEventListener('waiting', showLoader);
-        helpPlayer.addEventListener('loadstart', showLoader);
-        helpPlayer.addEventListener('seeking', showLoader);
-
-        helpPlayer.addEventListener('playing', hideLoader);
-        helpPlayer.addEventListener('canplay', hideLoader);
-        helpPlayer.addEventListener('canplaythrough', hideLoader);
-        helpPlayer.addEventListener('seeked', hideLoader);
-
-        window.openHelpVideoModal = function() {
-            helpOverlay.classList.add('active');
-            showLoader();
-            helpPlayer.src = "https://www.image2url.com/r2/default/videos/1783591369581-c29aa731-beed-4786-996a-ebeba6930c8c.mp4"; 
-            helpPlayer.load();
-            helpPlayer.play().then(() => {
-                vCenterPlayBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                showControls();
-                hideLoader();
-            }).catch(() => {
-                vCenterPlayBtn.innerHTML = '<i class="fas fa-play"></i>';
-                hideLoader(); // ऑटोप्ले ब्लॉक होने पर भी लोडर हट जाएगा
-            });
-        };
-
-        window.closeHelpVideoModal = function(e) {
-            helpOverlay.classList.remove('active');
-            helpPlayer.pause();
-            helpPlayer.src = "";
-            clearTimeout(controlsTimeout);
-        };
-
-        window.togglePlayHelp = function() {
-            if (helpPlayer.paused) {
-                helpPlayer.play();
-                vCenterPlayBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            } else {
-                helpPlayer.pause();
-                vCenterPlayBtn.innerHTML = '<i class="fas fa-play"></i>';
-            }
-        };
-
-        window.toggleMuteHelp = function() {
-            if (helpPlayer.muted) {
-                helpPlayer.muted = false;
-                vMuteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-            } else {
-                helpPlayer.muted = true;
-                vMuteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
-            }
-        };
-
-        function formatTime(seconds) {
-            if (isNaN(seconds)) return "00:00";
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
-        }
-
-        helpPlayer.addEventListener('durationchange', () => {
-            document.getElementById('v-total-time').innerText = formatTime(helpPlayer.duration);
-        });
-
-        helpPlayer.addEventListener('timeupdate', () => {
-            if (helpPlayer.duration) {
-                const percentage = (helpPlayer.currentTime / helpPlayer.duration) * 100;
-                vProgress.style.width = percentage + '%';
-                vHandle.style.left = percentage + '%';
-                document.getElementById('v-current-time').innerText = formatTime(helpPlayer.currentTime);
-            }
-        });
-
-        helpPlayer.addEventListener('ended', () => {
-            vCenterPlayBtn.innerHTML = '<i class="fas fa-redo"></i>';
-            vCenterPlayBtn.classList.remove('hidden');
-            vControls.classList.remove('hidden');
-            isControlsVisible = true;
-        });
-
-        vTimeline.addEventListener('click', (e) => {
-            const rect = vTimeline.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const width = rect.width;
-            const newTime = (clickX / width) * helpPlayer.duration;
-            helpPlayer.currentTime = newTime;
-        });
-    </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
@@ -981,7 +751,6 @@
                 const avatarUrl = userProfile.avatarUrl || currentUser.photoURL || "";
                 renderAvatar(avatarUrl, currentUsername);
                 
-                // ऑटोमैटिक बैनर फॉलबैक: यदि कस्टम बैनर नहीं है तो प्रोफाइल फोटो का यूज़ होगा
                 const bannerUrl = userProfile.bannerUrl || avatarUrl || "";
                 renderBanner(bannerUrl);
             } catch(e) { console.error(e); }
@@ -1027,16 +796,57 @@
             }
         }
 
+        // ── FILE EVENTS FOR PREVIEW LABELS ──
+        document.getElementById('edit-avatar-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('avatar-filename').innerText = file.name;
+            } else {
+                document.getElementById('avatar-filename').innerText = window._currentAvatarUrl ? "Current Image Active" : "No file chosen";
+            }
+        });
+
+        document.getElementById('edit-banner-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('banner-filename').innerText = file.name;
+            } else {
+                document.getElementById('banner-filename').innerText = window._currentBannerUrl ? "Current Image Active" : "No file chosen";
+            }
+        });
+
         window.openEditorModal = function() {
             document.getElementById('edit-name-field').value = currentUsername;
             
             get(child(dbRef, `users/${currentUser.uid}/profile`)).then((snap) => {
                 if(snap.exists()) {
                     const p = snap.val();
-                    document.getElementById('edit-avatar-field').value = p.avatarUrl || "";
-                    document.getElementById('edit-banner-field').value = p.bannerUrl || "";
+                    document.getElementById('avatar-filename').innerText = p.avatarUrl ? "Current Image Active" : "No file chosen";
+                    document.getElementById('banner-filename').innerText = p.bannerUrl ? "Current Image Active" : "No file chosen";
+                    
+                    window._currentAvatarUrl = p.avatarUrl || "";
+                    window._currentAvatarDeleteUrl = p.avatarDeleteUrl || "";
+                    window._currentBannerUrl = p.bannerUrl || "";
+                    window._currentBannerDeleteUrl = p.bannerDeleteUrl || "";
+                } else {
+                    document.getElementById('avatar-filename').innerText = "No file chosen";
+                    document.getElementById('banner-filename').innerText = "No file chosen";
+                    window._currentAvatarUrl = "";
+                    window._currentAvatarDeleteUrl = "";
+                    window._currentBannerUrl = "";
+                    window._currentBannerDeleteUrl = "";
                 }
             });
+
+            // Input fields and progress container resets
+            document.getElementById('edit-avatar-file').value = "";
+            document.getElementById('edit-banner-file').value = "";
+            document.getElementById('avatar-progress-container').style.display = 'none';
+            document.getElementById('avatar-progress-bar').style.width = '0%';
+            document.getElementById('avatar-progress-percent').innerText = '0%';
+            document.getElementById('banner-progress-container').style.display = 'none';
+            document.getElementById('banner-progress-bar').style.width = '0%';
+            document.getElementById('banner-progress-percent').innerText = '0%';
             
             document.getElementById('edit-name-error').style.display = 'none';
             
@@ -1065,10 +875,85 @@
             });
         };
 
+        // ── XMLHttpRequest logic to support Upload Progress Percentage (%) ──
+        function uploadFileWithProgress(file, progressBarId, progressPercentId, progressContainerId, apiKey) {
+            return new Promise((resolve, reject) => {
+                const container = document.getElementById(progressContainerId);
+                const bar = document.getElementById(progressBarId);
+                const percentText = document.getElementById(progressPercentId);
+                
+                container.style.display = 'flex';
+                bar.style.width = '0%';
+                percentText.innerText = '0%';
+
+                const formData = new FormData();
+                formData.append("image", file);
+
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", `https://api.imgbb.com/1/upload?key=${apiKey}`);
+
+                xhr.upload.addEventListener("progress", (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        bar.style.width = percent + '%';
+                        percentText.innerText = percent + '%';
+                    }
+                });
+
+                xhr.addEventListener("load", () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const res = JSON.parse(xhr.responseText);
+                            if (res && res.data) {
+                                resolve(res.data);
+                            } else {
+                                reject("Invalid API response format");
+                            }
+                        } catch (err) {
+                            reject("Response parse exception");
+                        }
+                    } else {
+                        reject("Status Code: " + xhr.status);
+                    }
+                });
+
+                xhr.addEventListener("error", () => reject("Connection error"));
+                xhr.send(formData);
+            });
+        }
+
+        // ── Programmatic Auto-Deletion of old files on ImgBB ──
+        async function deleteFromImgbb(deleteUrl) {
+            if (!deleteUrl) return;
+            try {
+                const urlObj = new URL(deleteUrl);
+                const pathParts = urlObj.pathname.split('/').filter(p => p);
+                if (pathParts.length >= 2) {
+                    const id = pathParts[0];
+                    const hash = pathParts[1];
+                    
+                    const formData = new FormData();
+                    formData.append("action", "delete");
+                    formData.append("delete", "image");
+                    formData.append("from", "resource");
+                    formData.append("deleting[id]", id);
+                    formData.append("deleting[hash]", hash);
+                    
+                    await fetch("https://ibb.co/json", {
+                        method: "POST",
+                        mode: "no-cors",
+                        body: formData
+                    });
+                }
+            } catch (e) {
+                console.warn("Could not execute automatic background deletion from ImgBB:", e);
+            }
+        }
+
         window.saveProfileData = async function() {
             const newName = document.getElementById('edit-name-field').value.trim();
-            const newAvatar = document.getElementById('edit-avatar-field').value.trim();
-            const newBanner = document.getElementById('edit-banner-field').value.trim();
+            const avatarFile = document.getElementById('edit-avatar-file').files[0];
+            const bannerFile = document.getElementById('edit-banner-file').files[0];
             
             const err = document.getElementById('edit-name-error');
             const saveBtn = document.getElementById('save-profile-btn');
@@ -1076,10 +961,86 @@
             if(!newName) { err.innerText = "Name field validation failed."; err.style.display = 'block'; return; }
             if(!/^[a-zA-Z0-9 ._-]+$/.test(newName)) { err.innerText = "Only letters, numbers, spaces, dots, underscores, and hyphens allowed!"; err.style.display = 'block'; return; }
 
-            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving';
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Initializing';
             saveBtn.style.pointerEvents = 'none';
 
+            // Firebase से सुरक्षित रूप से ImgBB Key को फ़ेच करना
+            let fetchedApiKey = "";
             try {
+                const keySnap = await get(child(dbRef, "settings/imgbb_api_key"));
+                if (keySnap.exists()) {
+                    fetchedApiKey = keySnap.val().trim();
+                }
+            } catch (keyErr) {
+                console.error("Firebase API Key fetch error:", keyErr);
+            }
+
+            if (!fetchedApiKey) {
+                err.innerText = "Security check failed. API Key not configued in database settings.";
+                err.style.display = 'block';
+                saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
+                saveBtn.style.pointerEvents = 'auto';
+                return;
+            }
+
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading';
+
+            let finalAvatarUrl = window._currentAvatarUrl || "";
+            let finalAvatarDeleteUrl = window._currentAvatarDeleteUrl || "";
+            let finalBannerUrl = window._currentBannerUrl || "";
+            let finalBannerDeleteUrl = window._currentBannerDeleteUrl || "";
+
+            let avatarUploaded = false;
+            let bannerUploaded = false;
+
+            try {
+                // 1. Upload Avatar image if selected
+                if (avatarFile) {
+                    try {
+                        const uploadResult = await uploadFileWithProgress(
+                            avatarFile, 
+                            'avatar-progress-bar', 
+                            'avatar-progress-percent', 
+                            'avatar-progress-container',
+                            fetchedApiKey
+                        );
+                        finalAvatarUrl = uploadResult.url;
+                        finalAvatarDeleteUrl = uploadResult.delete_url;
+                        avatarUploaded = true;
+                    } catch (uploadErr) {
+                        err.innerText = "Avatar Upload Failure: " + uploadErr;
+                        err.style.display = 'block';
+                        saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
+                        saveBtn.style.pointerEvents = 'auto';
+                        return;
+                    }
+                }
+
+                // 2. Upload Banner image if selected
+                if (bannerFile) {
+                    try {
+                        const uploadResult = await uploadFileWithProgress(
+                            bannerFile, 
+                            'banner-progress-bar', 
+                            'banner-progress-percent', 
+                            'banner-progress-container',
+                            fetchedApiKey
+                        );
+                        finalBannerUrl = uploadResult.url;
+                        finalBannerDeleteUrl = uploadResult.delete_url;
+                        bannerUploaded = true;
+                    } catch (uploadErr) {
+                        err.innerText = "Banner Upload Failure: " + uploadErr;
+                        err.style.display = 'block';
+                        saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
+                        saveBtn.style.pointerEvents = 'auto';
+                        return;
+                    }
+                }
+
+                saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving';
+
+                // 3. Save to Firebase Realtime Database
                 const lowerName = newName.toLowerCase();
                 const lowerCurrentName = currentUsername ? currentUsername.toLowerCase() : "";
                 const isAdmin = currentUser && currentUser.email && currentUser.email.toLowerCase() === 'z3ro.vx@mail.ru';
@@ -1100,18 +1061,27 @@
 
                 await update(ref(db, `users/${currentUser.uid}/profile`), { 
                     username: newName, 
-                    avatarUrl: newAvatar,
-                    bannerUrl: newBanner
+                    avatarUrl: finalAvatarUrl,
+                    avatarDeleteUrl: finalAvatarDeleteUrl,
+                    bannerUrl: finalBannerUrl,
+                    bannerDeleteUrl: finalBannerDeleteUrl
                 });
                 await set(ref(db, `users/${currentUser.uid}/name`), newName);
 
+                // 4. Trigger old image deletion in background if replaced
+                if (avatarUploaded && window._currentAvatarDeleteUrl) {
+                    deleteFromImgbb(window._currentAvatarDeleteUrl);
+                }
+                if (bannerUploaded && window._currentBannerDeleteUrl) {
+                    deleteFromImgbb(window._currentBannerDeleteUrl);
+                }
+
                 currentUsername = newName;
                 document.getElementById('username-display').value = currentUsername;
-                renderAvatar(newAvatar, currentUsername);
+                renderAvatar(finalAvatarUrl, currentUsername);
 
-                // प्रोफाइल सेव करने पर भी फॉलबैक डिसीजन लागू होगा
-                const activeAvatar = newAvatar || currentUser.photoURL || "";
-                const activeBanner = newBanner || activeAvatar;
+                const activeAvatar = finalAvatarUrl || currentUser.photoURL || "";
+                const activeBanner = finalBannerUrl || activeAvatar;
                 renderBanner(activeBanner);
                 
                 closeEditorModal();
