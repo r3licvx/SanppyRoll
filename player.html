@@ -1581,6 +1581,11 @@
                 s3.src = vidUrl;
                 s3.type = 'video/x-matroska';
                 vid.appendChild(s3);
+
+                const s4 = document.createElement('source');
+                s4.src = vidUrl;
+                s4.type = 'video/mkv';
+                vid.appendChild(s4);
                 
                 vid.load();
             } else {
@@ -1622,7 +1627,16 @@
 
             vid.addEventListener('error', (e) => {
                 console.error("Native Video Load Error", e);
-                if (isMkv) {
+                // Robust HTTP / HTTPS fallback
+                if (vidUrl.startsWith('http://')) {
+                    const fallbackUrl = vidUrl.replace('http://', 'https://');
+                    console.log("Native Load Error fallback to HTTPS:", fallbackUrl);
+                    playNative(fallbackUrl, time);
+                } else if (vidUrl.startsWith('https://')) {
+                    const fallbackUrl = vidUrl.replace('https://', 'http://');
+                    console.log("Native Load Error fallback to HTTP:", fallbackUrl);
+                    playNative(fallbackUrl, time);
+                } else if (isMkv) {
                     showToast("MKV playback requires Chrome, Edge or Opera.");
                     isMediaError = true;
                     updateBufferingUI();
@@ -1660,8 +1674,18 @@
             hls.on(Hls.Events.ERROR, function (event, data) {
                 if (data.fatal) {
                     console.error("HLS Error encountered", data);
-                    if(isM3U8) playNative(vidUrl, time);
-                    else {
+                    // Robust HTTP / HTTPS fallback
+                    if (vidUrl.startsWith('http://')) {
+                        const fallbackUrl = vidUrl.replace('http://', 'https://');
+                        console.log("HLS Fatal error fallback to HTTPS:", fallbackUrl);
+                        playHls(fallbackUrl, time);
+                    } else if (vidUrl.startsWith('https://')) {
+                        const fallbackUrl = vidUrl.replace('https://', 'http://');
+                        console.log("HLS Fatal error fallback to HTTP:", fallbackUrl);
+                        playHls(fallbackUrl, time);
+                    } else if (isM3U8) {
+                        playNative(vidUrl, time);
+                    } else {
                         hls.recoverMediaError(); // Continuous silent self-recovery
                     }
                 }
@@ -2177,11 +2201,13 @@
     
     let currentReplyToUid = null;
     let currentReplyToName = "";
+    let currentReplyToParentId = null;
 
-    window.replyTo = function(name, uid) {
+    window.replyTo = function(name, uid, parentId) {
         const input = document.getElementById('new-comment-text');
         currentReplyToUid = uid;
         currentReplyToName = name.replace(/\s+/g, '');
+        currentReplyToParentId = parentId;
         input.value = `@${currentReplyToName} `;
         input.focus();
     }
@@ -2551,7 +2577,7 @@
                                         <button class="c-action-btn ${rHasLiked ? 'liked-by-me' : ''}" onclick="toggleLike('${r.id}')" style="${rHasLiked ? 'color: var(--accent); opacity: 1;' : ''}">
                                             <i class="${rHasLiked ? 'fa-solid' : 'fa-regular'} fa-thumbs-up"></i> <span>${rLikeCount > 0 ? rLikeCount : ''}</span>
                                         </button>
-                                        <button class="c-action-btn" onclick="replyTo('${rCleanName}', '${r.uid}')"><i class="fa-solid fa-reply"></i> Reply</button>
+                                        <button class="c-action-btn" onclick="replyTo('${rCleanName}', '${r.uid}', '${p.id}')"><i class="fa-solid fa-reply"></i> Reply</button>
                                         ${rPinBtnHtml}
                                         ${rIsOwner || (currentUser && currentUser.email === 'z3ro.vx@mail.ru') ? `<button class="c-action-btn delete-btn" onclick="deleteComment('${r.id}')"><i class="fa-solid fa-trash-can"></i></button>` : ''}
                                     </div>
@@ -2578,7 +2604,7 @@
                                     <button class="c-action-btn ${hasLiked ? 'liked-by-me' : ''}" onclick="toggleLike('${p.id}')" style="${hasLiked ? 'color: var(--accent); opacity: 1;' : ''}">
                                         <i class="${hasLiked ? 'fa-solid' : 'fa-regular'} fa-thumbs-up"></i> <span>${likeCount > 0 ? likeCount : ''}</span>
                                     </button>
-                                    <button class="c-action-btn" onclick="replyTo('${cleanCurrentName}', '${p.uid}')"><i class="fa-solid fa-reply"></i> Reply</button>
+                                    <button class="c-action-btn" onclick="replyTo('${cleanCurrentName}', '${p.uid}', '${p.id}')"><i class="fa-solid fa-reply"></i> Reply</button>
                                     ${pinBtnHtml}
                                     ${isOwner || (currentUser && currentUser.email === 'z3ro.vx@mail.ru') ? `<button class="c-action-btn delete-btn" onclick="deleteComment('${p.id}')"><i class="fa-solid fa-trash-can"></i></button>` : ''}
                                 </div>
@@ -2681,6 +2707,8 @@
         }
 
         let replyClass = replyUid ? 'is-reply' : '';
+        let targetParentIdForNewReplyBtn = replyUid ? currentReplyToParentId : reviewId;
+        
         let optCommentHtml = `
         <div class="comment-box ${replyClass}" id="comment-${reviewId}" style="opacity: 1;">
             ${imgAvatarHtml}
@@ -2691,7 +2719,7 @@
                     <button class="c-action-btn" onclick="toggleLike('${reviewId}')">
                         <i class="fa-regular fa-thumbs-up"></i> <span></span>
                     </button>
-                    <button class="c-action-btn" onclick="replyTo('${cleanCurrentName}', '${currentUser.uid}')"><i class="fa-solid fa-reply"></i> Reply</button>
+                    <button class="c-action-btn" onclick="replyTo('${cleanCurrentName}', '${currentUser.uid}', '${targetParentIdForNewReplyBtn}')"><i class="fa-solid fa-reply"></i> Reply</button>
                     <button class="c-action-btn delete-btn" onclick="deleteComment('${reviewId}')"><i class="fa-solid fa-trash-can"></i></button>
                 </div>
             </div>
@@ -2702,8 +2730,8 @@
             listEl.innerHTML = '';
         }
 
-        if (replyUid) {
-            const parentThread = document.querySelector(`.comment-box`); 
+        if (replyUid && currentReplyToParentId) {
+            const parentThread = document.getElementById(`comment-${currentReplyToParentId}`);
             if (parentThread) {
                 const threadCont = parentThread.querySelector('.replies-thread-container');
                 if (threadCont) {
@@ -2727,6 +2755,7 @@
         input.value = ''; 
         currentReplyToUid = null;
         currentReplyToName = "";
+        currentReplyToParentId = null;
 
         // Background write task execution
         try { 
