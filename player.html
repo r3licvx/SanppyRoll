@@ -1399,6 +1399,14 @@
             ytTitle.innerText = data.title;
             ytDesc.innerText = data.description || "No description available.";
         }
+
+        // 1. Convert any accidental "/watch/" paths to direct streamable "/dl/" paths on page startup
+        videoSources = videoSources.map(src => {
+            if (src.url && src.url.includes('/watch/')) {
+                src.url = src.url.replace('/watch/', '/dl/');
+            }
+            return src;
+        });
         
         updateTitle(null);
         
@@ -1501,6 +1509,10 @@
     async function loadAudio(url, startTime = 0) {
         isAudBuffering = false; isMediaError = false; audError = false; 
 
+        if (url.includes('/watch/')) {
+            url = url.replace('/watch/', '/dl/');
+        }
+
         if(hlsAudio) { hlsAudio.destroy(); hlsAudio = null; }
         extAud.pause();
         extAud.removeAttribute('src');
@@ -1539,6 +1551,12 @@
     async function loadVideo(url, startTime = 0) {
         isVidBuffering = false; isMediaError = false; vidError = false; 
         player.classList.add('loading');
+
+        // 1. Force convert any webpage-based "/watch/" URLs to raw media direct streaming "/dl/" paths
+        if (url && url.includes('/watch/')) {
+            url = url.replace('/watch/', '/dl/');
+        }
+
         targetResumeTime = startTime; 
         document.getElementById("curr").innerText = fmt(startTime);
         if (vid.duration) pBar.style.width = `${(startTime / vid.duration) * 100}%`;
@@ -1594,8 +1612,10 @@
             }
             
             vid.addEventListener('loadeddata', () => {
-                vid.currentTime = time; 
-                if(hasExtAudio) extAud.currentTime = time;
+                // AUTO-NUDGE KICKSTART: If playing from starting, skip to 0.1s to force bypass buffer locks
+                let calculatedStartTime = (time === 0) ? 0.1 : time;
+                vid.currentTime = calculatedStartTime; 
+                if(hasExtAudio) extAud.currentTime = calculatedStartTime;
                 vid.style.backgroundImage = 'none';
                 if(intendedPlayState) doPlay(); else player.classList.remove('loading'); 
                 
@@ -1666,8 +1686,10 @@
             }); 
             hls.loadSource(vidUrl); hls.attachMedia(vid);
             hls.on(Hls.Events.MANIFEST_PARSED, function () { 
-                vid.currentTime = time; 
-                if(hasExtAudio) extAud.currentTime = time; 
+                // AUTO-NUDGE KICKSTART: Force kick hls engine with 0.1s leap
+                let calculatedStartTime = (time === 0) ? 0.1 : time;
+                vid.currentTime = calculatedStartTime; 
+                if(hasExtAudio) extAud.currentTime = calculatedStartTime; 
                 vid.style.backgroundImage = 'none';
                 if(intendedPlayState) doPlay(); else player.classList.remove('loading'); 
             });
@@ -1818,13 +1840,15 @@
     let silentStallTimer = 0;
     setInterval(() => {
         if (intendedPlayState && !vid.paused && !isDragging && !isSeekingDebouncing) {
-            if (vid.currentTime === lastLoggedTime && vid.readyState < 3) {
+            // Nudge stream immediately if playback is intended but timestamp gets locked for >= 2 seconds
+            if (vid.currentTime === lastLoggedTime) {
                 silentStallTimer++;
-                if (silentStallTimer >= 3) { // 3 seconds stuck in buffer stall
+                if (silentStallTimer >= 2) { // More aggressive 2-second buffer stall check
+                    console.log("Playhead stall detected, trigger stream nudge.");
                     if (hls) {
                         hls.recoverMediaError(); // Recovery attempt without disrupting screen
                     } else {
-                        vid.currentTime = vid.currentTime + 0.1; // Silent buffer nudge
+                        vid.currentTime = vid.currentTime + 0.1; // Silent progressive range nudge
                     }
                     silentStallTimer = 0;
                 }
