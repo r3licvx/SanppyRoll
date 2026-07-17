@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -42,6 +42,8 @@
             width: 100%; position: relative; background: #000; 
             overflow: hidden; user-select: none;
             box-shadow: 0 10px 40px rgba(0,0,0,0.9); background-size: cover; background-position: center;
+            border-radius: 16px; /* Sleek curved edges in normal mode */
+            transition: border-radius var(--anim);
         }
 
         /* SCROLL FADE GAP */
@@ -56,18 +58,18 @@
             .video-container { aspect-ratio: 16/9; }
         }
         @media (min-aspect-ratio: 16/9) {
-            .video-container { height: 100vh; }
+            .video-container { aspect-ratio: 16/9; }
         }
 
         /* Force stretch to avoid black notch areas on Chrome/Safari */
         .video-container:fullscreen, .video-container:-webkit-full-screen { 
-            width: 100vw; height: 100vh; max-width: none; border-radius: 0; aspect-ratio: auto;
+            width: 100vw; height: 100vh; max-width: none; border-radius: 0 !important; aspect-ratio: auto;
             padding: 0 !important; margin: 0 !important; box-shadow: none !important;
         }
         
         video { 
             width: 100%; height: 100%; display: block; 
-            object-fit: contain; /* Starts as Contain (Original Scale) */
+            object-fit: contain; /* Starts as Contain */
             transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), object-fit 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); 
             background: transparent;
         }
@@ -117,11 +119,9 @@
         @media (max-width: 768px) {
             .title-wrapper { display: none; } 
             .top-header { padding: 15px 20px; }
-            /* Mobile par default hide rahega logo */
             .header-logo-container {
                 display: none;
             }
-            /* Only fullscreen par mobile me logo show hoga */
             .video-container:fullscreen .header-logo-container,
             .video-container:-webkit-full-screen .header-logo-container {
                 display: block !important;
@@ -279,7 +279,7 @@
             transform: translateY(-30px);
         }
 
-        /* Responsive Custom Wave Loader Rules (Tailwind Classes Mapped to Native CSS) */
+        /* Responsive Custom Wave Loader Rules */
         .custom-loader {
             display: inline-flex;
             align-items: center;
@@ -301,7 +301,7 @@
         .custom-loader span:nth-child(4) { height: 16px; animation-delay: 0.36s; }
         .custom-loader span:nth-child(5) { height: 10px; animation-delay: 0.48s; }
 
-        /* Auto-Sizing Wave Design in Fullscreen Mode (Precisely 43px high) [1] */
+        /* Auto-Sizing Wave Design in Fullscreen Mode */
         .video-container:fullscreen .custom-loader,
         .video-container:-webkit-full-screen .custom-loader {
             gap: 5px;
@@ -927,7 +927,7 @@
                             <h4>Need Help?</h4>
                             <p>Request a movie or report an issue instantly.</p>
                         </div>
-                        <div class="support-links" style="display: flex; gap: 10px; flex-wrap: nowrap; width: 100%; overflow-x: auto; scrollbar-width: none;">
+                        <div class="support-links" style="display: flex; gap: 10px; flex-wrap: noreferrer; width: 100%; overflow-x: auto; scrollbar-width: none;">
                             <a href="mailto:SanppyRoll@protonmail.com" class="support-btn email-btn" style="flex: 1; min-width: 0; justify-content: center; white-space: nowrap;">
                                 <i class="fa-solid fa-envelope" style="color: var(--accent);"></i> Email
                             </a>
@@ -1400,7 +1400,6 @@
             ytDesc.innerText = data.description || "No description available.";
         }
 
-        // 1. Convert any accidental "/watch/" paths to direct streamable "/dl/" paths on page startup
         videoSources = videoSources.map(src => {
             if (src.url && src.url.includes('/watch/')) {
                 src.url = src.url.replace('/watch/', '/dl/');
@@ -1526,7 +1525,7 @@
                 enableWorker: true,
                 lowLatencyMode: true,
                 xhrSetup: function (xhr, url) {
-                    xhr.withCredentials = false; // Prevents origin credentials mismatches
+                    xhr.withCredentials = false;
                 }
             });
             hlsAudio.loadSource(url);
@@ -1552,7 +1551,6 @@
         isVidBuffering = false; isMediaError = false; vidError = false; 
         player.classList.add('loading');
 
-        // 1. Force convert any webpage-based "/watch/" URLs to raw media direct streaming "/dl/" paths
         if (url && url.includes('/watch/')) {
             url = url.replace('/watch/', '/dl/');
         }
@@ -1575,7 +1573,6 @@
             if(hls) { hls.destroy(); hls = null; }
             vid.preload = "auto";
             
-            // Clear existing <source> elements
             while (vid.firstChild) {
                 vid.removeChild(vid.firstChild);
             }
@@ -1583,8 +1580,6 @@
             if (isMkv) {
                 vid.removeAttribute('src');
                 
-                // Chrome and Chromium based browsers play H264 inside Matroska container
-                // if specified as standard WebM/MP4 sources to invoke appropriate demuxers.
                 const s1 = document.createElement('source');
                 s1.src = vidUrl;
                 s1.type = 'video/webm';
@@ -1612,7 +1607,6 @@
             }
             
             vid.addEventListener('loadeddata', () => {
-                // AUTO-NUDGE KICKSTART: If playing from starting, skip to 0.1s to force bypass buffer locks
                 let calculatedStartTime = (time === 0) ? 0.1 : time;
                 vid.currentTime = calculatedStartTime; 
                 if(hasExtAudio) extAud.currentTime = calculatedStartTime;
@@ -1647,7 +1641,6 @@
 
             vid.addEventListener('error', (e) => {
                 console.error("Native Video Load Error", e);
-                // Robust HTTP / HTTPS fallback
                 if (vidUrl.startsWith('http://')) {
                     const fallbackUrl = vidUrl.replace('http://', 'https://');
                     console.log("Native Load Error fallback to HTTPS:", fallbackUrl);
@@ -1681,12 +1674,11 @@
                 fragLoadingMaxRetry: 5,
                 manifestLoadingMaxRetry: 5,
                 xhrSetup: function (xhr, url) {
-                    xhr.withCredentials = false; // Mimics standard anonymous fetch
+                    xhr.withCredentials = false;
                 }
             }); 
             hls.loadSource(vidUrl); hls.attachMedia(vid);
             hls.on(Hls.Events.MANIFEST_PARSED, function () { 
-                // AUTO-NUDGE KICKSTART: Force kick hls engine with 0.1s leap
                 let calculatedStartTime = (time === 0) ? 0.1 : time;
                 vid.currentTime = calculatedStartTime; 
                 if(hasExtAudio) extAud.currentTime = calculatedStartTime; 
@@ -1696,7 +1688,6 @@
             hls.on(Hls.Events.ERROR, function (event, data) {
                 if (data.fatal) {
                     console.error("HLS Error encountered", data);
-                    // Robust HTTP / HTTPS fallback
                     if (vidUrl.startsWith('http://')) {
                         const fallbackUrl = vidUrl.replace('http://', 'https://');
                         console.log("HLS Fatal error fallback to HTTPS:", fallbackUrl);
@@ -1708,7 +1699,7 @@
                     } else if (isM3U8) {
                         playNative(vidUrl, time);
                     } else {
-                        hls.recoverMediaError(); // Continuous silent self-recovery
+                        hls.recoverMediaError();
                     }
                 }
             });
@@ -1798,7 +1789,7 @@
         }
         isVidBuffering = false; isAudBuffering = false; isMediaError = false; 
         updateBufferingUI();
-        player.classList.remove("loading"); // Force hide loader immediately when playing [1]
+        player.classList.remove("loading");
         if(hasExtAudio && intendedPlayState && !extAud.paused) {
             if(Math.abs(vid.currentTime - extAud.currentTime) > 0.15) extAud.currentTime = vid.currentTime;
         }
@@ -1810,7 +1801,7 @@
         }
         isVidBuffering = false; isAudBuffering = false; isMediaError = false; 
         updateBufferingUI();
-        player.classList.remove("loading"); // Force hide loader immediately when playing [1]
+        player.classList.remove("loading");
     });
     
     vid.addEventListener('ratechange', () => { if(hasExtAudio) extAud.playbackRate = vid.playbackRate; });
@@ -1820,7 +1811,6 @@
     };
     playBtn.onclick = (e) => { popBtn(e.currentTarget); if(vid.paused || !intendedPlayState) doPlay(); else doPause(); };
 
-    // ORIGINAL LOCK / SUBSCRIPTION RESTRICTIONS (Completely Retained & Protected)
     function isQualityAllowed(src) {
         if (!src) return true;
         if (src.req_plan) {
@@ -1835,20 +1825,18 @@
         return true; 
     }
 
-    // SILENT STALL PREVENTION PIPELINE (Ensures continuous fetching/playing behind scenes)
     let lastLoggedTime = -1;
     let silentStallTimer = 0;
     setInterval(() => {
         if (intendedPlayState && !vid.paused && !isDragging && !isSeekingDebouncing) {
-            // Nudge stream immediately if playback is intended but timestamp gets locked for >= 2 seconds
             if (vid.currentTime === lastLoggedTime) {
                 silentStallTimer++;
-                if (silentStallTimer >= 2) { // More aggressive 2-second buffer stall check
+                if (silentStallTimer >= 2) {
                     console.log("Playhead stall detected, trigger stream nudge.");
                     if (hls) {
-                        hls.recoverMediaError(); // Recovery attempt without disrupting screen
+                        hls.recoverMediaError();
                     } else {
-                        vid.currentTime = vid.currentTime + 0.1; // Silent progressive range nudge
+                        vid.currentTime = vid.currentTime + 0.1;
                     }
                     silentStallTimer = 0;
                 }
@@ -2165,7 +2153,6 @@
             document.getElementById("curr").innerText = fmt(vid.currentTime); 
         }
         
-        // Safety lock: If the video is playing and moving forward, ensure loader is completely hidden [1]
         if (!vid.paused && vid.currentTime > 0 && !isVidBuffering && !isAudBuffering) {
             player.classList.remove("loading");
         }
@@ -2236,7 +2223,6 @@
         input.focus();
     }
 
-    // COMMENT SKELETON RENDER FUNCTION
     function renderCommentSkeletons() {
         let count = 3;
         let skeletonsHtml = '';
@@ -2259,7 +2245,6 @@
         return skeletonsHtml;
     }
 
-    /* --- PROFILE MODAL INTERACTIVE POPUP LOAD LOGIC --- */
     window.openProfilePopup = async function(uid) {
         const overlay = document.getElementById('profile-popup-overlay');
         const usernameEl = document.getElementById('popup-username');
@@ -2267,7 +2252,6 @@
         const avatarBlurBg = document.getElementById('popup-avatar-blur-bg');
         const avatarFallback = document.getElementById('popup-avatar-fallback');
         
-        // Render Skeleton Shimmer layout initially
         document.getElementById('popup-skeleton').style.display = 'flex';
         document.getElementById('popup-real-content').style.display = 'none';
         
@@ -2282,18 +2266,15 @@
         
         overlay.classList.add('active');
         
-        // Guarantee skeleton displays for exactly 1 second to showcase clean shimmer state
         const delayPromise = new Promise(resolve => setTimeout(resolve, 1000));
         
-        // DB fetch pipeline run concurrently
         const fetchPromise = (async () => {
-            const profileSnap = await get(ref(db, `users/${uid}/profile`));
-            const subSnap = await get(ref(db, `users/${uid}/subscription`));
+            const profileSnap = await get(child(dbRef, `users/${uid}/profile`));
+            const subSnap = await get(child(dbRef, `users/${uid}/subscription`));
             return { profileSnap, subSnap };
         })();
         
         try {
-            // Block until both visual timer & network data complete [2]
             const [_, data] = await Promise.all([delayPromise, fetchPromise]);
             const { profileSnap, subSnap } = data;
             
@@ -2302,7 +2283,6 @@
             let avatarUrl = profileData.avatarUrl || "";
             let bannerUrl = profileData.bannerUrl || avatarUrl || "";
             
-            // Premium/Verified check
             let isPremium = false;
             if (subSnap.exists()) {
                 const sub = subSnap.val();
@@ -2313,7 +2293,6 @@
                 }
             }
             
-            // Appends verified badge next to the username if active [1]
             usernameEl.innerHTML = `<span>@${name.replace(/\s+/g, '')}</span>` + 
                 (isPremium ? `<span class="verified-tick" title="Subscribed" style="margin-left: 6px; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="fa-solid fa-check" style="font-size: 8px; color: #fff;"></i></span>` : '');
             
@@ -2349,7 +2328,6 @@
                 bannerBg.style.backgroundImage = 'none';
             }
             
-            // Transition view to real loaded content smoothly
             document.getElementById('popup-skeleton').style.display = 'none';
             document.getElementById('popup-real-content').style.display = 'flex';
             
@@ -2365,7 +2343,6 @@
         document.getElementById('profile-popup-overlay').classList.remove('active');
     }
 
-    /* --- ADMIN CHOOSE PIN/UNPIN LOGIC --- */
     window.togglePinComment = async function(revId, currentlyPinned) {
         const commentPath = (sIdx !== null && eIdx !== null) 
             ? `reviews/${movieId}_s${sIdx}_e${eIdx}/${revId}` 
@@ -2391,7 +2368,6 @@
                 let revs = [];
                 snap.forEach(child => { revs.push({ id: child.key, ...child.val() }); });
                 
-                // Get Unique UIDs of authors
                 let uniqueUids = [...new Set(revs.map(r => r.uid))];
                 revs.forEach(r => { if(r.replyToUid) uniqueUids.push(r.replyToUid); });
                 uniqueUids = [...new Set(uniqueUids)];
@@ -2417,7 +2393,6 @@
                     usernameToLatestMap[cleanLiveUsername] = currentLiveName.replace(/\s+/g, '');
                 }
 
-                // Split comments into Root parents and Replies
                 let rootComments = [];
                 let replies = [];
 
@@ -2430,7 +2405,6 @@
                     }
                 });
 
-                // Map replies under their closest/correct parent thread
                 replies.forEach(reply => {
                     let parentComment = rootComments
                         .filter(p => p.uid === reply.replyToUid && p.timestamp < reply.timestamp)
@@ -2443,14 +2417,12 @@
                         if (anyParent) {
                             anyParent.childrenReplies.push(reply);
                         } else {
-                            // Fallback: If parent thread is lost, render as root so it doesn't vanish
                             reply.childrenReplies = [];
                             rootComments.push(reply);
                         }
                     }
                 });
 
-                // Sort root comments: Pinned first, then newest timestamp
                 rootComments.sort((a,b) => {
                     const pinA = a.isPinned ? 1 : 0;
                     const pinB = b.isPinned ? 1 : 0;
@@ -2458,7 +2430,6 @@
                     return b.timestamp - a.timestamp;
                 });
 
-                // Sort children replies chronologically (oldest to newest) inside the thread
                 rootComments.forEach(p => {
                     if (p.childrenReplies) {
                         p.childrenReplies.sort((a,b) => a.timestamp - b.timestamp);
@@ -2527,7 +2498,6 @@
                         textHtml = `<div class="c-text">${textStr}</div>`;
                     }
 
-                    // Build HTML for children replies
                     let repliesHtml = '';
                     let extraRepliesHtml = '';
                     
@@ -2635,11 +2605,9 @@
                             </div>
                         </div>
                         
-                        <!-- Replies Thread Container (Keeps conversations organized chronologically) -->
                         <div class="replies-thread-container" style="display: flex; flex-direction: column; width: 100%;">
                             ${repliesHtml}
                             
-                            <!-- Extra Hidden Replies Toggle Handler [5] -->
                             ${p.childrenReplies.length > 3 ? `
                                 <div class="extra-replies" id="extra-replies-${p.id}" style="display: none; width: 100%;">
                                     ${extraRepliesHtml}
@@ -2674,7 +2642,6 @@
         }
     }
 
-    /* --- OPTIMISTIC UI INSTANT COMMENT WRITING PIPELINE --- */
     window.postComment = async function() {
         if(!currentUser) { showToast("Login to comment!"); return; }
         const input = document.getElementById('new-comment-text');
@@ -2704,13 +2671,11 @@
             reviewData.replyToName = replyName;
         }
         
-        // Use custom avatar from me.html if cached, otherwise fallback to standard auth details
         const activeAvatar = currentUserProfile.avatarUrl || currentUser.photoURL || "";
         if(activeAvatar) {
             reviewData.photoURL = activeAvatar;
         }
 
-        // Instant Dynamic DOM injection before Network Sync
         let cleanCurrentName = reviewData.name.replace(/\s+/g, '');
         let textStr = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         if (replyUid && replyName) {
@@ -2775,19 +2740,17 @@
             }
         }
 
-        // Wipe inputs instantly
         input.value = ''; 
         currentReplyToUid = null;
         currentReplyToName = "";
         currentReplyToParentId = null;
 
-        // Background write task execution
         try { 
             const commentPath = (sIdx !== null && eIdx !== null) ? `reviews/${movieId}_s${sIdx}_e${eIdx}/${reviewId}` : `reviews/${movieId}/${reviewId}`;
             await set(ref(db, commentPath), reviewData); 
         } catch(e) { 
             showToast("Error posting comment."); 
-            loadComments(); // Revert back to database state on failure
+            loadComments();
         }
     }
     
@@ -2807,7 +2770,6 @@
         if (e.target === this) _closeDelModal();
     });
 
-    // ── REMOVE COMMENT WITHOUT LOADING SKELETON RE-LOADS ──
     document.getElementById('del-modal-confirm').onclick = async function() {
         if (!_pendingDeleteId) return;
         const revId = _pendingDeleteId;
@@ -2821,7 +2783,6 @@
             await remove(ref(db, commentPath));
             showToast("Comment deleted.");
             
-            // Animate and remove comment element from DOM instantly without reloading skeleton state
             const targetComment = document.getElementById(`comment-${revId}`);
             if (targetComment) {
                 anime({
@@ -2848,7 +2809,6 @@
         }
     }
 
-    /* --- OPTIMISTIC UI INSTANT LIKES PIPELINE --- */
     window.toggleLike = async function(revId) {
         if(!currentUser) { showToast("Login to like!"); return; }
         
@@ -2861,7 +2821,6 @@
         const isCurrentlyLiked = btn.classList.contains('liked-by-me');
         let currentCount = parseInt(countSpan.innerText.trim()) || 0;
         
-        // Instant Local UI State Swap
         if (isCurrentlyLiked) {
             btn.style.color = '';
             btn.style.opacity = '0.7';
@@ -2882,7 +2841,6 @@
         const likePath = `${revPath}/likes/${currentUser.uid}`;
         
         try {
-            // Background database sync
             const snap = await get(ref(db, likePath));
             if (snap.exists()) {
                 await remove(ref(db, likePath)); 
@@ -2890,7 +2848,6 @@
                 await set(ref(db, likePath), true); 
             }
         } catch(e) { 
-            // Silent fallback in case of errors
             showToast("Error updating like!");
             loadComments(); 
         }
