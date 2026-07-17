@@ -6,6 +6,9 @@
     <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -18,7 +21,7 @@
         .font-poppins { font-family: 'Poppins', sans-serif; }
 
         body {
-            background: #0b0b0e; /* Solid dark background like Telegram */
+            background: #0b0b0e;
             color: #e6e6ec;
             overflow-x: hidden;
             line-height: 1.7;
@@ -36,32 +39,52 @@
         ::-webkit-scrollbar-thumb:hover { background: #f47521; }
         
         a { text-decoration: none; color: inherit; }
+
+        .svg-icon { width: 14px; height: 14px; display: inline-block; vertical-align: middle; }
         
         /* ---------- HEADER ---------- */
         .privacy-header {
             position: sticky;
             top: 0;
             z-index: 200;
-            background: rgba(11, 11, 14, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(11, 11, 14, 0.75);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             padding: 12px 5%;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
         }
+        
+        .back-btn-new {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .back-btn-new:hover { background: rgba(255, 255, 255, 0.08); transform: scale(1.05); }
+        .back-btn-new:active { transform: scale(0.9); }
+        .back-btn-new svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 3; fill: none; }
+
         .header-center {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 14px;
+            gap: 10px;
             flex: 1;
         }
         .privacy-icon {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -69,49 +92,50 @@
             overflow: hidden;
             border: 2px solid #f47521;
             background: #1e1e2a;
+            box-shadow: 0 4px 15px rgba(244, 117, 33, 0.2);
         }
         .privacy-icon img { width: 100%; height: 100%; object-fit: cover; }
         .header-title {
-            font-size: 20px;
+            font-size: 18px;
             letter-spacing: -0.2px;
         }
         
         /* Language Dropdown */
         .lang-selector { position: relative; }
         .lang-circle {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            width: 40px;
-            height: 40px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .lang-circle:hover { background: rgba(244,117,33,0.15); border-color: #f47521; }
-        .lang-circle i { font-size: 18px; color: #f47521; }
+        .lang-circle:hover { background: rgba(244,117,33,0.1); border-color: #f47521; transform: scale(1.05); }
+        .lang-circle i { font-size: 16px; color: #f47521; }
         .lang-dropdown {
             position: absolute;
-            top: 50px;
+            top: 45px;
             right: 0;
-            background: #1c1c1e;
-            border: 1px solid rgba(255,255,255,0.1);
+            background: #121214;
+            border: 1px solid rgba(255,255,255,0.06);
             border-radius: 12px;
-            padding: 8px 0;
-            min-width: 140px;
+            padding: 6px 0;
+            min-width: 130px;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.2s, transform 0.2s;
+            transition: opacity 0.25s, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             transform: translateY(-5px);
             z-index: 300;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
         .lang-selector.open .lang-dropdown { opacity: 1; pointer-events: auto; transform: translateY(0); }
         .lang-option {
-            padding: 10px 20px;
-            font-size: 14px;
+            padding: 8px 16px;
+            font-size: 13px;
             font-weight: 600;
             color: #ddd;
             cursor: pointer;
@@ -119,80 +143,123 @@
             align-items: center;
             gap: 10px;
         }
-        .lang-option i { width: 18px; color: #f47521; }
-        .lang-option:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .lang-option i { width: 16px; color: #f47521; }
+        .lang-option:hover { background: rgba(244,117,33,0.08); color: #fff; }
 
-        /* Main Container - Telegram Style (Narrow, readable width) */
+        /* Main Container - Coding Layout */
         .policy-container {
-            max-width: 760px;
+            max-width: 780px;
             margin: 0 auto;
-            padding: 40px 20px 80px;
+            padding: 30px 4% 80px;
         }
         
         /* Hero section */
         .policy-hero {
-            margin-bottom: 50px;
+            margin-bottom: 40px;
             text-align: center;
-            animation: fadeIn 0.6s ease-out;
         }
         .policy-hero h1 {
-            font-size: 34px;
+            font-size: 30px;
             letter-spacing: -0.5px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
         .effective-date {
-            font-size: 14px;
+            font-size: 12px;
             color: #8e8e93;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .hero-desc {
-            font-size: 17px;
+            font-size: 15px;
             color: #b0b0b6;
             text-align: left;
+            line-height: 1.6;
         }
 
-        /* Telegram-style Flat Sections */
-        .policy-section {
-            margin-bottom: 45px;
-            animation: fadeIn 0.6s ease-out;
+        /* ── ULTIMATE CODESPACE WINDOWS ── */
+        .ide-window {
+            background: #141416;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
         }
-        .policy-section h2 {
-            font-size: 22px;
-            margin-bottom: 16px;
+        .ide-window:hover {
+            transform: translateY(-3px);
+            border-color: rgba(244, 117, 33, 0.3);
+        }
+        .ide-header {
+            background: #19191d;
+            padding: 10px 14px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
         }
-        .policy-section h2 i {
-            color: #f47521;
-            font-size: 20px;
+        .ide-dots {
+            display: flex;
+            gap: 6px;
+        }
+        .ide-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .ide-dot.red { background: #ff5f56; }
+        .ide-dot.yellow { background: #ffbd2e; }
+        .ide-dot.green { background: #27c93f; }
+        .ide-tab {
+            font-size: 11px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: lowercase;
+            letter-spacing: 0.5px;
+        }
+        .ide-body {
+            padding: 14px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #abb2bf;
+            overflow-x: auto;
+            background: #101012;
+        }
+        .code-line {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 2px;
+        }
+        .line-num {
+            color: rgba(255, 255, 255, 0.15);
+            text-align: right;
+            width: 20px;
+            user-select: none;
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+        .code-content {
+            flex: 1;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
         
-        .policy-text p {
-            margin-bottom: 18px;
-            font-size: 16px;
-        }
-        
-        .policy-list {
-            margin: 0 0 20px 10px;
-            list-style: none;
-        }
-        .policy-list li {
-            margin-bottom: 12px;
-            position: relative;
-            padding-left: 20px;
-        }
-        .policy-list li::before {
-            content: "•";
-            color: #f47521;
-            font-weight: bold;
-            font-size: 20px;
-            position: absolute;
-            left: 0;
-            top: -2px;
-        }
+        /* Syntax Highlight Palette */
+        .c-key { color: #e06c75; font-weight: 600; }     /* Soft Red */
+        .c-val { color: #98c379; }                       /* Soft Green */
+        .c-keyword { color: #c678dd; font-weight: 600; } /* Purple */
+        .c-bracket { color: #abb2bf; }                   /* Gray */
+        .c-comment { color: #5c6370; font-style: italic; } /* Slate Comment Gray */
+        .c-num { color: #d19a66; }                       /* Orange */
+        .c-type { color: #56b6c2; }                      /* Cyan */
         
         /* SVG Links */
         .svg-link {
@@ -202,61 +269,64 @@
             color: #f47521;
             font-weight: 600;
             transition: opacity 0.2s;
-            margin-top: 5px;
+            margin-top: 4px;
         }
         .svg-link:hover { opacity: 0.8; text-decoration: underline; }
-        .svg-icon { width: 16px; height: 16px; }
 
         .contact-block {
-            background: rgba(255,255,255,0.03);
+            background: rgba(255,255,255,0.01);
             border-left: 3px solid #f47521;
-            padding: 16px 20px;
-            margin-top: 15px;
+            padding: 12px 16px;
+            margin-top: 10px;
             border-radius: 0 8px 8px 0;
-            font-size: 15px;
+            font-size: 13.5px;
         }
 
         .footer-cta {
-            margin-top: 60px;
+            margin-top: 50px;
             text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            padding-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            padding-top: 30px;
         }
         .redirect-home-btn {
             background: #f47521;
             border: none;
             border-radius: 8px;
-            padding: 14px 30px;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 800;
             color: #fff;
             display: inline-flex;
             align-items: center;
             gap: 10px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             font-family: inherit;
+            box-shadow: 0 4px 15px rgba(244, 117, 33, 0.2);
         }
-        .redirect-home-btn:hover { background: #dd5a02; }
+        .redirect-home-btn:hover { background: #dd5a02; transform: translateY(-2px); }
+        .redirect-home-btn:active { transform: translateY(0) scale(0.96); }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
+            from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 600px) {
-            .policy-hero h1 { font-size: 28px; }
-            .policy-section h2 { font-size: 20px; }
-            .policy-text p, .policy-list li { font-size: 15px; }
+            .policy-hero h1 { font-size: 24px; }
+            .policy-section h2 { font-size: 18px; }
+            .ide-body { font-size: 12px; }
         }
     </style>
 </head>
 <body class="font-sf" oncontextmenu="return false;">
     <header class="privacy-header">
-        <div style="width: 40px;"></div>
+        <button class="back-btn-new" onclick="window.location.href='index.html'">
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
         <div class="header-center">
             <div class="privacy-icon">
-                <img src="privacy.png" alt="Privacy Logo">
+                <img src="logo.png" alt="Privacy Logo" onerror="this.src='privacy.png'">
             </div>
             <span class="header-title">SanppyRoll Privacy</span>
         </div>
@@ -276,239 +346,347 @@
     <main class="policy-container" id="policyContent">
         </main>
 
-    <script>
+    <script type="text/javascript">
         // SVG Data for Firebase and Google
-        const firebaseSVG = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.7 17.5L5.8 4.2C5.9 3.7 6.6 3.6 6.9 4L10.3 10.5L3.7 17.5Z" fill="#FFA000"/><path d="M10.3 10.5L13.8 3.5C14.1 3 14.8 2.9 15.2 3.4L20.2 17.6L12.5 21.8C11.9 22.1 11.2 22.1 10.6 21.8L3.7 17.5L10.3 10.5Z" fill="#F57C00"/><path d="M20.2 17.6L15.2 3.4C14.8 2.9 14.1 3 13.8 3.5L10.3 10.5L20.2 17.6Z" fill="#FFCA28"/></svg>`;
-        const googleSVG = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>`;
+        const firebaseSVG = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M3.7 17.5L5.8 4.2C5.9 3.7 6.6 3.6 6.9 4L10.3 10.5L3.7 17.5Z" fill="#FFA000"/><path d="M10.3 10.5L13.8 3.5C14.1 3 14.8 2.9 15.2 3.4L20.2 17.6L12.5 21.8C11.9 22.1 11.2 22.1 10.6 21.8L3.7 17.5L10.3 10.5Z" fill="#F57C00"/><path d="M20.2 17.6L15.2 3.4C14.8 2.9 14.1 3 13.8 3.5L10.3 10.5L20.2 17.6Z" fill="#FFCA28"/></svg>`;
+        const googleSVG = `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>`;
 
         const translations = {
             en: {
                 heroTitle: "Privacy Policy",
                 effectiveDate: "Effective: May 21, 2026",
-                heroDesc: "Your trust is our absolute priority. This comprehensive privacy policy explains in detail how SanppyRoll collects, handles, and secures your personal data when you stream content, browse categories, and interact with our robust platform.",
-                card1Title: "1. Information Collection",
-                card1Text: "At SanppyRoll (encompassing our web app, mobile views, and all interconnected services), we strictly collect only the information that is absolutely necessary to provide you with a flawless, uninterrupted streaming experience. Here is exactly what we gather:",
-                list1_1: "Account Identifiers – Your email address, chosen username, and securely hashed authentication data managed entirely through enterprise-grade Firebase Auth.",
-                list1_2: "Streaming Activity – Comprehensive watch history, precise playback progress (resume points), and interactive list modifications.",
-                list1_3: "Technical Telemetry – Dynamic IP addresses, exact browser specifications, device operating systems, and strictly anonymized performance analytics.",
-                list1_4: "Profile Customization – Any avatar images you explicitly choose to upload or seamlessly fetch from third-party SSO providers.",
-                card1Footer: "Crucial Note: Absolutely zero sensitive financial data or raw payment details are ever stored on our servers. Any applicable transactions are heavily encrypted and routed strictly through certified, PCI-compliant third-party gateways.",
-                card2Title: "2. Utilization of Your Data",
-                card2Text: "We abhor data bloat. Every single byte of data we collect is utilized with a specific, user-centric purpose in mind:",
-                list2_1: "Hyper-Personalization – Algorithmically curating trending movies and series that genuinely align with your unique watch tastes.",
-                list2_2: "Cross-Device Synchronization – Maintaining real-time watch progress so you can pause on your laptop and resume on your mobile.",
-                list2_3: "Infrastructure Optimization – Aggressively monitoring platform stability and reducing video buffering times.",
-                list2_4: "Ironclad Security – Proactively identifying suspicious login attempts.",
-                list2_5: "Essential Communications – Dispatching critical service updates or new feature rollouts.",
-                card2Footer: "Let us be crystal clear: We have never, and will never, sell your personal data to advertisers, data brokers, or shadowy third entities. Period.",
-                card3Title: "3. Cookies & Browser Storage",
-                card3Text: "To preserve your authenticated state and remember your meticulous UI preferences, SanppyRoll deploys a highly minimal, un-intrusive cookie and local storage architecture. You retain full sovereignty over your browser settings.",
-                list3_1: "Mission-Critical Cookies: Non-negotiable tokens strictly required for secure logins and session routing.",
-                list3_2: "Telemetry Cookies: Utilizing heavily aggregated, anonymized packets purely to understand macro traffic surges.",
-                list3_3: "User Opt-Out Protocol: You reserve the absolute right to purge non-essential cookies via your browser.",
-                card3Footer: "Be advised that integrated third-party modules operate under their own autonomous cookie logic.",
-                card4Title: "4. Third-Party Integrations",
-                card4Text: "Building a world-class platform requires world-class partners. We exclusively integrate with enterprise-tier services that match our stringent privacy ethos:",
-                list4_1: `Firebase by Google: Powering our core authentication and database. <br><a href='https://firebase.google.com/support/privacy' target='_blank' class='svg-link'>${firebaseSVG} Firebase Privacy Policy</a>`,
-                list4_2: `YouTube API Services: Embedded deeply for fetching high-res cinematic trailers. <br><a href='https://policies.google.com/privacy' target='_blank' class='svg-link'>${googleSVG} Google Privacy Policy</a>`,
-                list4_3: "Telegram Communities: When you click our public channel invites, Telegram's privacy mandates immediately take over.",
-                list4_4: "Global CDN Delivery: Media bits stream through fortified edge servers where transient IP logs are flushed almost instantly.",
-                card4Footer: "We actively audit our partners to ensure sustained compliance with GDPR and CCPA.",
-                card5Title: "5. Security & Retention",
-                card5Text: "The sanctity of your digital footprint is entirely non-negotiable for our engineering team. We deploy aggressive countermeasures:",
-                list5_1: "End-to-End Transit Encryption – Forcing rigid TLS 1.3 cryptographic protocols.",
-                list5_2: "Stringent Firebase Rulesets – Granular database restrictions that prevent unauthorized breaches.",
-                list5_3: "Automated Threat Scanning – Conducting relentless vulnerability audits.",
-                card5Footer: "Data Lifespan: Triggering an account deletion obliterates your watch history from our clusters within 30 days. Zombie accounts (inactive for 24+ months) face automated purging.",
-                card5Note: "In the statistically rare event of a database compromise, all affected users will receive full-disclosure email alerts within 72 hours.",
-                card6Title: "6. Your Privacy Rights",
-                card6Text: "Regardless of whether you reside in the EEA, California, or anywhere globally, we honor your sovereign data rights unconditionally:",
-                list6_1: "The Right to Access – Demand and extract a full copy of every data point we hold.",
-                list6_2: "The Right to Rectification – Instantly patch any erroneous profile variables.",
-                list6_3: "The Right to Erasure – A one-click nuclear option to erase your entire existence from our backend.",
-                list6_4: "The Right to Restrict Processing – Command us to freeze algorithmic processing.",
-                card6Footer: "To deploy any of these rights, simply ping privacy@sanppyroll.com.",
-                card7Title: "7. Children's Privacy",
-                card7Text: "SanppyRoll is strictly engineered for audiences aged 13 and older. We deploy zero mechanisms to knowingly harvest data from minors. If a guardian discovers a child has bypassed our gates, contact us immediately for an expedited, permanent wipe of their footprint.",
-                card8Title: "8. Policy Iterations",
-                card8Text: "Technology evolves rapidly, and so will this doctrine. We reserve the right to patch and update this Privacy Policy to mirror new legal landscapes. Your continued streaming implies your agreement with the latest iteration.",
-                card9Title: "9. Contact the Data Officer",
-                card9Text: "Privacy shouldn't be hidden behind a labyrinth. If you have deep technical concerns, our specialized privacy task force is on standby:",
-                contactBlock: "Direct Email: <strong>SanppyRoll@protonmail.com</strong><br>Physical Mail: SanppyRoll Legal HQ, 221B Digital Lane, NXT Street.",
-                card9Footer: "We prioritize brutal transparency.",
+                heroDesc: "Your trust is our ultimate source code. This comprehensive privacy policy explains in detail how SanppyRoll collects, handles, and secures your personal data when you stream content, browse categories, and interact with our robust platform.",
+                
+                cards: [
+                    {
+                        title: "1. Information Collection",
+                        file: "data_collection.js",
+                        icon: "fa-database",
+                        code: [
+                            `<span class="c-comment">// Strictly essential fields stored in session database</span>`,
+                            `<span class="c-keyword">const</span> <span class="c-key">userProfile</span> = {`,
+                            `  uid: <span class="c-val">"usr_94a738c8"</span>,`,
+                            `  email: <span class="c-val">"your_email@gmail.com"</span>,`,
+                            `  username: <span class="c-val">"YourSavedName"</span>,`,
+                            `  isPremium: <span class="c-keyword">true</span>,`,
+                            `  watchHistory: [<span class="c-val">"Demon Slayer"</span>, <span class="c-val">"Naruto"</span>]`,
+                            `};`
+                        ],
+                        explain: "Account Identifiers securely cryptographed and verified natively via Firebase Auth integrations. Absolute zero financial data or raw payment details are ever stored on our servers."
+                    },
+                    {
+                        title: "2. Utilization of Your Data",
+                        file: "data_usage.json",
+                        icon: "fa-chart-line",
+                        code: [
+                            `{`,
+                            `  <span class="c-key">"purpose"</span>: <span class="c-val">"Makkhan UI & Bufferless Stream"</span>,`,
+                            `  <span class="c-key">"sync"</span>: <span class="c-val">"Cross-device resume progress"</span>,`,
+                            `  <span class="c-key">"sell_to_advertisers"</span>: <span class="c-keyword">false</span>`,
+                            `}`
+                        ],
+                        explain: "Every single byte collected is strictly used to serve personalized anime suggestions, maintain seamless pause/resume playback sync across devices, and ensure rigid security."
+                    },
+                    {
+                        title: "3. Cookies & Local Storage",
+                        file: "session_storage.config",
+                        icon: "fa-cookie-bite",
+                        code: [
+                            `<span class="c-comment"># Purely used to keep you securely logged in</span>`,
+                            `<span class="c-key">AUTH_TOKEN_PERSIST</span>=<span class="c-keyword">true</span>`,
+                            `<span class="c-key">THEME_DARK_MODE</span>=<span class="c-keyword">true</span>`
+                        ],
+                        explain: "We utilize minimal browser local storage to preserve your authenticated state and theme preferences without tracking you across the outer web."
+                    },
+                    {
+                        title: "4. Third-Party Integrations",
+                        file: "trusted_packages.json",
+                        icon: "fa-share-alt",
+                        code: [
+                            `{`,
+                            `  <span class="c-key">"dependencies"</span>: {`,
+                            `    <span class="c-key">"firebase-auth"</span>: <span class="c-val">"Google Verified Security"</span>,`,
+                            `    <span class="c-key">"youtube-trailer-api"</span>: <span class="c-val">"Embedded trailers only"</span>`,
+                            `  }`,
+                            `}`
+                        ],
+                        explain: `We exclusively integrate with verified platforms: <br><a href='https://firebase.google.com/support/privacy' target='_blank' class='svg-link'>${firebaseSVG} Firebase Policy</a> &nbsp;•&nbsp; <a href='https://policies.google.com/privacy' target='_blank' class='svg-link'>${googleSVG} Google Policy</a>`
+                    },
+                    {
+                        title: "5. Security & Retention",
+                        file: "security_shield.sh",
+                        icon: "fa-lock",
+                        code: [
+                            `<span class="c-comment">#!/bin/sh</span>`,
+                            `<span class="c-keyword">encrypt_all_transit</span> --tls-version=1.3`,
+                            `<span class="c-keyword">purge_zombie_accounts</span> --inactive-months=24`
+                        ],
+                        explain: "Robust TLS 1.3 encryption and Firebase Rulesets actively guard database layers. Deleting an account systematically wipes all metrics within 30 days."
+                    },
+                    {
+                        title: "6. Your Privacy Rights",
+                        file: "user_rights.cmd",
+                        icon: "fa-user-check",
+                        code: [
+                            `<span class="c-keyword">EXEC</span> <span class="c-key">RequestDataCopy</span> @user_id="usr_94a738c8"`,
+                            `<span class="c-keyword">EXEC</span> <span class="c-key">NuclearWipeAccount</span> @user_id="usr_94a738c8"`
+                        ],
+                        explain: "We honor your rights to download, restrict, or initiate a nuclear wipe of every metric associated with your profile instantly. Ping privacy@sanppyroll.com."
+                    }
+                ],
+
                 legalTitle: "Absolute Consent",
-                legalText: "By spinning up SanppyRoll, you officially acknowledge that you have absorbed, understood, and consented to the robust data mechanics mapped out in this document. The power remains strictly in your hands."
+                legalText: "By spinning up SanppyRoll, you officially acknowledge that you have absorbed, understood, and consented to the robust data mechanics mapped out in this document. The power remains strictly in your hands.",
+                contactTitle: "Contact Privacy Task Force",
+                contactBlock: "Direct Secure Email: <strong>SanppyRoll@protonmail.com</strong><br>Physical Mail: SanppyRoll Legal HQ, 221B Digital Lane, NXT Street."
             },
             hi: {
-                heroTitle: "गोपनीयता नीति (Privacy Policy)",
-                effectiveDate: "प्रभावी तारीख: 21 मई, 2026",
-                heroDesc: "भाई, आपका डेटा और आपका भरोसा हमारी सबसे बड़ी प्राथमिकता है। जब आप SanppyRoll पर अपनी फेवरिट मूवी या एनीमे स्ट्रीम करते हैं, तो हम आपके डेटा को कितनी सिक्योरिटी के साथ हैंडल करते हैं, यह पॉलिसी उसी का पूरा कच्चा-चिट्ठा है।",
-                card1Title: "1. हम क्या जानकारी इकट्ठा करते हैं",
-                card1Text: "SanppyRoll पर हम बेवजह का कचरा डेटा नहीं उठाते। हम सिर्फ उतनी ही जानकारी लेते हैं जितनी आपको एक मक्खन जैसा स्ट्रीमिंग एक्सपीरियंस देने के लिए ज़रूरी है:",
-                list1_1: "अकाउंट डिटेल्स – आपका ईमेल एड्रेस, यूज़रनेम, और पूरी तरह से एन्क्रिप्टेड पासवर्ड।",
-                list1_2: "स्ट्रीमिंग एक्टिविटी – आपने क्या देखा, वीडियो कहाँ पर पॉज़ किया, ताकि आप वहीं से वापस शुरू कर सकें।",
-                list1_3: "डिवाइस और टेक्निकल डेटा – आपका IP एड्रेस और ब्राउज़र की डिटेल्स ताकि हम ऐप की स्पीड बढ़ा सकें।",
-                list1_4: "प्रोफाइल की जानकारी – आपकी प्रोफाइल पिक्चर जो आप सेट करते हैं।",
-                card1Footer: "एक बात साफ़ सुन लो: हम आपके बैंक या पेमेंट की कोई भी सेंसिटिव जानकारी अपने सर्वर पर नहीं रखते।",
-                card2Title: "2. हम आपके डेटा का करते क्या हैं?",
-                card2Text: "हम आपके डेटा का इस्तेमाल सिर्फ आपके फायदे और ऐप को तगड़ा बनाने के लिए करते हैं:",
-                list2_1: "पर्सनलाइज़ेशन – आपकी पसंद के हिसाब से भयंकर मूवीज़ और सीरीज़ सजेस्ट करना।",
-                list2_2: "वॉच हिस्ट्री मेंटेन करना – ताकि डिवाइस बदलने पर भी वीडियो वहीं से चले।",
-                list2_3: "परफॉरमेंस बढ़ाना – बफरिंग को खत्म करना।",
-                list2_4: "सिक्योरिटी – अकाउंट को हैकर्स से बचाना।",
-                list2_5: "ज़रूरी अपडेट्स – नए फीचर की जानकारी देना।",
-                card2Footer: "हम अपना ज़मीर नहीं बेचते भाई! आपका डेटा किसी एडवरटाइज़र को कभी नहीं बेचा जाएगा।",
-                card3Title: "3. कुकीज़ (Cookies)",
-                card3Text: "बार-बार लॉगिन न करना पड़े, इसके लिए SanppyRoll बहुत लिमिटेड कुकीज़ का यूज़ करता है।",
-                list3_1: "ज़रूरी कुकीज़: इनके बिना ऐप चलेगा ही नहीं।",
-                list3_2: "एनालिटिक्स कुकीज़: सिर्फ ट्रैफिक देखने के लिए, कोई पर्सनल पहचान नहीं।",
-                list3_3: "ऑप्ट-आउट: आप ब्राउज़र से कुकीज़ बंद कर सकते हो।",
-                card3Footer: "YouTube ट्रेलर जैसी थर्ड-पार्टी चीज़ें अपनी खुद की कुकीज़ सेट कर सकती हैं।",
-                card4Title: "4. थर्ड-पार्टी सर्विसेज़",
-                card4Text: "ऐप को मस्त बनाने के लिए हम बेस्ट टूल्स का यूज़ करते हैं:",
-                list4_1: `Firebase (Google): डेटाबेस और लॉगिन के लिए। <br><a href='https://firebase.google.com/support/privacy' target='_blank' class='svg-link'>${firebaseSVG} Firebase पॉलिसी</a>`,
-                list4_2: `YouTube API: कड़क ट्रेलर्स के लिए। <br><a href='https://policies.google.com/privacy' target='_blank' class='svg-link'>${googleSVG} Google पॉलिसी</a>`,
-                list4_3: "Telegram: कम्युनिटी ग्रुप के लिए Telegram के नियम लागू होंगे।",
-                list4_4: "CDN: वीडियो बिना अटके पहुँचाने के लिए।",
-                card4Footer: "सभी थर्ड-पार्टी प्राइवेसी रूल्स को स्ट्रिक्टली फॉलो करते हैं।",
-                card5Title: "5. डेटा सिक्योरिटी",
-                card5Text: "डेटा सुरक्षा के मामले में कोई समझौता नहीं। हम तगड़ी सिक्योरिटी लगाते हैं:",
-                list5_1: "TLS 1.3 एन्क्रिप्शन – डेटा पूरी तरह कोड में बदल जाता है।",
-                list5_2: "Firebase सिक्योरिटी रूल्स – हैकर डेटाबेस को छू भी नहीं सकता।",
-                list5_3: "रेगुलर सिक्योरिटी चेक।",
-                card5Footer: "अकाउंट डिलीट मारने पर 30 दिन में सब कुछ हमेशा के लिए उड़ जाएगा।",
-                card5Note: "अगर कभी कोई डेटा लीक जैसी अनहोनी होती है, तो 72 घंटे में ईमेल कर देंगे।",
-                card6Title: "6. आपके अधिकार (Your Rights)",
-                card6Text: "आपके पास अपने डेटा को लेकर पूरे राइट्स हैं:",
-                list6_1: "डेटा देखने का हक।",
-                list6_2: "डेटा सुधारने का हक।",
-                list6_3: "डेटा मिटाने का हक – 'डिलीट अकाउंट' दबाओ और रिकॉर्ड गायब।",
-                list6_4: "प्रोसेसिंग रोकने का हक।",
-                card6Footer: "इनका इस्तेमाल करने के लिए privacy@sanppyroll.com पर मेल ठोक दो।",
-                card7Title: "7. बच्चों की प्राइवेसी",
-                card7Text: "यह प्लेटफॉर्म 13 साल या उससे बड़े यूज़र्स के लिए है। हम जानबूझकर बच्चों का डेटा कलेक्ट नहीं करते।",
-                card8Title: "8. पॉलिसी अपडेट",
-                card8Text: "टेक्नोलॉजी के साथ ये पॉलिसी बदल सकती है। ऐप चलाते रहने का मतलब है कि आपको नए रूल्स मंज़ूर हैं।",
-                card9Title: "9. हमसे कांटेक्ट करें",
-                card9Text: "कोई भी डाउट हो या डेटा डिलीट करवाना हो, तो हमारी प्राइवेसी टीम बैठी है:",
-                contactBlock: "ईमेल: <strong>SanppyRoll@protonmail.com</strong><br>चिट्ठी: SanppyRoll Legal, 221B Digital Lane.",
-                card9Footer: "हम पूरी ट्रांसपेरेंसी रखते हैं।",
-                legalTitle: "कानूनी सहमति",
-                legalText: "ऐप यूज़ करने का मतलब है कि आपने ये पढ़ लिया है और एग्री करते हैं। कंट्रोल हमेशा आपके हाथ में है।"
+                heroTitle: "प्राइवेसी सॉलिड है बॉस!",
+                effectiveDate: "प्रभावी: 21 मई, 2026",
+                heroDesc: "आपका डेटा और आपका भरोसा हमारे लिए सबसे बड़ी प्राथमिकता है। जब आप SanppyRoll पर अपनी फेवरिट एनीमे स्ट्रीम करते हैं, तो हम आपके डेटा को कितनी सिक्योरिटी के साथ हैंडल करते हैं, यह पॉलिसी उसी का पूरा कड़क कोड-स्ट्रक्चर है।",
+                
+                cards: [
+                    {
+                        title: "1. डेटा कैसे सेव होता है",
+                        file: "डेटा_कलेक्शन.js",
+                        icon: "fa-database",
+                        code: [
+                            `<span class="c-comment">// डेटाबेस में आपकी सिर्फ ज़रूरी डिटेल्स सेफ रहती हैं</span>`,
+                            `<span class="c-keyword">const</span> <span class="c-key">यूज़र_अकाउंट</span> = {`,
+                            `  यूज़र_आईडी: <span class="c-val">"usr_94a738c8"</span>,`,
+                            `  ईमेल: <span class="c-val">"your_email@gmail.com"</span>,`,
+                            `  यूज़रनेम: <span class="c-val">"आपका_नाम"</span>,`,
+                            `  प्रीमियम_सब्स्क्रिप्शन: <span class="c-keyword">true</span>,`,
+                            `  वॉच_हिस्ट्री: [<span class="c-val">"डेमन स्लेयर"</span>, <span class="c-val">"नारुतो"</span>]`,
+                            `};`
+                        ],
+                        explain: "अकाउंट डिटेल्स पूरी तरह से एन्क्रिप्टेड और सुरक्षित तरीके से Firebase Auth द्वारा मैनेज होती हैं। हम आपके बैंक कार्ड की कोई भी जानकारी अपने सर्वर पर नहीं रखते।"
+                    },
+                    {
+                        title: "2. डेटा का इस्तेमाल",
+                        file: "डेटा_उपयोग.json",
+                        icon: "fa-chart-line",
+                        code: [
+                            `{`,
+                            `  <span class="c-key">"उद्देश्य"</span>: <span class="c-val">"मक्खन जैसी यूआई और नो-बफरिंग स्ट्रीम"</span>,`,
+                            `  <span class="c-key">"सिंक"</span>: <span class="c-val">"अलग-अलग डिवाइस पर वहीं से देखें जहाँ आख़िरी बार रोका था"</span>,`,
+                            `  <span class="c-key">"डेटा_बेचना"</span>: <span class="c-keyword">false</span>`,
+                            `}`
+                        ],
+                        explain: "डेटा का उपयोग सिर्फ बेहतरीन एनीमे सुझाव देने, और वॉच हिस्ट्री मेंटेन करने के लिए होता है। हम कभी भी किसी विज्ञापनदाता को आपका डेटा नहीं बेचते।"
+                    },
+                    {
+                        title: "3. कुकीज़ और लोकल स्टोरेज",
+                        file: "कुकीज़_कॉन्फ़िगरेशन.config",
+                        icon: "fa-cookie-bite",
+                        code: [
+                            `<span class="c-comment"># बार-बार लॉगिन के झंझट से मुक्ति</span>`,
+                            `<span class="c-key">लॉगिन_सत्र_सक्रिय</span>=<span class="c-keyword">true</span>`,
+                            `<span class="c-key">डार्क_थीम_सक्रिय</span>=<span class="c-keyword">true</span>`
+                        ],
+                        explain: "SanppyRoll बहुत ही लिमिटेड लोकल कुकीज़ का उपयोग करता है ताकि आपका डार्क थीम और लॉगिन सेशन हमेशा रिस्टोर रहे।"
+                    },
+                    {
+                        title: "4. थर्ड-पार्टी इंटीग्रेशन",
+                        file: "सुरक्षित_सर्विसेज.json",
+                        icon: "fa-share-alt",
+                        code: [
+                            `{`,
+                            `  <span class="c-key">"डिपेंडेंसी"</span>: {`,
+                            `    <span class="c-key">"गूगल_फायरबेस"</span>: <span class="c-val">"अकाउंट सिक्योरिटी"</span>,`,
+                            `    <span class="c-key">"यूट्यूब_ट्रेलर"</span>: <span class="c-val">"सिर्फ कड़क ट्रेलर्स लोड करने के लिए"</span>`,
+                            `  }`,
+                            `}`
+                        ],
+                        explain: `हम सिर्फ वर्ल्ड-क्लास पार्टनर्स का उपयोग करते हैं: <br><a href='https://firebase.google.com/support/privacy' target='_blank' class='svg-link'>${firebaseSVG} Firebase पॉलिसी</a> &nbsp;•&nbsp; <a href='https://policies.google.com/privacy' target='_blank' class='svg-link'>${googleSVG} Google पॉलिसी</a>`
+                    },
+                    {
+                        title: "5. डेटा सिक्योरिटी",
+                        file: "डेटा_सुरक्षा.sh",
+                        icon: "fa-lock",
+                        code: [
+                            `<span class="c-comment">#!/bin/sh</span>`,
+                            `<span class="c-keyword">लागू_करें_एन्क्रिप्शन</span> --TLS-वर्जन=1.3`,
+                            `<span class="c-keyword">सुरक्षा_दीवार_सक्रिय</span> --फायरबेस-रूल्स=कठिन`
+                        ],
+                        explain: "डेटा लीक से बचने के लिए तगड़ा TLS 1.3 एन्क्रिप्शन एक्टिव है। अकाउंट डिलीट करने पर 30 दिनों में डेटाबेस का पूरा डेटा हमेशा के लिए साफ हो जाएगा।"
+                    },
+                    {
+                        title: "6. आपके प्राइवेसी राइट्स",
+                        file: "यूज़र_राइट्स.cmd",
+                        icon: "fa-user-check",
+                        code: [
+                            `<span class="c-keyword">एक्जीक्यूट</span> <span class="c-key">डेटा_निकालें</span> --यूज़र="usr_94a738c8"`,
+                            `<span class="c-keyword">एक्जीक्यूट</span> <span class="c-key">खाता_नष्ट_करें</span> --यूज़र="usr_94a738c8"`
+                        ],
+                        explain: "जब भी चाहें 'डिलीट अकाउंट' दबाएं और रिकॉर्ड पलक झपकते ही गायब। किसी भी सहायता के लिए privacy@sanppyroll.com पर मेल करें।"
+                    }
+                ],
+
+                legalTitle: "पूर्ण कानूनी सहमति",
+                legalText: "ऐप यूज़ करने का मतलब है कि आपने हमारी प्राइवेसी पॉलिसी को पूरी तरह से समझ लिया है और आप इससे सहमत हैं। कंट्रोल हमेशा आपके हाथ में है बॉस।",
+                contactTitle: "प्राइवेसी टास्क फ़ोर्स से संपर्क करें",
+                contactBlock: "सुरक्षित ईमेल: <strong>SanppyRoll@protonmail.com</strong><br>चिट्ठी-पत्री: SanppyRoll Legal HQ, 221B Digital Lane."
             },
             ta: {
                 heroTitle: "தனியுரிமைக் கொள்கை",
                 effectiveDate: "நடைமுறைக்கு வரும் தேதி: மே 21, 2026",
                 heroDesc: "உங்கள் நம்பிக்கை எங்கள் முன்னுரிமை. இந்தக் கொள்கை SanppyRoll உங்கள் தரவை எவ்வாறு கையாளுகிறது என்பதை விரிவாக விளக்குகிறது.",
-                card1Title: "1. நாங்கள் சேகரிக்கும் தகவல்கள்",
-                card1Text: "தடையற்ற ஸ்ட்ரீமிங் அனுபவத்தை வழங்க அவசியமான தகவல்களை மட்டுமே சேகரிக்கிறோம்:",
-                list1_1: "கணக்கு விவரங்கள் – மின்னஞ்சல் மற்றும் Firebase Auth மூலம் பாதுகாக்கப்பட்ட தரவு.",
-                list1_2: "பார்க்கும் செயல்பாடு – உள்ளடக்க வரலாறு மற்றும் வீடியோ நிறுத்திய இடம்.",
-                list1_3: "தொழில்நுட்ப தரவு – ஐபி முகவரி, உலாவி வகை.",
-                list1_4: "சுயவிவரத் தகவல் – அவதார் படங்கள்.",
-                card1Footer: "எங்கள் சேவையகங்களில் எந்தவொரு நிதித் தரவும் சேமிக்கப்படவில்லை.",
-                card2Title: "2. உங்கள் தகவலை நாங்கள் எவ்வாறு பயன்படுத்துகிறோம்",
-                card2Text: "சேகரிக்கப்பட்ட தரவை நாங்கள் இதற்காகப் பயன்படுத்துகிறோம்:",
-                list2_1: "தனிப்பயனாக்கப்பட்ட பரிந்துரைகள்.",
-                list2_2: "வீடியோ முன்னேற்றத்தை பராமரித்தல்.",
-                list2_3: "தள நிலைத்தன்மை மற்றும் பஃபரிங் குறைப்பு.",
-                list2_4: "பாதுகாப்பு மற்றும் கணக்கு பாதுகாப்பு.",
-                list2_5: "புதிய அம்சங்கள் பற்றிய தகவல்களை அனுப்ப.",
-                card2Footer: "நாங்கள் ஒருபோதும் தனிப்பட்ட தரவை மூன்றாம் தரப்பினருக்கு விற்க மாட்டோம்.",
-                card3Title: "3. குக்கீகள்",
-                card3Text: "சீரான அனுபவத்திற்காக குறைந்தபட்ச குக்கீகளைப் பயன்படுத்துகிறோம்.",
-                list3_1: "அத்தியாவசிய குக்கீகள்: உள்நுழைவுக்கு தேவையானது.",
-                list3_2: "பகுப்பாய்வு குக்கீகள்: தள போக்குவரத்தை அறிய.",
-                list3_3: "விலகல்: தேவையற்ற குக்கீகளை நிராகரிக்கலாம்.",
-                card3Footer: "YouTube போன்ற சேவைகள் தங்கள் சொந்த குக்கீகளை அமைக்கலாம்.",
-                card4Title: "4. மூன்றாம் தரப்பு சேவைகள்",
-                card4Text: "பாதுகாப்பான தளங்களைப் பயன்படுத்துகிறோம்:",
-                list4_1: `Firebase (Google): தரவுத்தளத்திற்காக. <br><a href='https://firebase.google.com/support/privacy' target='_blank' class='svg-link'>${firebaseSVG} Firebase கொள்கை</a>`,
-                list4_2: `YouTube API: ட்ரெய்லர்களுக்காக. <br><a href='https://policies.google.com/privacy' target='_blank' class='svg-link'>${googleSVG} Google கொள்கை</a>`,
-                list4_3: "டெலிகிராம்: பொது குழுக்களுக்கு.",
-                list4_4: "CDN: வேகமான ஸ்ட்ரீமிங்கிற்காக.",
-                card4Footer: "அனைத்து சேவைகளும் தனியுரிமை சட்டங்களுக்கு உட்பட்டவை.",
-                card5Title: "5. தரவு பாதுகாப்பு",
-                card5Text: "உங்கள் தகவலைப் பாதுகாப்பது முக்கியமானது:",
-                list5_1: "TLS 1.3 குறியாக்கம்.",
-                list5_2: "Firebase பாதுகாப்பு விதிகள்.",
-                list5_3: "வழக்கமான பாதுகாப்பு சோதனைகள்.",
-                card5Footer: "கணக்கை நீக்கினால் 30 நாட்களில் தரவு அழிக்கப்படும்.",
-                card5Note: "தரவு மீறல் ஏற்பட்டால் 72 மணி நேரத்தில் அறிவிப்போம்.",
-                card6Title: "6. உங்கள் உரிமைகள்",
-                card6Text: "உங்களுக்கு சில உரிமைகள் உள்ளன:",
-                list6_1: "தரவை அணுகும் உரிமை.",
-                list6_2: "திருத்தும் உரிமை.",
-                list6_3: "தரவை நிரந்தரமாக நீக்கும் உரிமை.",
-                list6_4: "கட்டுப்படுத்தும் உரிமை.",
-                card6Footer: "privacy@sanppyroll.com ஐத் தொடர்புகொள்ளவும்.",
-                card7Title: "7. குழந்தைகள் தனியுரிமை",
-                card7Text: "SanppyRoll 13 வயதுக்கு மேற்பட்டவர்களுக்கானது. குழந்தைகளிடமிருந்து தரவை நாங்கள் சேகரிக்க மாட்டோம்.",
-                card8Title: "8. கொள்கை புதுப்பிப்புகள்",
-                card8Text: "சட்டங்கள் மாறும்போது கொள்கையை புதுப்பிக்கலாம். தொடர்ந்து பயன்படுத்துவது சம்மதத்தை குறிக்கும்.",
-                card9Title: "9. தொடர்பு கொள்ள",
-                card9Text: "கேள்விகள் அல்லது தரவு கோரிக்கைகளுக்கு:",
-                contactBlock: "மின்னஞ்சல்: <strong>SanppyRoll@protonmail.com</strong><br>முகவரி: SanppyRoll Legal, 221B Digital Lane.",
-                card9Footer: "வெளிப்படைத்தன்மையை நாங்கள் மதிக்கிறோம்.",
+                
+                cards: [
+                    {
+                        title: "1. தகவல் சேகரிப்பு",
+                        file: "data_collection.js",
+                        icon: "fa-database",
+                        code: [
+                            `<span class="c-comment">// கணக்கு விவரங்கள் மற்றும் ஸ்ட்ரீமிங் செயல்பாடு</span>`,
+                            `<span class="c-keyword">const</span> <span class="c-key">userProfile</span> = {`,
+                            `  uid: <span class="c-val">"usr_94a738c8"</span>,`,
+                            `  email: <span class="c-val">"your_email@gmail.com"</span>,`,
+                            `  username: <span class="c-val">"TamilUser"</span>,`,
+                            `  isPremium: <span class="c-keyword">true</span>`,
+                            `};`
+                        ],
+                        explain: "மின்னஞ்சல் மற்றும் Firebase Auth மூலம் பாதுகாக்கப்பட்ட தரவு. எங்கள் சேவையகங்களில் எந்தவொரு நிதித் தரவும் சேமிக்கப்படவில்லை."
+                    },
+                    {
+                        title: "2. தரவு பயன்பாடு",
+                        file: "data_usage.json",
+                        icon: "fa-chart-line",
+                        code: [
+                            `{`,
+                            `  <span class="c-key">"purpose"</span>: <span class="c-val">"Makkhan UI & Bufferless Stream"</span>,`,
+                            `  <span class="c-key">"sync"</span>: <span class="c-val">"Cross-device progress sync"</span>`,
+                            `}`
+                        ],
+                        explain: "தனிப்பயனாக்கப்பட்ட பரிந்துரைகளை வழங்கவும் மற்றும் வீடியோ ஆப்பினை தொடர்ந்து பார்க்கவும் பயன்படுத்துகிறோம்."
+                    },
+                    {
+                        title: "3. குக்கீகள்",
+                        file: "storage.config",
+                        icon: "fa-cookie-bite",
+                        code: [
+                            `<span class="c-key">SESSION_ACTIVE</span>=<span class="c-keyword">true</span>`,
+                            `<span class="c-key">THEME_DARK</span>=<span class="c-keyword">true</span>`
+                        ],
+                        explain: "சீரான அனுபவத்திற்காக குறைந்தபட்ச குக்கீகள் மற்றும் லோக்கல் ஸ்டோரேஜினை பயன்படுத்துகிறோம்."
+                    },
+                    {
+                        title: "4. மூன்றாம் தரப்பு சேவைகள்",
+                        file: "packages.json",
+                        icon: "fa-share-alt",
+                        code: [
+                            `{`,
+                            `  <span class="c-key">"dependencies"</span>: {`,
+                            `    <span class="c-key">"google-firebase"</span>: <span class="c-val">"Database Security"</span>`,
+                            `  }`,
+                            `}`
+                        ],
+                        explain: `பாதுகாப்பான மற்றும் சான்றளிக்கப்பட்ட தளங்களை மட்டுமே பயன்படுத்துகிறோம்: <br><a href='https://firebase.google.com/support/privacy' target='_blank' class='svg-link'>${firebaseSVG} Firebase கொள்கை</a>`
+                    },
+                    {
+                        title: "5. பாதுகாப்பு",
+                        file: "security.sh",
+                        icon: "fa-lock",
+                        code: [
+                            `<span class="c-keyword">encrypt_transit</span> --TLS-v1.3`,
+                            `<span class="c-keyword">wipe_inactive_accounts</span> --months=24`
+                        ],
+                        explain: "வலுவான TLS 1.3 குறியாக்கம் மற்றும் பாதுகாப்பு விதிகள் தரவை தீவிரமாக பாதுகாக்கின்றன."
+                    },
+                    {
+                        title: "6. உங்கள் உரிமைகள்",
+                        file: "user_rights.cmd",
+                        icon: "fa-user-check",
+                        code: [
+                            `<span class="c-keyword">DELETE</span> <span class="c-key">AccountRecord</span> WHERE id="usr_94a738c8"`
+                        ],
+                        explain: "தரவை முற்றிலும் நீக்க அல்லது நகல் பெற உரிமை உண்டு. தொடர்புக்கு: privacy@sanppyroll.com."
+                    }
+                ],
+
                 legalTitle: "ஒப்புதல்",
-                legalText: "பயன்படுத்துவதன் மூலம், நீங்கள் இந்தக் கொள்கையை ஏற்றுக்கொள்கிறீர்கள்."
+                legalText: "SanppyRoll பயன்படுத்துவதன் மூலம், நீங்கள் இந்த கொள்கைகளை ஏற்றுக்கொள்கிறீர்கள்.",
+                contactTitle: "தொடர்பு கொள்ள",
+                contactBlock: "மின்னஞ்சல்: <strong>SanppyRoll@protonmail.com</strong><br>முகவரி: SanppyRoll Legal HQ, 221B Digital Lane."
             },
             te: {
                 heroTitle: "గోప్యతా విధానం",
                 effectiveDate: "ప్రభావం: మే 21, 2026",
                 heroDesc: "మీ విశ్వాసమే మా ప్రాధాన్యత. SanppyRoll మీ డేటాను ఎలా నిర్వహిస్తుందో మరియు సురక్షితంగా ఎలా ఉంచుతుందో ఈ విధానం వివరిస్తుంది.",
-                card1Title: "1. సేకరించే సమాచారం",
-                card1Text: "ఉత్తమ అనుభవాన్ని అందించడానికి కేవలం అవసరమైన సమాచారాన్ని మాత్రమే సేకరిస్తాము:",
-                list1_1: "ఖాతా వివరాలు – ఇమెయిల్ మరియు సురక్షితమైన లాగిన్ డేటా.",
-                list1_2: "వీక్షణ కార్యాచరణ – మీరు చూసిన సినిమాలు, ఆపిన చోటు.",
-                list1_3: "సాంకేతిక డేటా – ఐపీ చిరునామా, బ్రౌజర్ రకం.",
-                list1_4: "ప్రొఫైల్ సమాచారం – అప్‌లోడ్ చేసిన చిత్రాలు.",
-                card1Footer: "బ్యాంక్ లాంటి సున్నితమైన సమాచారం మా సర్వర్లలో ఎప్పటికీ నిల్వ చేయబడదు.",
-                card2Title: "2. సమాచారాన్ని ఎలా ఉపయోగిస్తాము",
-                card2Text: "డేటాను ప్లాట్‌ఫారమ్ మెరుగుదలకు మాత్రమే ఉపయోగిస్తాము:",
-                list2_1: "వ్యక్తిగతీకరించిన సిఫార్సులు.",
-                list2_2: "వీడియో ఆపిన చోటును గుర్తుంచుకోవడానికి.",
-                list2_3: "యాప్ వేగం పెంచడానికి.",
-                list2_4: "ఖాతాను రక్షించడానికి.",
-                list2_5: "కొత్త ఫీచర్ల గురించి తెలియజేయడానికి.",
-                card2Footer: "మీ డేటాను ఎప్పటికీ ఎవరికీ విక్రయించము.",
-                card3Title: "3. కుకీలు",
-                card3Text: "యాప్ సరిగ్గా పనిచేయడానికి చిన్న కుకీలను ఉపయోగిస్తాము.",
-                list3_1: "అవసరమైన కుకీలు: లాగిన్ కోసం.",
-                list3_2: "అనలిటిక్స్ కుకీలు: ట్రాఫిక్ అర్థం చేసుకోవడానికి.",
-                list3_3: "ఆప్ట్-ఔట్: బ్రౌజర్ ద్వారా కుకీలను బ్లాక్ చేయవచ్చు.",
-                card3Footer: "YouTube లాంటి సేవలు వాటి స్వంత కుకీలను సెట్ చేయవచ్చు.",
-                card4Title: "4. థర్డ్-పార్టీ సేవలు",
-                card4Text: "విశ్వసనీయ సంస్థల సేవలను ఉపయోగిస్తాము:",
-                list4_1: `Firebase (Google): డేటాబేస్ కోసం. <br><a href='https://firebase.google.com/support/privacy' target='_blank' class='svg-link'>${firebaseSVG} Firebase గోప్యత</a>`,
-                list4_2: `YouTube API: ట్రైలర్ల కోసం. <br><a href='https://policies.google.com/privacy' target='_blank' class='svg-link'>${googleSVG} Google గోప్యత</a>`,
-                list4_3: "టెలిగ్రామ్: కమ్యూనిటీ గ్రూపుల కోసం.",
-                list4_4: "CDN: వీడియోలు వేగంగా ప్లే అవ్వడానికి.",
-                card4Footer: "వీరంతా గోప్యతా నియమాలకు కట్టుబడి ఉంటారు.",
-                card5Title: "5. డేటా భద్రత",
-                card5Text: "మీ సమాచారాన్ని సురక్షితంగా ఉంచడం మా బాధ్యత:",
-                list5_1: "TLS 1.3 ఎన్‌క్రిప్షన్.",
-                list5_2: "Firebase భద్రతా నియమాలు.",
-                list5_3: "క్రమం తప్పని భద్రతా తనిఖీలు.",
-                card5Footer: "ఖాతాను తొలగిస్తే, 30 రోజుల్లోగా మీ డేటా తీసివేయబడుతుంది.",
-                card5Note: "డేటా లీక్ జరిగితే, 72 గంటల్లోపు తెలియజేస్తాము.",
-                card6Title: "6. మీ గోప్యతా హక్కులు",
-                card6Text: "మీ గోప్యతపై మీకు పూర్తి హక్కులు ఉన్నాయి:",
-                list6_1: "డేటాను చూసే హక్కు.",
-                list6_2: "తప్పులను సరిచేసుకునే హక్కు.",
-                list6_3: "ఖాతాను శాశ్వతంగా డిలీట్ చేసే హక్కు.",
-                list6_4: "డేటా వాడకాన్ని నియంత్రించే హక్కు.",
-                card6Footer: "దీని కోసం privacy@sanppyroll.com కి మెయిల్ చేయండి.",
-                card7Title: "7. పిల్లల గోప్యత",
-                card7Text: "SanppyRoll 13 ఏళ్లు పైబడిన వారి కోసమే. పిల్లల డేటాను మేము సేకరించము.",
-                card8Title: "8. విధానం నవీకరణలు",
-                card8Text: "మేము ఈ పాలసీని అప్‌డేట్ చేయవచ్చు. యాప్ వాడటం కొనసాగిస్తే మీరు అంగీకరించినట్లే.",
-                card9Title: "9. మమ్మల్ని సంప్రదించండి",
-                card9Text: "ప్రశ్నలు ఉంటే, మా టీమ్ సిద్ధంగా ఉంది:",
-                contactBlock: "ఇమెయిల్: <strong>SanppyRoll@protonmail.com</strong><br>చిరునామా: SanppyRoll Legal, 221B Digital Lane.",
-                card9Footer: "పారదర్శకతకు మేము కట్టుబడి ఉన్నాము.",
+                
+                cards: [
+                    {
+                        title: "1. సమాచార సేకరణ",
+                        file: "data_collection.js",
+                        icon: "fa-database",
+                        code: [
+                            `<span class="c-comment">// ఖాతా వివరాలు మరియు సింక్ డేటా</span>`,
+                            `<span class="c-keyword">const</span> <span class="c-key">userProfile</span> = {`,
+                            `  uid: <span class="c-val">"usr_94a738c8"</span>,`,
+                            `  email: <span class="c-val">"your_email@gmail.com"</span>,`,
+                            `  isPremium: <span class="c-keyword">true</span>`,
+                            `};`
+                        ],
+                        explain: "ఖాతా వివరాలు Firebase Auth ద్వారా నిర్వహించబడతాయి. బ్యాంక్ వివరాలు మా సర్వర్లలో నిల్వ చేయబడవు."
+                    },
+                    {
+                        title: "2. డేటా వాడకం",
+                        file: "data_usage.json",
+                        icon: "fa-chart-line",
+                        code: [
+                            `{`,
+                            `  <span class="c-key">"purpose"</span>: <span class="c-val">"Fast Bufferless Video Playback"</span>`,
+                            `}`
+                        ],
+                        explain: "సరిగ్గా సిఫార్సులు అందించడానికి మరియు యాప్ వేగాన్ని పెంచడానికి మాత్రమే డేటాను ఉపయోగిస్తాము."
+                    },
+                    {
+                        title: "3. కుకీలు",
+                        file: "cookies.config",
+                        icon: "fa-cookie-bite",
+                        code: [
+                            `<span class="c-key">USER_LOGGED_IN</span>=<span class="c-keyword">true</span>`
+                        ],
+                        explain: "లాగిన్ సెషన్ మరియు డార్క్ మోడ్ థీమ్ ప్రాధాన్యతలను గుర్తుంచుకోవడానికి చిన్న కుకీలను వాడతాము."
+                    },
+                    {
+                        title: "4. థర్ด์-పార్టీ సేవలు",
+                        file: "services.json",
+                        icon: "fa-share-alt",
+                        code: [
+                            `{`,
+                            `  <span class="c-key">"services"</span>: {`,
+                            `    <span class="c-key">"google-firebase"</span>: <span class="c-val">"Secure Login"</span>`,
+                            `  }`,
+                            `}`
+                        ],
+                        explain: `విశ్వసనీయ సంస్థల సేవలను మాత్రమే ఉపయోగిస్తాము: <br><a href='https://firebase.google.com/support/privacy' target='_blank' class='svg-link'>${firebaseSVG} Firebase పాలసీ</a>`
+                    },
+                    {
+                        title: "5. భద్రత",
+                        file: "security.sh",
+                        icon: "fa-lock",
+                        code: [
+                            `<span class="c-keyword">enable_encryption</span> --TLS-v1.3`
+                        ],
+                        explain: "TLS 1.3 ఎన్‌క్రిప్షన్ ద్వారా మీ డేటాను సురక్షితంగా రక్షిస్తాము. ఖాతా తొలగిస్తే 30 రోజుల్లోగా డేటా డిలీట్ చేయబడుతుంది."
+                    },
+                    {
+                        title: "6. మీ హక్కులు",
+                        file: "rights.cmd",
+                        icon: "fa-user-check",
+                        code: [
+                            `<span class="c-keyword">DELETE</span> <span class="c-key">Account</span> WHERE uid="usr_94a738c8"`
+                        ],
+                        explain: "డేటాను తొలగించే పూర్తి హక్కు మీకు ఉంది. సంప్రదించడానికి: privacy@sanppyroll.com."
+                    }
+                ],
+
                 legalTitle: "సమ్మతి",
-                legalText: "ఉపయోగించడం ద్వారా, మీరు ఈ విధానాన్ని అంగీకరిస్తున్నారు."
+                legalText: "యాప్ వాడటం ద్వారా, మీరు ఈ నిబంధనలను అంగీకరించినట్లు భావిస్తాము.",
+                contactTitle: "మమ్మల్ని సంప్రదించండి",
+                contactBlock: "ఇమెయిల్: <strong>SanppyRoll@protonmail.com</strong><br>చిరునామా: SanppyRoll Legal HQ, 221B Digital Lane."
             }
         };
 
@@ -517,80 +695,124 @@
             const container = document.getElementById('policyContent');
             if (!container) return;
             
-            if(lang === 'hi') {
-                document.body.classList.remove('font-sf');
-                document.body.classList.add('font-poppins');
-            } else {
-                document.body.classList.remove('font-poppins');
-                document.body.classList.add('font-sf');
-            }
+            // Text transition animation setup using Anime.js
+            anime({
+                targets: '#policyContent',
+                opacity: [1, 0],
+                translateY: [0, -10],
+                duration: 200,
+                easing: 'easeInQuad',
+                complete: () => {
+                    if(lang === 'hi') {
+                        document.body.classList.remove('font-sf');
+                        document.body.classList.add('font-poppins');
+                    } else {
+                        document.body.classList.remove('font-poppins');
+                        document.body.classList.add('font-sf');
+                    }
 
-            const heroHtml = `
-                <div class="policy-hero">
-                    <h1>${t.heroTitle}</h1>
-                    <div class="effective-date">${t.effectiveDate}</div>
-                    <p class="hero-desc">${t.heroDesc}</p>
-                </div>
-            `;
-
-            const sections = [
-                { title: t.card1Title, icon: "fa-database", content: t.card1Text, list: [t.list1_1, t.list1_2, t.list1_3, t.list1_4], footer: t.card1Footer },
-                { title: t.card2Title, icon: "fa-chart-line", content: t.card2Text, list: [t.list2_1, t.list2_2, t.list2_3, t.list2_4, t.list2_5], footer: t.card2Footer },
-                { title: t.card3Title, icon: "fa-cookie-bite", content: t.card3Text, list: [t.list3_1, t.list3_2, t.list3_3], footer: t.card3Footer },
-                { title: t.card4Title, icon: "fa-share-alt", content: t.card4Text, list: [t.list4_1, t.list4_2, t.list4_3, t.list4_4], footer: t.card4Footer },
-                { title: t.card5Title, icon: "fa-lock", content: t.card5Text, list: [t.list5_1, t.list5_2, t.list5_3], footer: t.card5Footer, note: t.card5Note },
-                { title: t.card6Title, icon: "fa-user-check", content: t.card6Text, list: [t.list6_1, t.list6_2, t.list6_3, t.list6_4], footer: t.card6Footer },
-                { title: t.card7Title, icon: "fa-child", content: t.card7Text, list: [], footer: "" },
-                { title: t.card8Title, icon: "fa-clock", content: t.card8Text, list: [], footer: "" },
-                { title: t.card9Title, icon: "fa-envelope-open-text", content: t.card9Text, list: [], contactBlock: t.contactBlock, footer: t.card9Footer }
-            ];
-            
-            let sectionsHtml = '';
-            sections.forEach(sec => {
-                let listHtml = '';
-                if (sec.list && sec.list.length) {
-                    listHtml = `<ul class="policy-list">${sec.list.map(li => `<li>${li}</li>`).join('')}</ul>`;
-                }
-                
-                let contactBlockHtml = '';
-                if (sec.contactBlock) {
-                    contactBlockHtml = `<div class="contact-block">${sec.contactBlock}</div>`;
-                }
-
-                let extraNote = sec.note ? `<p style="margin-top:10px; color:#f47521; font-weight:600;">* ${sec.note}</p>` : '';
-                
-                sectionsHtml += `
-                    <div class="policy-section">
-                        <h2><i class="fas ${sec.icon}"></i> ${sec.title}</h2>
-                        <div class="policy-text">
-                            <p>${sec.content}</p>
-                            ${listHtml}
-                            ${contactBlockHtml}
-                            ${sec.footer ? `<p style="margin-top:15px; opacity:0.8;">${sec.footer}</p>` : ''}
-                            ${extraNote}
+                    const heroHtml = `
+                        <div class="policy-hero">
+                            <h1>${t.heroTitle}</h1>
+                            <div class="effective-date">${t.effectiveDate}</div>
+                            <p class="hero-desc">${t.heroDesc}</p>
                         </div>
-                    </div>
-                `;
+                    `;
+
+                    let sectionsHtml = '';
+                    t.cards.forEach(sec => {
+                        let codeLinesHtml = '';
+                        if (sec.code && sec.code.length) {
+                            codeLinesHtml = sec.code.map((line, index) => `
+                                <div class="code-line">
+                                    <span class="line-num">${String(index + 1).padStart(2, '0')}</span>
+                                    <div class="code-content">${line}</div>
+                                </div>
+                            `).join('');
+                        }
+
+                        sectionsHtml += `
+                            <div class="ide-window">
+                                <div class="ide-header">
+                                    <div class="ide-dots">
+                                        <span class="ide-dot red"></span>
+                                        <span class="ide-dot yellow"></span>
+                                        <span class="ide-dot green"></span>
+                                    </div>
+                                    <div class="ide-tab"><i class="fas ${sec.icon}"></i> ${sec.file}</div>
+                                </div>
+                                <div class="ide-body">
+                                    ${codeLinesHtml}
+                                </div>
+                                <div style="padding:14px; background:#141416; font-size:13px; border-top:1px solid rgba(255,255,255,0.03); line-height:1.5;">
+                                    ${sec.explain}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    const legalHtml = `
+                        <div class="ide-window">
+                            <div class="ide-header">
+                                <div class="ide-dots">
+                                    <span class="ide-dot red"></span>
+                                    <span class="ide-dot yellow"></span>
+                                    <span class="ide-dot green"></span>
+                                </div>
+                                <div class="ide-tab"><i class="fas fa-balance-scale"></i> consent_status.json</div>
+                            </div>
+                            <div class="ide-body" style="font-size:13px;">
+                                <div class="code-line">
+                                    <span class="line-num">01</span>
+                                    <div class="code-content"><span class="c-key">"legalAgreement"</span>: <span class="c-val">"${t.legalText}"</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    const contactHtml = `
+                        <div class="ide-window">
+                            <div class="ide-header">
+                                <div class="ide-dots">
+                                    <span class="ide-dot red"></span>
+                                    <span class="ide-dot yellow"></span>
+                                    <span class="ide-dot green"></span>
+                                </div>
+                                <div class="ide-tab"><i class="fas fa-envelope-open-text"></i> contact_officer.log</div>
+                            </div>
+                            <div class="ide-body" style="font-size:13px;">
+                                <div class="code-line">
+                                    <span class="line-num">01</span>
+                                    <div class="code-content"><span class="c-comment"># ${t.contactTitle}</span></div>
+                                </div>
+                                <div class="code-line">
+                                    <span class="line-num">02</span>
+                                    <div class="code-content">${t.contactBlock}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    const footerCta = `
+                        <div class="footer-cta">
+                            <button class="redirect-home-btn" onclick="window.location.href='index.html'">
+                                <i class="fas fa-arrow-left"></i> Return to Home
+                            </button>
+                        </div>
+                    `;
+
+                    container.innerHTML = heroHtml + sectionsHtml + legalHtml + contactHtml + footerCta;
+
+                    // Animate text back in with spring ease
+                    anime({
+                        targets: '#policyContent',
+                        opacity: [0, 1],
+                        translateY: [10, 0],
+                        duration: 400,
+                        easing: 'easeOutQuad'
+                    });
+                }
             });
-
-            const legalHtml = `
-                <div class="policy-section" style="margin-top: 60px;">
-                    <h2><i class="fas fa-balance-scale"></i> ${t.legalTitle}</h2>
-                    <div class="policy-text">
-                        <p>${t.legalText}</p>
-                    </div>
-                </div>
-            `;
-
-            const footerCta = `
-                <div class="footer-cta">
-                    <button class="redirect-home-btn" onclick="window.location.href='index.html'">
-                        <i class="fas fa-arrow-left"></i> Return to Home
-                    </button>
-                </div>
-            `;
-
-            container.innerHTML = heroHtml + sectionsHtml + legalHtml + footerCta;
         }
 
         // Language Selector Logic
@@ -615,7 +837,7 @@
             if (!langSelector.contains(e.target)) langSelector.classList.remove('open');
         });
         
-        // As you ordered, strictly English loads first!
+        // English as first boot priority
         renderPolicy('en');
     </script>
 </body>

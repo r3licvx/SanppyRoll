@@ -1,3 +1,4 @@
+<!-- START OF FILE index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -284,6 +285,52 @@
         .overlay-header { padding: 14px 5%; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .overlay-header h2 { font-size: 16px; font-weight: 800; flex: 1; text-align: center; margin-right: 32px; }
         .view-all-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 14px 5%; overflow-y: auto; flex: 1; }
+
+        /* ── GEN Z MODERN PRIVACY BUTTON ── */
+        .footer-minimal {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .privacy-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
+        }
+        .privacy-link-btn:hover {
+            color: #fff;
+            background: rgba(244, 117, 33, 0.1);
+            border-color: rgba(244, 117, 33, 0.3);
+            box-shadow: 0 4px 20px rgba(244, 117, 33, 0.15);
+            transform: translateY(-2px);
+        }
+        .privacy-link-btn:active {
+            transform: translateY(0) scale(0.96);
+        }
+        .privacy-link-btn i {
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+        .privacy-link-btn:hover i {
+            transform: rotate(15deg) scale(1.1);
+            color: var(--accent);
+        }
 
         /* ── TELEGRAM SECTION ── */
         .section-block { padding: 20px 5% 40px; display: flex; flex-direction: column; align-items: center; text-align: center; }
@@ -902,7 +949,7 @@
     }
 
     function renderTelegramSection(settings) {
-        const tgLink = settings?.telegram_link || 'https://t.me/your_temporary_link_here';
+        const tgLink = settings?.telegram_link || 'https://t.me/z3rovx';
         const wrap = document.getElementById('telegram-section-wrapper');
         wrap.style.display = 'block';
         wrap.innerHTML = `
@@ -917,9 +964,9 @@
                 <span>Telegram</span>
             </button>
             
-            <footer class="footer-minimal" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%;">
-                <a href="privacy.html" class="privacy-link-btn" style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: color 0.2s;" onmouseover="this.style.color='#f47521'" onmouseout="this.style.color='var(--text-muted)'">
-                    <i class="fa-solid fa-shield-halved" style="font-size:12px;"></i> Privacy Policy
+            <footer class="footer-minimal">
+                <a href="privacy.html" class="privacy-link-btn">
+                    <i class="fa-solid fa-shield-halved"></i> Privacy Policy
                 </a>
             </footer>
         </div>`;

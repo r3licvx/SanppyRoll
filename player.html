@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -495,21 +495,36 @@
             width: 100%; aspect-ratio: 2/3; border-radius: 8px; position: relative; cursor: pointer; 
             background: #121216; border: 1px solid rgba(255, 255, 255, 0.05); overflow: hidden; transition: filter 0.3s;
         }
-        .poster-img { width: 100%; height: 100%; object-fit: cover; display: block; position: relative; z-index: 2; background: #1a1a1a; }
+        .poster-img { width: 100%; height: 100%; object-fit: cover; display: block; position: relative; z-index: 3; background: #1a1a1a; }
         
         .poster-card::after { content: ''; position: absolute; inset: 0; z-index: 3; background: linear-gradient(to top, rgba(11,11,14, 0.9) 0%, rgba(11,11,14, 0) 45%); pointer-events: none;}
         .poster-4k-badge { position: absolute; top: 6px; right: 6px; background: rgba(0, 0, 0, 0.7); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); color: #fff; font-size: 8px; font-weight: 600; padding: 2px 5px; border-radius: 4px; letter-spacing: 0.5px; z-index: 10; pointer-events: none;}
         .item-title-box { padding: 2px; text-align: center; }
         .item-title { font-size: 12px; font-weight: 400; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
+        /* ── DYNAMIC TELEGRAM BANNER WIDGET ── */
         .support-card-container { padding: 10px 5% 50px; }
-        .support-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;}
+        .support-card { 
+            background: linear-gradient(135deg, rgba(20, 21, 26, 0.9) 0%, rgba(36, 161, 222, 0.08) 100%);
+            border: 1px solid rgba(36, 161, 222, 0.2); border-radius: 16px; padding: 20px; 
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;
+            transition: border-color 0.2s;
+        }
+        .support-card:active { border-color: rgba(36, 161, 222, 0.4); }
         .support-text h4 { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 4px; }
         .support-text p { font-size: 13px; color: var(--text-muted); font-weight: 400; }
         .support-links { display: flex; gap: 10px; flex-wrap: wrap; }
-        .support-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 12px; font-weight: 400; text-decoration: none; display: flex; align-items: center; gap: 8px; outline:none;}
-        .support-btn.tg-btn i { color: #0088cc; font-size: 14px;}
+        .support-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 12px; font-weight: 400; text-decoration: none; display: flex; align-items: center; gap: 8px; outline:none; transition: all 0.2s;}
+        .support-btn:active { transform: scale(0.95); }
+        .support-btn.tg-btn i { color: #24a1de; font-size: 14px;}
         .support-btn.email-btn i { color: var(--accent); font-size: 13px;}
+
+        /* --- TMDB POWERED BRANDING FOOTER --- */
+        .tmdb-attribution-footer {
+            display: flex; align-items: center; justify-content: center;
+            padding: 10px 5% 40px; text-decoration: none; cursor: pointer;
+        }
+        .tmdb-logo-svg { height: 13px; fill: #01b4e4; }
 
         @media (max-width: 600px) {
             .item-wrapper { width: 100px; } 
@@ -931,7 +946,7 @@
                             <a href="mailto:SanppyRoll@protonmail.com" class="support-btn email-btn" style="flex: 1; min-width: 0; justify-content: center; white-space: nowrap;">
                                 <i class="fa-solid fa-envelope" style="color: var(--accent);"></i> Email
                             </a>
-                            <a href="https://t.me/YAHAN_APNA_TELEGRAM_LINK_DAALO" class="support-btn tg-btn" style="flex: 1; min-width: 0; justify-content: center; white-space: nowrap; background: rgba(0, 136, 204, 0.1); border-color: rgba(0, 136, 204, 0.2);" target="_blank">
+                            <a href="https://t.me/z3rovx" class="support-btn tg-btn" style="flex: 1; min-width: 0; justify-content: center; white-space: nowrap; background: rgba(0, 136, 204, 0.1); border-color: rgba(0, 136, 204, 0.2);" target="_blank">
                                 <i class="fa-brands fa-telegram" style="color: #0088cc;"></i> Telegram
                             </a>
                         </div>
@@ -969,6 +984,32 @@
     vid.addEventListener('pause', () => {
         playBtn.className = "fa-solid fa-play";
     });
+
+    /* --- DIRECT STREAM PROXY (GOOGLE DRIVE & DIRECT TRANSLATION ENGINE) --- */
+    function getPlayableUrl(url) {
+        if (!url) return "";
+        
+        // Extract Google Drive ID using 25+ character ID regex
+        const driveIdMatch = url.match(/[-\w]{25,}/);
+        if (driveIdMatch && (url.includes('drive.google.com') || url.includes('docs.google.com') || url.includes('googleusercontent'))) {
+            const driveid = driveIdMatch[0];
+            const apiKeys = [
+                'AIzaSyCt3DULzE2trDJhfFUosWZT-3GEObbMqVU', 
+                'AIzaSyCsbx8BSyLwkw6XX6Lg5OF1U0HNtI9VmCY', 
+                'AIzaSyBLMJAT6oqTZxAMsCsMjXzoo4lkJL4MmfM', 
+                'AIzaSyCIY6fomcJxOt0XQ_naa1rzfd5wlOMGKDY'
+            ];
+            const apikey = apiKeys[Math.floor(Math.random() * apiKeys.length)];
+            return `https://www.googleapis.com/drive/v3/files/${driveid}?alt=media&key=${apikey}`;
+        }
+        
+        // Rewrite standard heroku proxy link if necessary
+        if (url.includes('/watch/')) {
+            return url.replace('/watch/', '/dl/');
+        }
+        
+        return url;
+    }
     
     // --- DEBOUNCED ROBUST SEEK SYSTEM (KATTAR ENGINE) ---
     function performRobustSkip(delta) {
@@ -1212,6 +1253,7 @@
         } else { navigator.clipboard.writeText(text + " " + link); showToast("Link Copied!");}
     }
 
+    // UNIQUE METADATA FETCH ROUTINE TO REDUCE REDUNDANT DB QUERIES
     async function fetchVideoData() {
         if(!movieId) return;
         try {
@@ -1400,13 +1442,6 @@
             ytDesc.innerText = data.description || "No description available.";
         }
 
-        videoSources = videoSources.map(src => {
-            if (src.url && src.url.includes('/watch/')) {
-                src.url = src.url.replace('/watch/', '/dl/');
-            }
-            return src;
-        });
-        
         updateTitle(null);
         
         // Dynamic Backdrop Rendering
@@ -1508,9 +1543,8 @@
     async function loadAudio(url, startTime = 0) {
         isAudBuffering = false; isMediaError = false; audError = false; 
 
-        if (url.includes('/watch/')) {
-            url = url.replace('/watch/', '/dl/');
-        }
+        // Direct Stream Proxy routing
+        url = getPlayableUrl(url);
 
         if(hlsAudio) { hlsAudio.destroy(); hlsAudio = null; }
         extAud.pause();
@@ -1551,9 +1585,8 @@
         isVidBuffering = false; isMediaError = false; vidError = false; 
         player.classList.add('loading');
 
-        if (url && url.includes('/watch/')) {
-            url = url.replace('/watch/', '/dl/');
-        }
+        // Direct Stream Proxy routing
+        url = getPlayableUrl(url);
 
         targetResumeTime = startTime; 
         document.getElementById("curr").innerText = fmt(startTime);
@@ -1714,24 +1747,24 @@
         }
     }
 
+    // DIRECT STREAM & COMPACT SYNC PLAYBACK LOGIC - NO INFINITE DOWNLOADING LOOPS
     async function doPlay() {
         intendedPlayState = true;
         isVidBuffering = true; updateBufferingUI();
         try {
             if (hasExtAudio) {
-                if (vid.readyState >= 3 && extAud.readyState >= 3) {
-                    clearTimeout(loadingTimeout);
-                    if(Math.abs(vid.currentTime - extAud.currentTime) > 0.15) extAud.currentTime = vid.currentTime;
-                    await Promise.all([vid.play(), extAud.play()]);
-                    isVidBuffering = false; updateBufferingUI(); resetHideTimer(); vid.style.backgroundImage = 'none';
-                } 
-            } else {
-                if (vid.readyState >= 3) {
-                    clearTimeout(loadingTimeout);
-                    await vid.play();
-                    isVidBuffering = false; updateBufferingUI(); resetHideTimer(); vid.style.backgroundImage = 'none';
+                if (Math.abs(vid.currentTime - extAud.currentTime) > 0.15) {
+                    extAud.currentTime = vid.currentTime;
                 }
+                await Promise.all([vid.play(), extAud.play()]);
+            } else {
+                await vid.play();
             }
+            isVidBuffering = false;
+            isAudBuffering = false;
+            updateBufferingUI();
+            resetHideTimer();
+            vid.style.backgroundImage = 'none';
         } catch (e) {
             intendedPlayState = false;
             vid.pause(); if(hasExtAudio) extAud.pause();
@@ -1750,17 +1783,18 @@
     const tryResumeSync = async () => { 
         if (intendedPlayState) {
             if (hasExtAudio) {
-                if (vid.readyState >= 3 && extAud.readyState >= 3) {
+                // Check readyState >= 2 (HAVE_CURRENT_DATA) for instant responsive sync
+                if (vid.readyState >= 2 && extAud.readyState >= 2) {
                     isVidBuffering = false; isAudBuffering = false; updateBufferingUI();
                     if (Math.abs(vid.currentTime - extAud.currentTime) > 0.15) extAud.currentTime = vid.currentTime;
                     try { await Promise.all([vid.play(), extAud.play()]); } catch(e){}
-                } else if (vid.readyState >= 3 && extAud.readyState < 3) {
+                } else if (vid.readyState >= 2 && extAud.readyState < 2) {
                     isAudBuffering = true; updateBufferingUI(); vid.pause();
-                } else if (extAud.readyState >= 3 && vid.readyState < 3) {
+                } else if (extAud.readyState >= 2 && vid.readyState < 2) {
                     isVidBuffering = true; updateBufferingUI(); extAud.pause();
                 }
             } else {
-                if (vid.readyState >= 3) {
+                if (vid.readyState >= 2) {
                     isVidBuffering = false; updateBufferingUI();
                     try { await vid.play(); } catch(e){}
                 }
@@ -1784,7 +1818,7 @@
     
     vid.addEventListener('playing', () => { 
         clearTimeout(loadingTimeout); 
-        if (hasExtAudio && extAud.readyState < 3) { 
+        if (hasExtAudio && extAud.readyState < 2) { 
             vid.pause(); isAudBuffering = true; updateBufferingUI(); return;
         }
         isVidBuffering = false; isAudBuffering = false; isMediaError = false; 
@@ -1796,7 +1830,7 @@
     });
 
     extAud.addEventListener('playing', () => {
-        if (vid.readyState < 3) {
+        if (vid.readyState < 2) {
             extAud.pause(); isVidBuffering = true; updateBufferingUI(); return;
         }
         isVidBuffering = false; isAudBuffering = false; isMediaError = false; 
@@ -2332,7 +2366,6 @@
             document.getElementById('popup-real-content').style.display = 'flex';
             
         } catch(e) {
-            console.error(e);
             usernameEl.innerText = "Error loading profile";
             document.getElementById('popup-skeleton').style.display = 'none';
             document.getElementById('popup-real-content').style.display = 'flex';
