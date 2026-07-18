@@ -1,4 +1,5 @@
  
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,7 +26,7 @@
             --text-main: #ffffff;
             --text-muted: #8e8e93;
             --anim: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-            --bg-glass: rgba(15, 15, 15, 0.65);
+            --bg-glass: rgba(15, 15, 15, 0.95);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -34,7 +35,7 @@
         body { background: var(--bg-main); color: var(--text-main); overflow-x: hidden; -webkit-font-smoothing: antialiased;}
         #app-container { width: 100%; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; }
 
-        
+        /* --- PLAYER UI --- */
         .player-wrapper {
             position: sticky; top: 0; z-index: 100; width: 100%;
         }
@@ -210,29 +211,68 @@
             font-size: clamp(14px, 2.5vw, 16px);
         }
 
-        .time { font-size: clamp(11px, 2.5vw, 13px); font-weight: 400; color: rgba(255,255,255,0.8); font-variant-numeric: tabular-nums; display: flex; align-items: center; margin-left: 2px; }
+        /* --- iOS-STYLE TIMER BOX WITH GAUSSIAN BLUR [1] --- */
+        .time-row-container {
+            display: flex;
+            justify-content: space-between;
+            font-size: clamp(11px, 2.5vw, 13px);
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 8px;
+            font-variant-numeric: tabular-nums;
+            pointer-events: none;
+        }
 
+        .time-box-ios {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1.2px solid rgba(255, 255, 255, 0.12);
+            padding: 4px 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+        }
+
+        /* --- PRECISE SETTINGS CONTAINER BOX --- */
+        .menu-btn-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Premium slide-up animation and right side placement [5] */
         .settings-menu {
-            position: absolute; bottom: 50px; right: 0;
-            background: var(--bg-glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
-            padding: 6px; min-width: 120px; 
-            max-height: clamp(110px, 35vh, 160px);
+            position: absolute; bottom: 38px; right: 0;
+            background: rgba(11, 11, 14, 0.95); 
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1.5px solid rgba(255, 255, 255, 0.15); 
+            border-radius: 12px;
+            padding: 6px; min-width: 155px; 
+            max-height: clamp(110px, 35vh, 180px);
             overflow-y: auto; overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
-            z-index: 45; box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
-            visibility: hidden; opacity: 0; transform: translateY(15px) scale(0.95); transform-origin: bottom right;
-            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255,255,255,0.2) transparent;
+            z-index: 250; box-shadow: 0 15px 40px rgba(0,0,0,0.8); 
+            display: none; flex-direction: column;
+            transform-origin: bottom right;
+            animation: slideUpFade 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
-        .settings-menu.active { visibility: visible; opacity: 1; transform: translateY(0) scale(1); }
+        .settings-menu.active { display: flex; }
         .settings-menu::-webkit-scrollbar { width: 3px; }
         .settings-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 10px; }
         
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .quality-btn, .audio-btn-item {
             background: transparent; border: none; color: rgba(255,255,255,0.85);
-            padding: 8px 12px; text-align: left; font-size: 12px; font-weight: 400; 
+            padding: 8px 12px; text-align: left; font-size: 12px; font-weight: 500; 
             cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; outline: none;
             border-radius: 8px; margin-bottom: 2px; width: 100%; flex-shrink: 0;
         }
@@ -245,9 +285,35 @@
         
         .quality-btn.locked-quality { opacity: 0.6; color: rgba(255,255,255,0.5); }
         .quality-btn.locked-quality:hover { background: transparent; opacity: 0.8; }
-        .lock-icon-q { display: none; font-size: 10px; color: #FFD700; margin-left: 6px; }
+        .lock-icon-q { display: none; font-size: 10px; color: #FFD700; margin-left: auto; }
         .quality-btn.locked-quality .lock-icon-q { display: inline-block; }
         .quality-btn.locked-quality i.fa-check { display: none !important; }
+
+        /* Premium Styled Download List Modal Button [4] */
+        .download-option-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.2px solid rgba(255, 255, 255, 0.08);
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .download-option-btn:hover {
+            background: rgba(244, 117, 33, 0.12);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        .download-option-btn i {
+            color: var(--accent);
+            font-size: 14px;
+        }
 
         .yt-ripple {
             position: absolute; top: 0; bottom: 0; width: 35%;
@@ -526,41 +592,6 @@
         .sk-ep-title { height: 14px; width: 130px; }
         .sk-ep-desc { height: 11px; width: 85%; }
 
-        /* --- PRECISE LOCKING STYLE RESTORATION --- */
-        .settings-menu .quality-btn.locked-quality .lock-icon-q {
-            display: inline-block;
-            color: #FFD700;
-            font-size: 10px;
-            margin-left: auto;
-        }
-        
-        .modal-content #upgrade-overlay.active {
-            display: flex !important;
-        }
-        
-        #upgrade-overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(11,11,14,0.95); z-index: 120;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            color: #fff; gap: 15px; text-align: center; padding: 20px;
-        }
-        #upgrade-overlay.active {
-            display: flex !important;
-        }
-        #upgrade-overlay h3 {
-            font-size: 18px; font-weight: 700; color: #fff;
-        }
-        #upgrade-overlay p {
-            font-size: 13px; color: var(--text-muted); max-width: 280px; line-height: 1.5;
-        }
-        #upgrade-overlay .upgrade-now-btn {
-            background: var(--accent); color: #fff; border: none; padding: 10px 24px;
-            border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s;
-        }
-        #upgrade-overlay .upgrade-now-btn:active {
-            transform: scale(0.95);
-        }
-
         /* --- STREAM WORK IN PROGRESS OVERLAY CARD --- */
         .center-overlay-card {
             position: absolute; inset: 0;
@@ -664,6 +695,9 @@
                 </div>
             </div>
 
+            <!-- iOS-Style Smooth Gaussian Blur Overlay on Video Container [3] -->
+            <div id="player-blur-overlay" style="position: absolute; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 28; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;"></div>
+
             <audio id="ext-audio" preload="auto" referrerpolicy="no-referrer" style="display: none;"></audio>
             <video id="main-video" playsinline referrerpolicy="no-referrer" preload="auto"></video>
             
@@ -675,6 +709,12 @@
             <div class="mini-timeline" id="mini-timeline"><div class="mini-progress" id="mini-progress"></div></div>
 
             <div class="controls">
+                <!-- Premium separation of elapsed and duration timers above timeline [1] -->
+                <div class="time-row-container">
+                    <span id="curr-time-left" class="time-box-ios">0:00</span>
+                    <span id="dur-time-right" class="time-box-ios">0:00</span>
+                </div>
+
                 <div class="progress-area" id="p-area">
                     <div class="progress-visual-bg" id="p-bg">
                         <div class="buffer-bar" id="b-bar"></div>
@@ -689,16 +729,19 @@
                         <i class="fa-solid fa-backward-step" id="prev-btn-bottom" title="Previous Episode" style="display: none;"></i>
                         <i class="fa-solid fa-play" id="play-btn-bottom" title="Play/Pause"></i>
                         <i class="fa-solid fa-forward-step" id="next-btn-bottom" title="Next Episode" style="display: none;"></i>
-                        
-                        <span class="time"><span id="curr">0:00</span> / <span id="dur">0:00</span></span>
                     </div>
                     
                     <div class="right-btns">
-                        <div class="settings-menu" id="audio-menu"></div>
-                        <i class="fa-solid fa-headphones" id="audio-btn" title="Audio Track" style="display: none;"></i>
+                        <!-- Relativized wrappers for correct inline menu popups [5] -->
+                        <div class="menu-btn-wrapper">
+                            <div class="settings-menu" id="audio-menu"></div>
+                            <i class="fa-solid fa-headphones" id="audio-btn" title="Audio Track" style="display: none;"></i>
+                        </div>
                         
-                        <div class="settings-menu" id="quality-menu"></div>
-                        <i class="fa-solid fa-sliders" id="settings-btn" title="Quality" style="display: none;"></i>
+                        <div class="menu-btn-wrapper">
+                            <div class="settings-menu" id="quality-menu"></div>
+                            <i class="fa-solid fa-sliders" id="settings-btn" title="Quality" style="display: none;"></i>
+                        </div>
                         
                         <i class="fa-solid fa-volume-high" id="volume-btn" title="Mute/Unmute"></i>
                         <i class="fa-solid fa-crop" id="fit-btn" title="Change Video Size"></i>
@@ -743,6 +786,19 @@
             <input type="search" class="comment-input" id="new-comment-text" placeholder="Add a comment..." maxlength="400" autocomplete="off" autocorrect="off" enterkeyhint="send">
             <button class="post-comment-btn" onclick="postComment()"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
+    </div>
+</div>
+
+<!-- DYNAMIC DOWNLOAD MODAL POPUP [4] -->
+<div class="del-modal-overlay" id="download-modal" style="z-index: 4000;">
+    <div class="del-modal-box" style="width: 90%; max-width: 320px; padding: 25px 20px 20px;">
+        <div class="del-modal-icon" style="color: var(--accent);"><i class="fa-solid fa-circle-down"></i></div>
+        <div class="del-modal-title">Select Quality to Download</div>
+        <div class="del-modal-sub" style="margin-bottom: 18px;">Choose your preferred download quality from the available links below:</div>
+        <div id="download-links-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; max-height: 200px; overflow-y: auto; padding-right: 4px;">
+            <!-- Populated via JS -->
+        </div>
+        <button class="del-modal-cancel" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.08); border-radius: 12px;" onclick="closeDownloadModal()">Cancel</button>
     </div>
 </div>
 
@@ -819,6 +875,7 @@
     const vid = document.getElementById("main-video");
     const extAud = document.getElementById("ext-audio");
     const tapLayer = document.getElementById("tap-layer");
+    const blurOverlay = document.getElementById("player-blur-overlay");
     
     const playBtn = document.getElementById("play-btn-bottom");
     const prevBtn = document.getElementById("prev-btn-bottom");
@@ -869,6 +926,9 @@
     let qTimer = null;
     let loadingTimeout = null; 
 
+    // Quality load locking flag to prevent temporary visual reset to 0:00 [2]
+    let isSwitchingQuality = false;
+
     // CURRENT USER CACHED METADATA FOR INSTANT CHAT INJECTIONS
     let currentUserProfile = {};
 
@@ -881,6 +941,12 @@
     let isSeekingDebouncing = false;
     let seekDebounceTimeout = null;
     let virtualCurrentTime = 0;
+
+    // Helper to check if a source labeled as Download Link [4]
+    function isDownloadLink(src) {
+        if (!src || !src.label) return false;
+        return src.label.toLowerCase().includes('download');
+    }
 
     // --- SKELETON LOADER DISPATCHER ---
     function renderSkeletonLayout() {
@@ -938,7 +1004,7 @@
                     <div class="action-row">
                         <button class="action-btn" onclick="openComments()"><i class="fa-solid fa-comment-dots"></i> Comments</button>
                         <button class="action-btn" onclick="shareContent()" style="opacity: 0;"><i class="fa-solid fa-share-nodes"></i> Share</button>
-                        <button class="action-btn" onclick="window.location.href='mailto:SanppyRoll@protonmail.com'" style="opacity: 0;"><i class="fa-solid fa-envelope"></i> Contact</button>
+                        <span id="dynamic-action-btn-placeholder"></span>
                     </div>
                     
                     <div class="series-container" id="series-selector" style="display: none; opacity: 0;">
@@ -991,16 +1057,42 @@
             player.classList.remove("loading");
         }
     }
+
+    // High performance sync between native paused state and bottom/center controls [3]
+    function updatePlayStateUI() {
+        if (vid.paused) {
+            playBtn.className = "fa-solid fa-play";
+        } else {
+            playBtn.className = "fa-solid fa-pause";
+        }
+    }
     
     // --- PLAY/PAUSE STATE LISTENERS ---
     vid.addEventListener('play', () => {
-        playBtn.className = "fa-solid fa-pause";
+        updatePlayStateUI();
         resetHideTimer();
     });
     vid.addEventListener('pause', () => {
-        playBtn.className = "fa-solid fa-play";
+        updatePlayStateUI();
         player.classList.add("show-controls");
         clearTimeout(hideTimer);
+    });
+    vid.addEventListener('playing', () => {
+        player.classList.remove("loading");
+        isSwitchingQuality = false; // Safe reset state lock on play
+        updatePlayStateUI();
+    });
+    vid.addEventListener('waiting', () => {
+        player.classList.add("loading");
+        updatePlayStateUI();
+    });
+    vid.addEventListener('seeking', () => {
+        player.classList.add("loading");
+        updatePlayStateUI();
+    });
+    vid.addEventListener('seeked', () => {
+        isSwitchingQuality = false; // Safe reset state lock on seek complete [2]
+        updatePlayStateUI();
     });
 
     /* --- DIRECT STREAM PROXY (GOOGLE DRIVE & DIRECT TRANSLATION ENGINE) --- */
@@ -1045,11 +1137,11 @@
         const pct = (virtualCurrentTime / vid.duration) * 100;
         pBar.style.width = pct + "%";
         miniProg.style.width = pct + "%";
-        document.getElementById("curr").innerText = fmt(virtualCurrentTime);
+        document.getElementById("curr-time-left").innerText = fmt(virtualCurrentTime);
         
         if (vid.duration) {
             let remaining = vid.duration - virtualCurrentTime;
-            document.getElementById("dur").innerText = "-" + fmt(remaining);
+            document.getElementById("dur-time-right").innerText = fmt(remaining);
         }
 
         if (hls) hls.stopLoad();
@@ -1336,7 +1428,7 @@
         isVidBuffering = false; isAudBuffering = false; isMediaError = false; vidError = false; audError = false;
         player.classList.remove('error-state'); updateBufferingUI();
 
-        // Fully detach and teardown old playback instances to prevent old episode leak
+        // Complete robust cleanup of playback pipelines before reloading [2]
         if(hls) { 
             hls.stopLoad();
             hls.detachMedia();
@@ -1426,10 +1518,11 @@
         const ytTitle = document.getElementById("yt-title");
         const ytDesc = document.getElementById("yt-desc");
         
+        let rawVideoLinks = [];
         if (data.type === 'series' && sIdx !== null && eIdx !== null) {
             const season = data.seasons[sIdx]; const ep = season.episodes[eIdx];
             baseTitle = `${data.title} • S${sIdx + 1} E${eIdx + 1}`;
-            videoSources = ep.video_links || []; audioSources = ep.audio_links || [];
+            rawVideoLinks = ep.video_links || []; audioSources = ep.audio_links || [];
             backdropImg = ep.ep_thumb || data.backdrop || "";
             
             if (season.episodes.length > eIdx + 1) nextEpisodeData = { s: sIdx, e: eIdx + 1 };
@@ -1444,11 +1537,28 @@
             ytTitle.innerText = ep.ep_title || baseTitle;
             ytDesc.innerText = ep.ep_desc || data.description || "No description available.";
         } else {
-            videoSources = data.video_links || []; audioSources = data.audio_links || [];
+            rawVideoLinks = data.video_links || []; audioSources = data.audio_links || [];
             document.getElementById('series-selector').style.display = 'none';
             ytTitle.innerText = data.title;
             ytDesc.innerText = data.description || "No description available.";
         }
+
+        // Smart dynamic download parser [4]
+        videoSources = rawVideoLinks.filter(src => !isDownloadLink(src));
+        const downloadSources = rawVideoLinks.filter(src => isDownloadLink(src));
+
+        setTimeout(() => {
+            const actPlaceholder = document.getElementById('dynamic-action-btn-placeholder');
+            if (actPlaceholder) {
+                if (downloadSources.length > 0) {
+                    window.currentDownloadSources = downloadSources;
+                    actPlaceholder.innerHTML = `<button class="action-btn" onclick="openDownloadModal()"><i class="fa-solid fa-download"></i> Download</button>`;
+                } else {
+                    window.currentDownloadSources = [];
+                    actPlaceholder.innerHTML = `<button class="action-btn" onclick="window.location.href='mailto:SanppyRoll@protonmail.com'"><i class="fa-solid fa-envelope"></i> Contact</button>`;
+                }
+            }
+        }, 100);
 
         updateTitle(null);
         
@@ -1473,6 +1583,33 @@
         // Ensure manual quality state is loaded or error out 402 cleanly if no videoSources are present [2]
         setupManualQualityMenu(resumeTime);
     }
+
+    // Modal download controllers [4]
+    window.openDownloadModal = function() {
+        const container = document.getElementById('download-links-container');
+        const modal = document.getElementById('download-modal');
+        if (!window.currentDownloadSources || window.currentDownloadSources.length === 0) return;
+
+        let html = '';
+        window.currentDownloadSources.forEach(src => {
+            let labelText = src.label;
+            // Clear out "Download Link" or "Download" tags cleanly
+            labelText = labelText.replace(/download\s*link/gi, '').replace(/download/gi, '').trim();
+            if (!labelText) labelText = "Direct Stream";
+
+            html += `
+            <a href="${getPlayableUrl(src.url)}" target="_blank" class="download-option-btn">
+                <span><i class="fa-solid fa-arrow-down-to-bracket"></i> ${labelText}</span>
+                <i class="fa-solid fa-chevron-right"></i>
+            </a>`;
+        });
+        container.innerHTML = html;
+        modal.classList.add('active');
+    };
+
+    window.closeDownloadModal = function() {
+        document.getElementById('download-modal').classList.remove('active');
+    };
 
     async function fetchRecommendations(currentTags, currentCat) {
         try {
@@ -1594,7 +1731,7 @@
         url = getPlayableUrl(url);
 
         targetResumeTime = startTime; 
-        document.getElementById("curr").innerText = fmt(startTime);
+        document.getElementById("curr-time-left").innerText = fmt(startTime);
         if (vid.duration) pBar.style.width = `${(startTime / vid.duration) * 100}%`;
         
         vid.pause();
@@ -1815,12 +1952,6 @@
         intendedPlayState = true; 
         isVidBuffering = true; updateBufferingUI();
         if(hasExtAudio && !isAudBuffering) extAud.pause(); 
-        
-        setTimeout(() => {
-            if (intendedPlayState && vid.paused && !isDragging && !isSeekingDebouncing) {
-                vid.play().catch(() => {});
-            }
-        }, 800);
     });
     
     extAud.addEventListener('waiting', () => { 
@@ -1835,6 +1966,7 @@
             vid.pause(); isAudBuffering = true; updateBufferingUI(); return;
         }
         isVidBuffering = false; isAudBuffering = false; isMediaError = false; 
+        isSwitchingQuality = false; // allow time updates again [2]
         updateBufferingUI();
         player.classList.remove("loading");
         if(hasExtAudio && intendedPlayState && !extAud.paused) {
@@ -1975,6 +2107,8 @@
                     upgradeMsgText.innerText = `Upgrade for ${videoSources[idx].label}`;
                     upgradeOverlay.classList.add('active');
                     qualityMenu.classList.remove('active');
+                    blurOverlay.style.opacity = "0";
+                    blurOverlay.style.pointerEvents = "none";
                     setTimeout(() => { window.location.href = 'subscription.html'; }, 2000);
                     return;
                 }
@@ -1990,9 +2124,14 @@
                 savedQualityPref = qualityLabel; 
                 if(currentUser) update(ref(db, `users/${currentUser.uid}/settings`), { quality: qualityLabel });
                 
+                // Lock time update visual refreshes to prevent temporal resets to 0:00 [2]
+                isSwitchingQuality = true;
+                
                 loadVideo(videoSources[idx].url, targetResumeTime); 
                 showQualityMsg(videoSources[idx].label + " Selected");
                 qualityMenu.classList.remove('active');
+                blurOverlay.style.opacity = "0";
+                blurOverlay.style.pointerEvents = "none";
             };
         });
 
@@ -2040,6 +2179,9 @@
                 
                 player.classList.add('loading'); vid.pause(); if(hasExtAudio) extAud.pause();
                 
+                // Lock time update visual refreshes to prevent temporal resets to 0:00 [2]
+                isSwitchingQuality = true;
+
                 loadAudio(audioSources[idx].url, targetResumeTime);
                 updateTitle(audioLabel);
                 
@@ -2055,22 +2197,44 @@
                 }, 1500);
                 
                 audioMenu.classList.remove('active');
+                blurOverlay.style.opacity = "0";
+                blurOverlay.style.pointerEvents = "none";
             };
         });
     }
 
+    // Mutually exclusive toggle layout wrapper with Gaussian blur overlay integration [5]
     function toggleMenu(menuEl, btnEl) {
         const act = menuEl.classList.contains('active'); 
         qualityMenu.classList.remove('active'); 
         audioMenu.classList.remove('active');
-        if(!act) menuEl.classList.add('active');
+        if(!act) {
+            menuEl.classList.add('active');
+            blurOverlay.style.opacity = "1";
+            blurOverlay.style.pointerEvents = "auto";
+        } else {
+            blurOverlay.style.opacity = "0";
+            blurOverlay.style.pointerEvents = "none";
+        }
     }
+    
     settingsBtn.onclick = (e) => { e.stopPropagation(); popBtn(settingsBtn); toggleMenu(qualityMenu, settingsBtn); };
     audioBtn.onclick = (e) => { e.stopPropagation(); popBtn(audioBtn); toggleMenu(audioMenu, audioBtn); };
+    
+    // Clicking backdrop overlay fades out setting/audio popup menus [5]
+    blurOverlay.onclick = () => {
+        qualityMenu.classList.remove('active');
+        audioMenu.classList.remove('active');
+        blurOverlay.style.opacity = "0";
+        blurOverlay.style.pointerEvents = "none";
+    };
+
     document.addEventListener('click', (e) => { 
-        if (!e.target.closest('.right-btns')) { 
+        if (!e.target.closest('.menu-btn-wrapper')) { 
             qualityMenu.classList.remove('active'); 
             audioMenu.classList.remove('active'); 
+            blurOverlay.style.opacity = "0";
+            blurOverlay.style.pointerEvents = "none";
         }
     });
 
@@ -2081,6 +2245,7 @@
     
     tapLayer.onclick = (e) => {
         qualityMenu.classList.remove('active'); audioMenu.classList.remove('active');
+        blurOverlay.style.opacity = "0"; blurOverlay.style.pointerEvents = "none";
         if(justFinishedAction) return; 
         
         const rect = tapLayer.getBoundingClientRect();
@@ -2139,11 +2304,11 @@
         const targetTime = pos * vid.duration;
         dragTimeEl.innerText = fmt(targetTime); 
         dragTimeEl.style.left = (pos * 100) + "%"; 
-        document.getElementById("curr").innerText = fmt(targetTime);
+        document.getElementById("curr-time-left").innerText = fmt(targetTime);
         
         if (vid.duration) {
             let remaining = vid.duration - targetTime;
-            document.getElementById("dur").innerText = "-" + fmt(remaining);
+            document.getElementById("dur-time-right").innerText = fmt(remaining);
         }
         return targetTime;
     };
@@ -2210,16 +2375,18 @@
 
     vid.ontimeupdate = () => { 
         updateBufferDisplay(); 
+        if (isSwitchingQuality) return; // Prevent visual timestamp resets to 0:00 on swap [2]
+        
         if (!isDragging) { 
             let pct = `${(vid.currentTime / vid.duration) * 100}%`;
             pBar.style.width = pct; 
             miniProg.style.width = pct;
-            document.getElementById("curr").innerText = fmt(vid.currentTime); 
+            document.getElementById("curr-time-left").innerText = fmt(vid.currentTime); 
         }
         
         if (vid.duration) {
             let remaining = vid.duration - vid.currentTime;
-            document.getElementById("dur").innerText = "-" + fmt(remaining);
+            document.getElementById("dur-time-right").innerText = fmt(remaining);
         }
         
         if (!vid.paused && vid.currentTime > 0 && !isVidBuffering && !isAudBuffering) {
@@ -2239,7 +2406,7 @@
     vid.onloadeddata = () => { 
         if (vid.duration) {
             let remaining = vid.duration - vid.currentTime;
-            document.getElementById("dur").innerText = "-" + fmt(remaining);
+            document.getElementById("dur-time-right").innerText = fmt(remaining);
         }
     };
 
