@@ -1,3 +1,4 @@
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,7 +34,7 @@
         body { background: var(--bg-main); color: var(--text-main); overflow-x: hidden; -webkit-font-smoothing: antialiased;}
         #app-container { width: 100%; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; }
 
-        /* --- PLAYER UI --- */
+        
         .player-wrapper {
             position: sticky; top: 0; z-index: 100; width: 100%;
         }
@@ -141,85 +142,6 @@
             .center-overlay { font-size: 11px; padding: 6px 12px; top: 20px;}
         }
 
-        /* --- INTERACTIVE CENTER CONTROLS OVERLAY --- */
-        .center-controls-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 35;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity var(--anim), visibility var(--anim);
-            pointer-events: none;
-            gap: clamp(25px, 8vw, 45px);
-        }
-        
-        .video-container.show-controls .center-controls-overlay {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .video-container.loading .center-controls-overlay {
-            opacity: 0 !important;
-            visibility: hidden !important;
-            pointer-events: none !important;
-        }
-        
-        .center-icon-btn.big-play {
-            width: clamp(48px, 9vw, 68px);
-            height: clamp(48px, 9vw, 68px);
-            background: rgba(15, 15, 15, 0.7);
-            border: 1.5px solid rgba(255, 255, 255, 0.15);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-            outline: none;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-            pointer-events: auto;
-        }
-        
-        .center-icon-btn.big-play i {
-            font-size: clamp(16px, 3vw, 24px);
-            color: #fff;
-            margin-left: 3px;
-        }
-        
-        .center-icon-btn.big-play.playing i {
-            margin-left: 0;
-        }
-        
-        .center-icon-btn.big-play:hover {
-            background: var(--accent);
-            border-color: var(--accent);
-            transform: scale(1.08);
-        }
-        
-        .center-icon-btn.big-play:active {
-            transform: scale(0.95);
-        }
-
-        .center-nav-btn {
-            font-size: clamp(22px, 5vw, 32px) !important;
-            color: #fff;
-            opacity: 0.8;
-            transition: all 0.2s;
-            cursor: pointer;
-            pointer-events: auto;
-        }
-        
-        .center-nav-btn:hover {
-            color: var(--accent) !important;
-            opacity: 1;
-            transform: scale(1.15);
-        }
-
         .controls {
             position: absolute; bottom: 0; left: 0; right: 0;
             padding: 70px 25px 25px; display: flex; flex-direction: column;
@@ -278,7 +200,7 @@
         @media (min-width: 769px) { .mini-timeline { display: none !important; } }
 
         .buttons { display: flex; align-items: center; justify-content: space-between; color: #fff; }
-        .left-btns, .right-btns { display: flex; align-items: center; gap: clamp(10px, 3.5vw, 18px); position: relative; }
+        .left-btns, .right-btns { display: flex; align-items: center; gap: clamp(15px, 4vw, 22px); position: relative; }
         
         .buttons i { cursor: pointer; font-size: clamp(14px, 4vw, 18px); transition: all 0.2s; color: #fff; text-align: center; opacity: 0.85; }
         .buttons i:hover { opacity: 1; color: var(--accent); transform: scale(1.1); }
@@ -288,7 +210,7 @@
             font-size: clamp(14px, 2.5vw, 16px);
         }
 
-        .time { font-size: clamp(11px, 2.5vw, 13px); font-weight: 400; color: rgba(255,255,255,0.8); margin-left: 5px; font-variant-numeric: tabular-nums;}
+        .time { font-size: clamp(11px, 2.5vw, 13px); font-weight: 400; color: rgba(255,255,255,0.8); font-variant-numeric: tabular-nums; display: flex; align-items: center; margin-left: 2px; }
 
         .settings-menu {
             position: absolute; bottom: 50px; right: 0;
@@ -681,10 +603,10 @@
             75% { transform: rotate(12deg); }
         }
         .center-overlay-card h3 {
-            font-size: clamp(14px, 4vw, 16px);
+            font-size: clamp(16px, 4.5vw, 18px);
             font-weight: 700;
             color: #fff;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             letter-spacing: -0.2px;
         }
         .center-overlay-card p {
@@ -734,18 +656,12 @@
 
             <!-- Direct Center Overlay Popup for Missing Stream Sources -->
             <div class="center-overlay-card" id="no-link-overlay">
-                <div class="card-box">
-                    <i class="fa-solid fa-screwdriver-wrench card-icon"></i>
-                    <h3>Under Construction</h3>
+                <div class="card-box" style="border: 1.5px solid rgba(244, 117, 33, 0.35); background: #131316;">
+                    <i class="fa-solid fa-triangle-exclamation card-icon" style="color: var(--accent);"></i>
+                    <h3>Error 402</h3>
+                    <h4 style="font-size: 13px; font-weight: 500; color: #fff; margin-bottom: 12px; opacity: 0.85;">Stream Unavailable</h4>
                     <p>We are currently working on this stream. The link will be available soon!</p>
                 </div>
-            </div>
-
-            <!-- Premium Interactive Center Prev/Play/Next Controls Deck Overlay -->
-            <div class="center-controls-overlay" id="center-controls">
-                <i class="fa-solid fa-backward-step center-nav-btn" id="prev-btn" title="Previous Episode" style="display: none; pointer-events: auto;"></i>
-                <button class="center-icon-btn big-play" id="center-play-btn" title="Play/Pause" style="pointer-events: auto;"><i class="fa-solid fa-play" id="play-btn"></i></button>
-                <i class="fa-solid fa-forward-step center-nav-btn" id="next-btn" title="Next Episode" style="display: none; pointer-events: auto;"></i>
             </div>
 
             <audio id="ext-audio" preload="auto" referrerpolicy="no-referrer" style="display: none;"></audio>
@@ -769,6 +685,11 @@
                 
                 <div class="buttons">
                     <div class="left-btns">
+                        <!-- Streamlined Crunchyroll bottom deck controls [3] -->
+                        <i class="fa-solid fa-backward-step" id="prev-btn-bottom" title="Previous Episode" style="display: none;"></i>
+                        <i class="fa-solid fa-play" id="play-btn-bottom" title="Play/Pause"></i>
+                        <i class="fa-solid fa-forward-step" id="next-btn-bottom" title="Next Episode" style="display: none;"></i>
+                        
                         <span class="time"><span id="curr">0:00</span> / <span id="dur">0:00</span></span>
                     </div>
                     
@@ -899,9 +820,9 @@
     const extAud = document.getElementById("ext-audio");
     const tapLayer = document.getElementById("tap-layer");
     
-    const playBtn = document.getElementById("play-btn");
-    const prevBtn = document.getElementById("prev-btn");
-    const nextBtn = document.getElementById("next-btn");
+    const playBtn = document.getElementById("play-btn-bottom");
+    const prevBtn = document.getElementById("prev-btn-bottom");
+    const nextBtn = document.getElementById("next-btn-bottom");
     const pBar = document.getElementById("p-bar");
     const bBar = document.getElementById("b-bar");
     const pArea = document.getElementById("p-area");
@@ -909,9 +830,6 @@
     const miniProg = document.getElementById("mini-progress");
     const fsBtn = document.getElementById("fs-btn");
     const fitBtn = document.getElementById("fit-btn");
-    
-    // Core custom interactive nodes
-    const centerPlayBtn = document.getElementById("center-play-btn");
     const volumeBtn = document.getElementById("volume-btn");
 
     const settingsBtn = document.getElementById("settings-btn");
@@ -1077,14 +995,10 @@
     // --- PLAY/PAUSE STATE LISTENERS ---
     vid.addEventListener('play', () => {
         playBtn.className = "fa-solid fa-pause";
-        centerPlayBtn.className = "center-icon-btn big-play playing";
-        centerPlayBtn.innerHTML = '<i class="fa-solid fa-pause" id="play-btn"></i>';
         resetHideTimer();
     });
     vid.addEventListener('pause', () => {
         playBtn.className = "fa-solid fa-play";
-        centerPlayBtn.className = "center-icon-btn big-play";
-        centerPlayBtn.innerHTML = '<i class="fa-solid fa-play" id="play-btn"></i>';
         player.classList.add("show-controls");
         clearTimeout(hideTimer);
     });
@@ -1199,7 +1113,7 @@
                 currentUserProfile = profileSnap.val();
             }
         } catch(e) {
-            console.error("Error caching current user profile metadata:", e);
+            console.error("Error caching user profile metadata:", e);
         }
 
         if(movieId) {
@@ -1422,11 +1336,30 @@
         isVidBuffering = false; isAudBuffering = false; isMediaError = false; vidError = false; audError = false;
         player.classList.remove('error-state'); updateBufferingUI();
 
-        if(hls) { hls.destroy(); hls = null; }
-        if(hlsAudio) { hlsAudio.destroy(); hlsAudio = null; } 
+        // Fully detach and teardown old playback instances to prevent old episode leak
+        if(hls) { 
+            hls.stopLoad();
+            hls.detachMedia();
+            hls.destroy(); 
+            hls = null; 
+        }
+        if(hlsAudio) { 
+            hlsAudio.stopLoad();
+            hlsAudio.detachMedia();
+            hlsAudio.destroy(); 
+            hlsAudio = null; 
+        } 
         
-        vid.pause(); vid.currentTime = 0; 
-        if(hasExtAudio) { extAud.pause(); extAud.currentTime = 0; }
+        vid.pause(); 
+        vid.removeAttribute('src');
+        while (vid.firstChild) { vid.removeChild(vid.firstChild); }
+        vid.load();
+        
+        if(hasExtAudio) { 
+            extAud.pause(); 
+            extAud.removeAttribute('src');
+            extAud.load();
+        }
         
         player.classList.remove("needs-start", "playing"); player.classList.add("loading");
         
@@ -1484,7 +1417,8 @@
     }
 
     function setupPlayer(data, resumeTime = 0) {
-        nextEpisodeData = null; prevEpisodeData = null; prevBtn.style.display = 'none'; nextBtn.style.display = 'none';
+        nextEpisodeData = null; prevEpisodeData = null; 
+        prevBtn.style.display = 'none'; nextBtn.style.display = 'none';
         baseTitle = data.title;
         
         let backdropImg = data.backdrop || "";
@@ -1536,7 +1470,8 @@
             audioBtn.style.display = 'none'; audioMenu.innerHTML = '';
         }
         
-        if (videoSources.length > 0) { intendedPlayState = true; setupManualQualityMenu(resumeTime); } 
+        // Ensure manual quality state is loaded or error out 402 cleanly if no videoSources are present [2]
+        setupManualQualityMenu(resumeTime);
     }
 
     async function fetchRecommendations(currentTags, currentCat) {
@@ -1922,7 +1857,6 @@
     };
 
     playBtn.onclick = (e) => { popBtn(e.currentTarget); if(vid.paused || !intendedPlayState) doPlay(); else doPause(); };
-    centerPlayBtn.onclick = (e) => { e.stopPropagation(); popBtn(centerPlayBtn); if(vid.paused || !intendedPlayState) doPlay(); else doPause(); };
 
     let isMuted = false;
     volumeBtn.onclick = (e) => {
