@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SnappyRoll - Admin Gate</title>
+    <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        .bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: url('https://i.pinimg.com/736x/38/34/8a/38348a9ed76b838cd3150f3e585c5665.jpg') center/cover no-repeat;
+            filter: blur(20px) brightness(0.3);
+            z-index: -2;
+        }
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, #000000 100%);
+            z-index: -1;
+        }
+        .auth-card {
+            background: linear-gradient(150deg, rgba(20, 20, 25, 0.85), rgba(8, 8, 12, 0.98));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 40px 28px 32px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            text-align: center;
+            position: relative;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+        }
+        .form-logo {
+            height: 42px;
+            margin-bottom: 16px;
+            object-fit: contain;
+        }
+        .auth-card h2 {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            letter-spacing: -0.8px;
+            color: #fff;
+        }
+        p.sub-title {
+            color: #8e8e93;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .status-card {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            text-align: left;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        .status-card.error {
+            background: rgba(255, 69, 58, 0.12);
+            border: 1px solid rgba(255, 69, 58, 0.25);
+            color: #ff453a;
+        }
+        .status-card.success {
+            background: rgba(52, 199, 89, 0.12);
+            border: 1px solid rgba(52, 199, 89, 0.25);
+            color: #34c759;
+        }
+        .auth-input {
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.25s, background 0.25s;
+        }
+        .auth-input::placeholder {
+            color: #55555d;
+        }
+        .auth-input:focus {
+            border-color: #f47521;
+            background: rgba(255, 255, 255, 0.07);
+        }
+        /* Secure Password text security override styling */
+        #usr-pass-field {
+            -webkit-text-security: disc !important;
+            text-security: disc !important;
+        }
+        .email-btn {
+            width: 100%;
+            padding: 14px;
+            background: #f47521;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+            margin-top: 8px;
+            box-shadow: 0 5px 15px rgba(244, 117, 33, 0.3);
+        }
+        .email-btn:active {
+            transform: scale(0.96);
+        }
+        .email-btn:hover {
+            background: #e06518;
+        }
+        .privacy-footer {
+            margin-top: 28px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-image"></div>
+    <div class="bg-overlay"></div>
+
+    <div class="auth-card" id="main-auth-card">
+        <img src="logo.png" alt="Logo" class="form-logo" onerror="this.style.display='none'">
+        <h2>Admin Console</h2>
+        <p class="sub-title">Authorized Personnel Only</p>
+
+        <!-- Notification Status Card -->
+        <div id="auth-status-card" class="status-card"></div>
+
+        <!-- System Credentials Inputs -->
+        <input type="text" id="usr-mail-field" class="auth-input" placeholder="Admin Email" autocomplete="off" spellcheck="false">
+        <input type="text" id="usr-pass-field" class="auth-input" placeholder="Secure Password" autocomplete="off" spellcheck="false">
+        
+        <button id="email-submit-btn" class="email-btn">Secure Login</button>
+
+        <div class="privacy-footer">
+            System activities are monitored.<br>Unauthorized access attempts will be logged.
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+        // Firebase Setup Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDnmFVfVSCxXC9shWhz4dw06xtTNBA6vsU",
+            authDomain: "sanppyroll.firebaseapp.com",
+            databaseURL: "https://sanppyroll-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "sanppyroll",
+            storageBucket: "sanppyroll.firebasestorage.app",
+            messagingSenderId: "642736474886",
+            appId: "1:642736474886:web:f0e0e3c04101fddfe02c87"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        const emailInput = document.getElementById('usr-mail-field');
+        const passwordInput = document.getElementById('usr-pass-field');
+        const emailSubmitBtn = document.getElementById('email-submit-btn');
+        const statusCard = document.getElementById('auth-status-card');
+
+        // Clean Visual Notification Feedback System
+        function showToast(message, isError = false) {
+            const iconHTML = isError ? `<i class="fa-solid fa-circle-exclamation"></i>` : `<i class="fa-solid fa-circle-check"></i>`;
+            statusCard.innerHTML = `${iconHTML} <span>${message}</span>`;
+            statusCard.className = `status-card ${isError ? 'error' : 'success'}`;
+            statusCard.style.display = 'flex';
+            
+            anime({
+                targets: statusCard,
+                opacity: [0, 1],
+                translateY: [-6, 0],
+                duration: 200,
+                easing: 'easeOutQuad'
+            });
+        }
+
+        // Dedicated Entry Point Verification Action
+        emailSubmitBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!email || !password) {
+                showToast("Fill out all operational credentials.", true);
+                return;
+            }
+
+            // Interface Lock States
+            emailSubmitBtn.textContent = "Authenticating...";
+            emailSubmitBtn.style.pointerEvents = 'none';
+            emailSubmitBtn.style.opacity = "0.7";
+
+            try {
+                // Step 1: Core Firebase Auth Validation Check
+                const credential = await signInWithEmailAndPassword(auth, email, password);
+                const user = credential.user;
+
+                // Step 2: Strict Node Level Verification directly from 'users' schema mapping
+                const profileSnap = await get(ref(db, `users/${user.uid}`));
+                
+                if (profileSnap.exists()) {
+                    showToast("Access Granted. Initializing console...", false);
+                    setTimeout(() => {
+                        window.location.replace('admin.html'); // Redirect directly to Admin Index Dashboard
+                    }, 1000);
+                } else {
+                    showToast("Unauthorized Account Profile Signature.", true);
+                    resetSubmitBtn();
+                }
+
+            } catch (error) {
+                console.error("Critical Authentication Matrix Halt:", error);
+                let errorMsg = "Terminal access rejection.";
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
+                    errorMsg = "Invalid Administrator credentials.";
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMsg = "Check standard admin email scheme structure.";
+                }
+                showToast(errorMsg, true);
+                resetSubmitBtn();
+            }
+        });
+
+        function resetSubmitBtn() {
+            emailSubmitBtn.textContent = "Secure Login";
+            emailSubmitBtn.style.pointerEvents = 'auto';
+            emailSubmitBtn.style.opacity = "1";
+        }
+
+        // Catch Return Submissions natively
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') emailSubmitBtn.click();
+        });
+        
+        emailInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') passwordInput.focus();
+        });
+
+        // Intro entry Card Animation load
+        anime({
+            targets: '#main-auth-card',
+            scale: [0.95, 1],
+            opacity: [0, 1],
+            duration: 400,
+            easing: 'easeOutCubic'
+        });
+    </script>
+</body>
+</html>
