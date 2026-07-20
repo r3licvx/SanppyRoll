@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Account - SanppyRoll</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+    <style>
+        :root {
+            --accent: #F47521;
+            --accent-glow: rgba(244, 117, 33, 0.25);
+            --bg-main: #060607;
+            --bg-card: #0f0f12;
+            --bg-input: #17171c;
+            --text-muted: #7c7c89;
+            --ig-border: rgba(255, 255, 255, 0.05);
+            --surface-blur: rgba(6, 6, 7, 0.75);
+            --verified-color: #FD7E14;
+        }
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; 
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+            user-select: none; outline: none;
+        }
+
+        body {
+            background-color: var(--bg-main); color: #ffffff;
+            overflow-x: hidden; scroll-behavior: smooth; min-height: 100vh;
+        }
+
+        /* Prevent default search/cancel icons on inputs */
+        input[type="search"]::-webkit-search-decoration,
+        input[type="search"]::-webkit-search-cancel-button,
+        input[type="search"]::-webkit-search-results-button,
+        input[type="search"]::-webkit-search-results-decoration,
+        input[type="text"]::-webkit-search-cancel-button,
+        input[type="text"]::-webkit-search-decoration {
+            display: none;
+            -webkit-appearance: none;
+        }
+
+        /* ── PREMIUM HEADER LAYOUT ── */
+        .hdr {
+            position: sticky; top: 0; left: 0; right: 0; height: 68px; z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 4%;
+            background: var(--surface-blur); 
+            backdrop-filter: blur(30px) saturate(210%); -webkit-backdrop-filter: blur(30px) saturate(210%);
+            border-bottom: 1px solid var(--ig-border);
+            opacity: 0; 
+        }
+        .hdr-left { display: flex; align-items: center; gap: 16px; }
+        
+        .back-btn {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--ig-border);
+            display: flex; align-items: center; justify-content: center; color: #fff;
+            cursor: pointer; transition: 0.2s; font-size: 16px; width: 36px; height: 36px; border-radius: 50%;
+        }
+        .back-btn:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-glow); }
+
+        .hdr-meta-wrap { display: flex; flex-direction: column; }
+        .hdr-title { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; color: #ffffff; }
+        
+        .logout-hdr-btn {
+            background: rgba(255,59,48,0.06); border: 1px solid rgba(255,59,48,0.15);
+            color: #ff453a; padding: 8px 14px; border-radius: 20px;
+            display: flex; align-items: center; gap: 8px;
+            cursor: pointer; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-size: 12px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .logout-hdr-btn:hover { background: #ff3b30; color: #fff; border-color: #ff3b30; box-shadow: 0 4px 12px rgba(255,59,48,0.2); }
+        .logout-hdr-btn:active { transform: scale(0.95); }
+
+        /* ── SKELETON LOADER SCREEN ── */
+        .page-loader {
+            position: fixed; inset: 0; background: var(--bg-main); z-index: 9999;
+            display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
+            transition: opacity 0.4s ease;
+        }
+        .sk-shimmer {
+            background: linear-gradient(90deg, #0f0f12 25%, #1b1b22 50%, #0f0f12 75%) !important;
+            background-size: 200% 100% !important;
+            animation: sk-shimmer-anim 1.5s infinite ease-in-out !important;
+        }
+        @keyframes sk-shimmer-anim {
+            0% { background-position: -200% 0; opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { background-position: 200% 0; opacity: 0.7; }
+        }
+        .sk-hdr {
+            height: 68px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 4%; border-bottom: 1px solid var(--ig-border); flex-shrink: 0;
+        }
+        .sk-hdr-left { display: flex; align-items: center; gap: 12px; }
+        .sk-btn-back { width: 36px; height: 36px; border-radius: 50%; }
+        .sk-meta { display: flex; flex-direction: column; gap: 4px; }
+        .sk-title-main { width: 110px; height: 16px; border-radius: 4px; }
+        .sk-btn-logout { width: 85px; height: 30px; border-radius: 20px; }
+        
+        .sk-content-wrapper { padding: 20px 4% 50px; display: flex; flex-direction: column; gap: 24px; max-width: 600px; margin: 0 auto; width: 100%; }
+        .sk-profile-hero {
+            background: var(--bg-card); border: 1px solid var(--ig-border);
+            border-radius: 16px; padding: 35px 20px;
+            display: flex; flex-direction: column; align-items: center; gap: 12px; position: relative;
+        }
+        .sk-avatar { width: 88px; height: 88px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.02); }
+        .sk-name { width: 140px; height: 22px; border-radius: 4px; }
+        .sk-email { width: 180px; height: 12px; border-radius: 4px; }
+        .sk-badge { width: 130px; height: 24px; border-radius: 6px; }
+        
+        .sk-info-box {
+            background: var(--bg-card); border: 1px solid var(--ig-border);
+            border-radius: 16px; display: flex; flex-direction: column;
+        }
+        .sk-info-row {
+            height: 48px; border-bottom: 1px solid var(--ig-border);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 16px;
+        }
+        .sk-info-row:last-child { border-bottom: none; }
+        .sk-lbl-block { width: 90px; height: 12px; border-radius: 3px; }
+        .sk-val-block { width: 70px; height: 12px; border-radius: 3px; }
+
+        /* ── MAIN LAYOUT ARCHITECTURE ── */
+        .content-wrapper { padding: 24px 4% 50px; display: flex; flex-direction: column; gap: 24px; max-width: 600px; margin: 0 auto; width: 100%; }
+        .sec-title { font-size: 13px; font-weight: 800; margin-bottom: 14px; color: #fff; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.8px;}
+
+        .error-msg { color: #ff453a; font-size: 11px; font-weight: 600; display: none; margin-top: 4px;}
+
+        .group-header { font-size: 13px; color: #fff; font-weight: 800; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.8px;}
+        .group-header i { color: var(--accent); }
+
+        /* Premium History Cards Styling */
+        .history-card { 
+            display: flex; gap: 14px; background: rgba(15, 15, 18, 0.6); 
+            border: 1px solid var(--ig-border); border-radius: 16px; 
+            padding: 12px; margin-bottom: 12px; cursor: pointer; transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative; overflow: hidden; backdrop-filter: blur(10px);
+        }
+        .history-card:hover { 
+            border-color: rgba(244, 117, 33, 0.4); 
+            background: rgba(244, 117, 33, 0.02); 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        
+        .history-thumb { position: relative; width: 120px; aspect-ratio: 16/9; flex-shrink: 0; border-radius: 10px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.03);}
+        .history-thumb.movie-thumb { width: 80px; aspect-ratio: 2/3; }
+        .history-thumb img { width: 100%; height: 100%; object-fit: cover; transition: 0.4s ease; }
+        
+        .play-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.25s ease; backdrop-filter: blur(2px); }
+        .history-card:hover .play-overlay { opacity: 1; }
+        .play-overlay i { font-size: 28px; color: #fff; transform: scale(0.8); transition: 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .history-card:hover .play-overlay i { transform: scale(1); color: var(--accent); }
+
+        .h-progress-bg { position: absolute; bottom: 0; left: 0; right: 0; height: 3.5px; background: rgba(255,255,255,0.15); }
+        .h-progress-fill { height: 100%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+        
+        .history-info { flex: 1; display: flex; flex-direction: column; justify-content: center; overflow: hidden; padding-right: 36px; }
+        .h-badge { font-size: 9px; color: var(--accent); font-weight: 800; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.6px; background: rgba(244,117,33,0.12); padding: 2px 6px; border-radius: 4px; width: fit-content; }
+        .h-title { font-size: 15px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+        .h-desc { font-size: 12px; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+        
+        .remove-history-btn {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: rgba(255,255,255,0.02); border: 1px solid var(--ig-border); color: var(--text-muted);
+            width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; z-index: 10; font-size: 13px;
+        }
+        .remove-history-btn:hover { color: #ff3b30; background: rgba(255,59,48,0.1); border-color: rgba(255,59,48,0.2); }
+
+        /* Beautiful Empty History State Design */
+        .empty-history-wrapper {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 40px 20px; background: rgba(15, 15, 18, 0.4);
+            border: 1px dashed var(--ig-border); border-radius: 16px;
+            text-align: center; margin-top: 10px;
+        }
+        .empty-icon { font-size: 38px; color: var(--text-muted); margin-bottom: 12px; opacity: 0.8; }
+        .empty-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .empty-sub { font-size: 12px; color: var(--text-muted); max-width: 280px; line-height: 1.4; }
+
+        .reviews-list { display: flex; flex-direction: column; gap: 12px; }
+        .my-review-card { width: 100%; background: var(--bg-card); border: 1px solid var(--ig-border); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+        .rev-movie-title { font-size: 14px; font-weight: 700; color: var(--accent);}
+        .rev-stars { color: #f5c518; font-size: 10px; letter-spacing: 1px;}
+        .rev-text { font-size: 13px; color: #e2e2e9; line-height: 1.45; font-style: italic; }
+
+        /* ── HERO DISPLAY SYSTEM ── */
+        .profile-hero {
+            position: relative; background: var(--bg-card); border: 1px solid var(--ig-border);
+            border-radius: 16px; padding: 35px 20px 24px;
+            display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;
+            opacity: 0; transform: scale(0.96); overflow: hidden;
+        }
+        
+        .profile-hero > *:not(.hero-banner-bg):not(.hero-banner-overlay) { position: relative; z-index: 1; }
+        
+        .hero-banner-bg {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0; 
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            opacity: 0.4; z-index: 0; transition: 0.4s ease; pointer-events: none;
+        }
+        
+        .hero-banner-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to bottom, rgba(6,6,7,0.2) 0%, var(--bg-card) 100%);
+            z-index: 0; pointer-events: none;
+        }
+        
+        .profile-avatar-wrap { position: relative; display: inline-block; width: 94px; height: 94px; margin-bottom: 4px; }
+        .profile-avatar-box {
+            width: 88px; height: 88px; border-radius: 50%;
+            border: 2.5px solid var(--accent); display: block; overflow: hidden;
+            position: relative; background: #131317; margin: 0 auto; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+        .avatar-blur-bg {
+            position: absolute; inset: 0; background-size: cover; background-position: center;
+            filter: blur(6px); transform: scale(1.2); opacity: 0.4; z-index: 1;
+        }
+        .profile-avatar { width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2; display: block; }
+        .profile-avatar-fallback {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            font-size: 32px; font-weight: 700; color: #fff;
+            background: linear-gradient(135deg, var(--accent), #ff5500); position: relative; z-index: 2;
+        }
+        .avatar-edit-trigger {
+            position: absolute; bottom: 0; right: 0; background: var(--accent);
+            border: 2.5px solid var(--bg-card); color: #fff; width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; z-index: 10;
+            transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .avatar-edit-trigger:hover { transform: scale(1.1); background: #ff8432; }
+
+        .profile-email { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        
+        /* Dynamic verified badging structures */
+        .profile-verified-tracker {
+            padding: 5px 12px; border-radius: 8px; font-size: 10px; font-weight: 800;
+            display: inline-flex; align-items: center; gap: 6px; margin-top: 4px;
+            text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s;
+        }
+        .profile-verified-tracker.is-verified {
+            background: rgba(244, 117, 33, 0.1); border: 1px solid rgba(244, 117, 33, 0.25); color: var(--verified-color);
+        }
+        .profile-verified-tracker.not-verified {
+            background: rgba(124, 124, 137, 0.1); border: 1px solid rgba(124, 124, 137, 0.2); color: var(--text-muted);
+        }
+
+        .info-box { background: var(--bg-card); border: 1px solid var(--ig-border); border-radius: 16px; overflow: hidden; opacity: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        .info-box-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 16px; font-size: 14px; border-bottom: 1px solid var(--ig-border);
+        }
+        .info-box-row:last-child { border-bottom: none; }
+        .info-box-lbl { color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 8px; }
+        .info-box-lbl i { width: 14px; text-align: center; font-size: 13px; color: var(--accent); }
+        .info-box-val { font-weight: 600; color: #fff; font-size: 13px; text-align: right; }
+
+        .interactive-row {
+            cursor: pointer;
+            transition: 0.2s ease-in-out;
+        }
+        .interactive-row:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        .interactive-row .info-box-val {
+            color: var(--accent);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-style: dotted;
+        }
+
+        /* Telegram Promotion Section */
+        .telegram-promo-card {
+            background: linear-gradient(135deg, rgba(36, 161, 222, 0.08), rgba(244, 117, 33, 0.05));
+            border: 1px solid rgba(36, 161, 222, 0.15); border-radius: 16px;
+            padding: 16px; margin-top: 12px; display: flex; flex-direction: column; gap: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+        }
+        .tg-info { display: flex; flex-direction: column; gap: 4px; }
+        .tg-title { font-size: 14px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px; }
+        .tg-title::before {
+            content: ''; display: inline-block; width: 6px; height: 6px;
+            background: #24a1de; border-radius: 50%; box-shadow: 0 0 8px #24a1de;
+        }
+        .tg-desc { font-size: 11.5px; color: var(--text-muted); line-height: 1.45; }
+        .tg-btn {
+            background: #24a1de; color: #fff; border: none; padding: 12px;
+            border-radius: 10px; font-size: 13px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            cursor: pointer; text-decoration: none; transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(36, 161, 222, 0.3);
+        }
+        .tg-btn:hover {
+            background: #2cb2f5; transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(36, 161, 222, 0.4);
+        }
+        .tg-btn:active { transform: translateY(1px); }
+
+        /* ── HERO NAME ROW WITH VERIFICATION BADGE ── */
+        .hero-name-row { 
+            display: flex; align-items: center; justify-content: center; 
+            gap: 6px; margin-top: 4px; max-width: 100%; padding: 0 10px;
+        }
+        .hero-name-text {
+            color: #fff; font-size: 22px; font-weight: 700;
+            letter-spacing: -0.4px; white-space: nowrap; overflow: hidden; 
+            text-overflow: ellipsis; max-width: 190px; vertical-align: middle;
+        }
+        
+        /* ── DEEP GLOW VERIFIED BADGE ── */
+        .verified-tick-badge {
+            display: none; width: 18px; height: 18px; object-fit: contain;
+            pointer-events: none; user-select: none; -webkit-user-drag: none;
+            filter: drop-shadow(0 0 10px rgba(244, 117, 33, 0.95)) drop-shadow(0 0 25px rgba(244, 117, 33, 0.5));
+            flex-shrink: 0; vertical-align: middle;
+        }
+
+        /* ── INTERACTIVE MODALS & TEXTURED INPUTS ── */
+        .del-modal-overlay {
+            position: fixed; inset: 0; z-index: 3000;
+            background: rgba(4,4,5,0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .del-modal-overlay.active { opacity: 1; visibility: visible; }
+        .del-modal-box {
+            background: var(--bg-card); border: 1px solid var(--ig-border);
+            border-radius: 20px; padding: 24px 22px; width: 88%; max-width: 300px;
+            text-align: center; transform: scale(0.94); transition: 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .del-modal-overlay.active .del-modal-box { transform: scale(1); }
+        .del-modal-icon { font-size: 34px; margin-bottom: 12px; color: #ff453a;}
+        .del-modal-title { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 6px; letter-spacing: -0.2px; }
+        .del-modal-sub { font-size: 13px; color: var(--text-muted); line-height: 1.45; margin-bottom: 20px; }
+        .del-modal-actions { display: flex; gap: 10px; }
+        .del-modal-cancel { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--ig-border); color: #fff; padding: 11px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600;}
+        .del-modal-confirm { flex: 1; background: #ff3b30; border: none; color: #fff; padding: 11px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px;}
+
+        .editor-overlay {
+            position: fixed; inset: 0; z-index: 3500; background: rgba(4,4,5,0.75);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: 0.25s ease;
+        }
+        .editor-overlay.active { opacity: 1; visibility: visible; }
+        .editor-box {
+            background: var(--bg-card); border: 1px solid var(--ig-border);
+            border-radius: 20px; padding: 24px 22px; width: 92%; max-width: 360px;
+            display: flex; flex-direction: column; gap: 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            transform: scale(0.95); transition: 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .editor-overlay.active .editor-box { transform: scale(1); }
+        
+        .editor-header h3 { font-size: 16px; font-weight: 700; color: #fff; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group label { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .editor-input {
+            background: var(--bg-input); border: 1px solid var(--ig-border);
+            color: #fff; padding: 12px 14px; border-radius: 10px; font-size: 13.5px; transition: 0.2s;
+        }
+        .editor-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.01); }
+
+        /* Custom Age Wheel Design */
+        .age-wheel-container {
+            height: 150px; overflow-y: scroll; position: relative;
+            border: 1px solid var(--ig-border); background: var(--bg-input);
+            border-radius: 12px; scroll-snap-type: y mandatory;
+            scrollbar-width: none;
+        }
+        .age-wheel-container::-webkit-scrollbar { display: none; }
+        .age-wheel { padding: 45px 0; }
+        .age-item {
+            height: 45px; display: flex; align-items: center; justify-content: center;
+            font-size: 16px; color: var(--text-muted); scroll-snap-align: center;
+            transition: 0.2s; cursor: pointer; font-weight: 600;
+        }
+        .age-item.selected {
+            color: var(--accent); font-size: 24px; font-weight: 800;
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* Custom DOB Calendar Design (Full Custom No Select) */
+        .custom-calendar-box { max-width: 320px !important; }
+        .calendar-nav-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .calendar-nav-title { font-weight: 700; font-size: 14px; color: #fff; }
+        .calendar-nav-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--ig-border);
+            color: #fff; width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
+        }
+        .calendar-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+        
+        /* Premium Custom Dropdown wrap instead of Browser Select */
+        .custom-dropdown-wrap {
+            position: relative; width: 100%; margin-bottom: 12px;
+            background: var(--bg-input); border: 1px solid var(--ig-border);
+            color: #fff; padding: 10px 14px; border-radius: 10px;
+            font-size: 13px; font-weight: 600; display: flex;
+            justify-content: space-between; align-items: center;
+            cursor: pointer; transition: 0.2s;
+        }
+        .custom-dropdown-wrap:hover { border-color: var(--accent); }
+        .custom-dropdown-list {
+            display: none; position: absolute; top: calc(100% + 6px);
+            left: 0; right: 0; background: #111115;
+            border: 1px solid var(--ig-border); border-radius: 10px;
+            max-height: 180px; overflow-y: scroll; z-index: 20;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); scrollbar-width: none;
+        }
+        .custom-dropdown-list::-webkit-scrollbar { display: none; }
+        .custom-dropdown-item {
+            padding: 10px 14px; font-size: 13px; color: var(--text-muted);
+            transition: 0.2s; text-align: left;
+        }
+        .custom-dropdown-item:hover { background: rgba(255,255,255,0.03); color: #fff; }
+        .custom-dropdown-item.active { color: var(--accent); background: rgba(244,117,33,0.08); font-weight: 700; }
+
+        .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 10px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; }
+        .calendar-days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .calendar-day-cell {
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 600; color: #fff; border-radius: 6px; cursor: pointer; transition: 0.2s;
+        }
+        .calendar-day-cell:hover:not(.empty) { background: rgba(255,255,255,0.05); }
+        .calendar-day-cell.active-selected { background: var(--accent) !important; color: #fff !important; font-weight: 800; box-shadow: 0 0 10px var(--accent-glow); }
+        .calendar-day-cell.empty { cursor: default; }
+
+        .upload-wrapper {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--bg-input); border: 1px solid var(--ig-border);
+            padding: 8px 12px; border-radius: 10px; position: relative;
+        }
+        .upload-trigger-btn {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.05);
+            color: #fff; padding: 6px 14px; border-radius: 8px;
+            font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s;
+        }
+        .upload-trigger-btn:hover { background: rgba(255,255,255,0.1); }
+        .upload-filename-label {
+            font-size: 12px; color: var(--text-muted);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; font-weight: 500;
+        }
+        
+        .upload-delete-inline-btn {
+            background: rgba(255,59,48,0.1); border: 1px solid rgba(255,59,48,0.2);
+            color: #ff453a; padding: 5px 10px; border-radius: 6px; font-size: 11px;
+            font-weight: 700; cursor: pointer; display: none; align-items: center; gap: 4px;
+            transition: 0.2s;
+        }
+        .upload-delete-inline-btn:hover { background: #ff3b30; color: #fff; border-color: #ff3b30; }
+
+        .upload-progress-container {
+            display: flex; align-items: center; gap: 10px; margin-top: 2px;
+            background: rgba(255,255,255,0.01); border-radius: 6px; padding: 4px 8px;
+        }
+        .upload-progress-bar-wrap { flex: 1; background: rgba(255,255,255,0.04); height: 4px; border-radius: 3px; overflow: hidden; position: relative; }
+        .upload-progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #ff6b1a); width: 0%; border-radius: 3px; transition: width 0.1s ease-out; box-shadow: 0 0 6px var(--accent); }
+        .upload-progress-percent { font-size: 10px; color: var(--accent); font-weight: 800; min-width: 28px; text-align: right; }
+
+        .editor-actions { display: flex; gap: 10px; margin-top: 8px; }
+        .editor-btn-cancel { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--ig-border); color: #fff; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .editor-btn-save { flex: 1; background: var(--accent); border: none; color: #fff; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px var(--accent-glow);}
+        .editor-btn-save:hover { background: #ff8432; }
+
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #0f0f12; border: 1px solid var(--ig-border); color: #fff; padding: 12px 22px; border-radius: 24px; font-size: 12px; font-weight: 700; z-index: 9999; opacity: 0; transition: 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.35);}
+        #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; border-color: var(--accent); }
+
+        @media (max-width: 600px) {
+            .history-thumb { width: 105px; }
+            .history-thumb.movie-thumb { width: 72px; }
+            .content-wrapper { padding: 16px 4% 40px; gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- RESTRUCTURED IMMERSIVE SKELETON SCREEN -->
+    <div class="page-loader" id="main-loader">
+        <div class="sk-hdr">
+            <div class="sk-hdr-left">
+                <div class="sk-btn-back sk-shimmer"></div>
+                <div class="sk-meta">
+                    <div class="sk-title-main sk-shimmer"></div>
+                </div>
+            </div>
+            <div class="sk-btn-logout sk-shimmer"></div>
+        </div>
+        <div class="sk-content-wrapper">
+            <div class="sk-profile-hero">
+                <div class="sk-avatar sk-shimmer"></div>
+                <div class="sk-name sk-shimmer"></div>
+                <div class="sk-email sk-shimmer"></div>
+                <div class="sk-badge sk-shimmer"></div>
+            </div>
+            
+            <div class="sk-info-box">
+                <div class="sk-info-row"><div class="sk-lbl-block sk-shimmer"></div><div class="sk-val-block sk-shimmer"></div></div>
+                <div class="sk-info-row"><div class="sk-lbl-block sk-shimmer"></div><div class="sk-val-block sk-shimmer"></div></div>
+                <div class="sk-info-row"><div class="sk-lbl-block sk-shimmer"></div><div class="sk-val-block sk-shimmer"></div></div>
+                <div class="sk-info-row"><div class="sk-lbl-block sk-shimmer"></div><div class="sk-val-block sk-shimmer"></div></div>
+                <div class="sk-info-row"><div class="sk-lbl-block sk-shimmer"></div><div class="sk-val-block sk-shimmer"></div></div>
+                <div class="sk-info-row"><div class="sk-lbl-block sk-shimmer"></div><div class="sk-val-block sk-shimmer"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Message</div>
+
+    <div class="del-modal-overlay" id="del-modal">
+        <div class="del-modal-box">
+            <div class="del-modal-icon"><i class="fas fa-trash-alt"></i></div>
+            <div class="del-modal-title">Remove from History?</div>
+            <div class="del-modal-sub">This video will be permanently removed from your recently watched list.</div>
+            <div class="del-modal-actions">
+                <button class="del-modal-cancel" onclick="closeDelModal()">Cancel</button>
+                <button class="del-modal-confirm" onclick="confirmDeleteHistory()">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN INTERACTIVE POPUP MODAL -->
+    <div class="editor-overlay" id="editor-modal">
+        <div class="editor-box">
+            <div class="editor-header">
+                <h3>Edit Profile Matrix</h3>
+            </div>
+            <div class="input-group">
+                <label>Display Name</label>
+                <input type="text" id="edit-name-field" class="editor-input" placeholder="Enter your name" autocomplete="off" spellcheck="false">
+                <span class="error-msg" id="edit-name-error"></span>
+            </div>
+            
+            <div class="input-group">
+                <label>Avatar (Profile Picture)</label>
+                <div class="upload-wrapper">
+                    <input type="file" id="edit-avatar-file" accept="image/*" style="display: none;">
+                    <button type="button" class="upload-trigger-btn" onclick="document.getElementById('edit-avatar-file').click()"><i class="fa-solid fa-cloud-arrow-up"></i> Choose</button>
+                    <span class="upload-filename-label" id="avatar-filename">No file chosen</span>
+                    <button type="button" class="upload-delete-inline-btn" id="avatar-delete-inline" onclick="clearActiveAsset('avatar')"><i class="fa-solid fa-trash-can"></i> Delete</button>
+                </div>
+                <div class="upload-progress-container" id="avatar-progress-container" style="display: none;">
+                    <div class="upload-progress-bar-wrap">
+                        <div class="upload-progress-bar" id="avatar-progress-bar"></div>
+                    </div>
+                    <span class="upload-progress-percent" id="avatar-progress-percent">0%</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Banner Image (Background)</label>
+                <div class="upload-wrapper">
+                    <input type="file" id="edit-banner-file" accept="image/*" style="display: none;">
+                    <button type="button" class="upload-trigger-btn" onclick="document.getElementById('edit-banner-file').click()"><i class="fa-solid fa-cloud-arrow-up"></i> Choose</button>
+                    <span class="upload-filename-label" id="banner-filename">No file chosen</span>
+                    <button type="button" class="upload-delete-inline-btn" id="banner-delete-inline" onclick="clearActiveAsset('banner')"><i class="fa-solid fa-trash-can"></i> Delete</button>
+                </div>
+                <div class="upload-progress-container" id="banner-progress-container" style="display: none;">
+                    <div class="upload-progress-bar-wrap">
+                        <div class="upload-progress-bar" id="banner-progress-bar"></div>
+                    </div>
+                    <span class="upload-progress-percent" id="banner-progress-percent">0%</span>
+                </div>
+            </div>
+            
+            <div class="editor-actions">
+                <button class="editor-btn-cancel" onclick="closeEditorModal()">Cancel</button>
+                <button class="editor-btn-save" id="save-profile-btn" onclick="saveProfileData()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM AGE PICKER MODAL -->
+    <div class="editor-overlay" id="age-modal">
+        <div class="editor-box">
+            <div class="editor-header">
+                <h3>Select Your Age</h3>
+            </div>
+            <div class="age-wheel-container" id="age-wheel-scroll-box">
+                <div class="age-wheel" id="age-wheel-list"></div>
+            </div>
+            <div class="editor-actions">
+                <button class="editor-btn-cancel" onclick="closeAgeModal()">Cancel</button>
+                <button class="editor-btn-save" onclick="saveAgeSelection()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM DOB CALENDAR MODAL -->
+    <div class="editor-overlay" id="dob-modal">
+        <div class="editor-box custom-calendar-box">
+            <div class="calendar-nav-row">
+                <button class="calendar-nav-btn" onclick="navigateCalendarMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                <span class="calendar-nav-title" id="calendar-title-label">July 2026</span>
+                <button class="calendar-nav-btn" onclick="navigateCalendarMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            
+            <!-- Custom HTML Dropdown to replace Native Select [cite: 2] -->
+            <div class="custom-dropdown-wrap" id="custom-year-dropdown-trigger" onclick="toggleCustomYearList(event)">
+                <span id="selected-year-label">2010</span>
+                <i class="fa-solid fa-chevron-down"></i>
+                <div class="custom-dropdown-list" id="custom-year-list-container"></div>
+            </div>
+
+            <div class="calendar-weekdays">
+                <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+            </div>
+            <div class="calendar-days-grid" id="calendar-days-container"></div>
+            <div class="editor-actions" style="margin-top: 15px;">
+                <button class="editor-btn-cancel" onclick="closeDobModal()">Cancel</button>
+                <button class="editor-btn-save" onclick="saveDobSelection()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIXED CUSTOM HEADER MATRIX -->
+    <header class="hdr" id="app-header">
+        <div class="hdr-left">
+            <div class="back-btn" onclick="history.back()"><i class="fa-solid fa-arrow-left"></i></div>
+            <div class="hdr-meta-wrap">
+                <span class="hdr-title">ACCOUNT</span>
+            </div>
+        </div>
+        <button class="logout-hdr-btn" id="logout-btn" onclick="triggerLogout()">
+            <i class="fas fa-power-off"></i> <span>Logout</span>
+        </button>
+    </header>
+
+    <div class="content-wrapper">
+        
+        <div id="basic-info-sec" class="profile-hero">
+            <div class="hero-banner-bg" id="hero-banner-bg"></div>
+            <div class="hero-banner-overlay"></div>
+
+            <div class="profile-avatar-wrap">
+                <div class="profile-avatar-box" id="avatar-display-box">
+                    <div class="avatar-blur-bg" id="avatar-blur-bg"></div>
+                    <div class="profile-avatar-fallback" id="avatar-fallback">?</div>
+                </div>
+                <div class="avatar-edit-trigger" onclick="openEditorModal()"><i class="fa-solid fa-pen"></i></div>
+            </div>
+
+            <!-- NAME MATRIX WITH ALIGNED VERIFICATION TICK -->
+            <div class="hero-name-row">
+                <span id="username-display" class="hero-name-text">Loading...</span>
+                <img src="https://img.icons8.com/ios_filled/512/FD7E14/instagram-verification-badge.png" class="verified-tick-badge" id="name-verified-badge" alt="Verified">
+            </div>
+            <div class="profile-email" id="email-val">...</div>
+            <div class="profile-verified-tracker not-verified" id="profile-verified-status"><i class="fa-solid fa-circle-xmark"></i> Not Verified</div>
+        </div>
+
+        <div class="info-box" id="general-info-box">
+            <div class="info-box-row">
+                <span class="info-box-lbl"><i id="provider-icon" class="fa-brands fa-google"></i> Login with</span>
+                <span class="info-box-val" id="provider-val">Google</span>
+            </div>
+            <div class="info-box-row">
+                <span class="info-box-lbl"><i class="fa-solid fa-calendar-days"></i> Member Since</span>
+                <span class="info-box-val" id="created-val">...</span>
+            </div>
+            <div class="info-box-row">
+                <span class="info-box-lbl"><i class="fa-solid fa-clock-rotate-left"></i> Last Seen</span>
+                <span class="info-box-val" id="last-login-val">...</span>
+            </div>
+            
+            <!-- NEW PERSONAL INFO SECTIONS -->
+            <div class="info-box-row interactive-row" onclick="openAgeModal()">
+                <span class="info-box-lbl"><i class="fa-solid fa-cake-candles"></i> Age</span>
+                <span class="info-box-val" id="age-val">Set Age</span>
+            </div>
+            <div class="info-box-row interactive-row" onclick="openDobModal()">
+                <span class="info-box-lbl"><i class="fa-solid fa-calendar-day"></i> Date of Birth</span>
+                <span class="info-box-val" id="dob-val">Set DOB</span>
+            </div>
+            <div class="info-box-row">
+                <span class="info-box-lbl"><i class="fa-solid fa-earth-americas"></i> Location</span>
+                <span class="info-box-val" id="location-val">Detecting...</span>
+            </div>
+        </div>
+
+        <div id="history-sec" style="display: none; opacity: 0;">
+            <div class="group-header"><i class="fa-solid fa-clock-rotate-left"></i> Recently Watched</div>
+            <div id="history-container"></div>
+        </div>
+
+        <div id="reviews-sec" style="display: none; opacity: 0;">
+            <div class="sec-title"><i class="fa-solid fa-star" style="color: #f5c518;"></i> My Reviews</div>
+            <div class="reviews-list" id="reviews-container"></div>
+        </div>
+
+        <!-- STYLISH TELEGRAM SUPPORT & VERIFICATION CARD -->
+        <div class="telegram-promo-card">
+            <div class="tg-info">
+                <span class="tg-title">Request Verified Tick & Support</span>
+                <span class="tg-desc">Message us directly on Telegram for immediate account assistance, manual subscription activations, or to request your Verification Badge.</span>
+            </div>
+            <a href="https://t.me/z3rovx" target="_blank" rel="noopener noreferrer" class="tg-btn">
+                <i class="fa-brands fa-telegram"></i> Message Admin on Telegram
+            </a>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getDatabase, ref, get, set, child, remove, update } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDnmFVfVSCxXC9shWhz4dw06xtTNBA6vsU",
+            authDomain: "sanppyroll.firebaseapp.com",
+            databaseURL: "https://sanppyroll-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "sanppyroll",
+            storageBucket: "sanppyroll.firebasestorage.app",
+            messagingSenderId: "642736474886",
+            appId: "1:642736474886:web:f0e0e3c04101fddfe02c87"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const dbRef = ref(db);
+
+        let currentUser = null;
+        let currentUsername = "";
+        let allMoviesData = [];
+        
+        let avatarStatusCleared = false;
+        let bannerStatusCleared = false;
+
+        // Custom Selection States
+        let tempSelectedAge = 16;
+        let currentCalMonth = 6; // July
+        let currentCalYear = 2010; // Max birth year allowed (2026 - 16 = 2010)
+        let tempSelectedDob = "";
+        let customYearOpen = false;
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        function triggerCinematicEntrance() {
+            anime({
+                targets: '#main-loader', opacity: 0, duration: 400, easing: 'easeOutQuad',
+                complete: () => { document.getElementById('main-loader').style.display = 'none'; }
+            });
+
+            anime.timeline({ easing: 'easeOutQuart' })
+            .add({ targets: '#app-header', translateY: [-68, 0], opacity: [0, 1], duration: 550 })
+            .add({ targets: '#basic-info-sec', scale: [0.96, 1], opacity: [0, 1], duration: 650 }, '-=400')
+            .add({ targets: '#general-info-box', translateY: [15, 0], opacity: [0, 1], duration: 550 }, '-=450')
+            .add({ targets: '#history-sec, #reviews-sec', translateY: [20, 0], opacity: [0, 1], delay: anime.stagger(100), duration: 650 }, '-=400');
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.replace('login.html');
+            } else {
+                currentUser = user;
+                document.getElementById('email-val').innerText = user.email;
+                
+                if(user.metadata) {
+                    document.getElementById('created-val').innerText = new Date(user.metadata.creationTime).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+                    document.getElementById('last-login-val').innerText = new Date(user.metadata.lastSignInTime).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+                }
+                if(user.providerData && user.providerData.length > 0) {
+                    if(user.providerData[0].providerId === 'password') {
+                        document.getElementById('provider-val').innerText = 'Email ID';
+                        document.getElementById('provider-icon').className = 'fa-solid fa-envelope';
+                    }
+                }
+
+                await loadProfileData();
+                await fetchHistoryAndReviews();
+                triggerCinematicEntrance();
+            }
+        });
+
+        // ── LOAD PROFILE DATA & CONDITIONAL TICKET SYNC ──
+        async function loadProfileData() {
+            try {
+                const [profileSnap, subSnap] = await Promise.all([
+                    get(child(dbRef, `users/${currentUser.uid}/profile`)),
+                    get(child(dbRef, `users/${currentUser.uid}/subscription`))
+                ]);
+                
+                let userProfile = profileSnap.exists() ? profileSnap.val() : {};
+                
+                currentUsername = userProfile.username || currentUser.displayName || currentUser.email.split('@')[0];
+                document.getElementById('username-display').innerText = currentUsername;
+
+                const avatarUrl = userProfile.avatarUrl || currentUser.photoURL || "";
+                renderAvatar(avatarUrl, currentUsername);
+                
+                const bannerUrl = userProfile.bannerUrl || avatarUrl || "";
+                renderBanner(bannerUrl);
+
+                // Set Age, DOB from profile
+                if (userProfile.age) {
+                    document.getElementById('age-val').innerText = `${userProfile.age} Yrs`;
+                    tempSelectedAge = parseInt(userProfile.age);
+                } else {
+                    document.getElementById('age-val').innerText = 'Set Age';
+                }
+
+                if (userProfile.dob) {
+                    document.getElementById('dob-val').innerText = userProfile.dob;
+                    tempSelectedDob = userProfile.dob;
+                } else {
+                    document.getElementById('dob-val').innerText = 'Set DOB';
+                }
+
+                // Handle Geolocation API tracking and locks [cite: 2]
+                if (userProfile.location) {
+                    document.getElementById('location-val').innerText = userProfile.location;
+                } else {
+                    try {
+                        const geoRes = await fetch('https://ipapi.co/json/');
+                        const geoData = await geoRes.json();
+                        const fetchedCountry = geoData.country_name || "India";
+                        const fetchedCity = geoData.city || "";
+                        const locationStr = fetchedCity ? `${fetchedCity}, ${fetchedCountry}` : fetchedCountry;
+                        
+                        await update(ref(db, `users/${currentUser.uid}/profile`), { location: locationStr });
+                        document.getElementById('location-val').innerText = locationStr;
+                    } catch (geoErr) {
+                        document.getElementById('location-val').innerText = "India";
+                    }
+                }
+
+                // Subscription Verification Sync [cite: 2]
+                let isVerified = false;
+                if (subSnap.exists()) {
+                    const subData = subSnap.val();
+                    if (subData.plan && subData.expiry && Date.now() < subData.expiry) {
+                        isVerified = true;
+                    }
+                }
+
+                const statusEl = document.getElementById('profile-verified-status');
+                const badgeEl = document.getElementById('name-verified-badge');
+
+                if (isVerified) {
+                    statusEl.className = "profile-verified-tracker is-verified";
+                    statusEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> Verified';
+                    badgeEl.style.display = 'inline-block';
+                } else {
+                    statusEl.className = "profile-verified-tracker not-verified";
+                    statusEl.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Not Verified';
+                    badgeEl.style.display = 'none';
+                }
+
+            } catch(e) { console.error(e); }
+        }
+
+        function renderAvatar(url, name) {
+            const box = document.getElementById('avatar-display-box');
+            const blurBg = document.getElementById('avatar-blur-bg');
+            const fallback = document.getElementById('avatar-fallback');
+            
+            const existingImg = box.querySelector('.profile-avatar');
+            if(existingImg) existingImg.remove();
+
+            if (url) {
+                blurBg.style.backgroundImage = `url('${url}')`;
+                fallback.style.display = 'none';
+                
+                const img = document.createElement('img');
+                img.src = url;
+                img.className = 'profile-avatar';
+                img.alt = 'Profile';
+                img.referrerPolicy = 'no-referrer';
+                img.onerror = () => {
+                    img.remove();
+                    blurBg.style.backgroundImage = 'none';
+                    fallback.style.display = 'flex';
+                    fallback.innerText = name.charAt(0).toUpperCase();
+                };
+                box.appendChild(img);
+            } else {
+                blurBg.style.backgroundImage = 'none';
+                fallback.style.display = 'flex';
+                fallback.innerText = name.charAt(0).toUpperCase();
+            }
+        }
+        
+        function renderBanner(url) {
+            const bannerBg = document.getElementById('hero-banner-bg');
+            if (url) {
+                bannerBg.style.backgroundImage = `url('${url}')`;
+            } else {
+                bannerBg.style.backgroundImage = 'none';
+            }
+        }
+
+        // Custom Age Wheel Logic
+        window.openAgeModal = function() {
+            const wheel = document.getElementById('age-wheel-list');
+            wheel.innerHTML = '';
+            for (let i = 16; i <= 90; i++) {
+                const item = document.createElement('div');
+                item.className = `age-item ${i === tempSelectedAge ? 'selected' : ''}`;
+                item.innerText = i;
+                item.onclick = () => selectAgeInWheel(i, item);
+                wheel.appendChild(item);
+            }
+            document.getElementById('age-modal').classList.add('active');
+            
+            setTimeout(() => {
+                const activeEl = wheel.querySelector('.age-item.selected');
+                if (activeEl) {
+                    activeEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                }
+            }, 100);
+        };
+
+        window.closeAgeModal = function() {
+            document.getElementById('age-modal').classList.remove('active');
+        };
+
+        function selectAgeInWheel(age, element) {
+            tempSelectedAge = age;
+            document.querySelectorAll('.age-item').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            element.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+
+        window.saveAgeSelection = async function() {
+            try {
+                await update(ref(db, `users/${currentUser.uid}/profile`), { age: tempSelectedAge });
+                document.getElementById('age-val').innerText = `${tempSelectedAge} Yrs`;
+                showToast("Age updated!");
+                closeAgeModal();
+            } catch (err) {
+                showToast("Database error.");
+            }
+        };
+
+        // Custom DOB Calendar Logic
+        window.openDobModal = function() {
+            document.getElementById('selected-year-label').innerText = currentCalYear;
+            populateCustomYearList();
+            renderCustomCalendar();
+            document.getElementById('dob-modal').classList.add('active');
+        };
+
+        window.closeDobModal = function() {
+            document.getElementById('dob-modal').classList.remove('active');
+            customYearOpen = false;
+            document.getElementById('custom-year-list-container').style.display = 'none';
+        };
+
+        // Completely Custom Dropdown System for Years (No native select popups) [cite: 2]
+        window.toggleCustomYearList = function(e) {
+            if (e) e.stopPropagation();
+            const container = document.getElementById('custom-year-list-container');
+            customYearOpen = !customYearOpen;
+            if (customYearOpen) {
+                container.style.display = 'block';
+                setTimeout(() => {
+                    const activeItem = container.querySelector('.custom-dropdown-item.active');
+                    if (activeItem) activeItem.scrollIntoView({ block: 'nearest' });
+                }, 50);
+            } else {
+                container.style.display = 'none';
+            }
+        };
+
+        window.selectCustomYear = function(year, e) {
+            if (e) e.stopPropagation();
+            currentCalYear = parseInt(year);
+            document.getElementById('selected-year-label').innerText = year;
+            renderCustomCalendar();
+            toggleCustomYearList();
+            populateCustomYearList();
+        };
+
+        function populateCustomYearList() {
+            const container = document.getElementById('custom-year-list-container');
+            container.innerHTML = '';
+            // Years generation up to 2010 (Min 16 years age check: 2026 - 16 = 2010)
+            for (let y = 2010; y >= 1940; y--) {
+                const item = document.createElement('div');
+                item.className = `custom-dropdown-item ${y === currentCalYear ? 'active' : ''}`;
+                item.innerText = y;
+                item.onclick = (e) => selectCustomYear(y, e);
+                container.appendChild(item);
+            }
+        }
+
+        // Click outside listener to auto-close custom dropdown
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('custom-year-dropdown-trigger');
+            const list = document.getElementById('custom-year-list-container');
+            if (dropdown && !dropdown.contains(e.target)) {
+                customYearOpen = false;
+                if (list) list.style.display = 'none';
+            }
+        });
+
+        window.changeCalendarYearSelect = function(year) {
+            currentCalYear = parseInt(year);
+            renderCustomCalendar();
+        };
+
+        window.navigateCalendarMonth = function(dir) {
+            currentCalMonth += dir;
+            if (currentCalMonth < 0) {
+                currentCalMonth = 11;
+                currentCalYear--;
+            } else if (currentCalMonth > 11) {
+                currentCalMonth = 0;
+                currentCalYear++;
+            }
+            
+            if (currentCalYear > 2010) {
+                currentCalYear = 2010;
+                currentCalMonth = 11;
+            }
+            
+            document.getElementById('selected-year-label').innerText = currentCalYear;
+            renderCustomCalendar();
+            populateCustomYearList();
+        };
+
+        function renderCustomCalendar() {
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            document.getElementById('calendar-title-label').innerText = `${monthNames[currentCalMonth]} ${currentCalYear}`;
+
+            const container = document.getElementById('calendar-days-container');
+            container.innerHTML = '';
+
+            const firstDayIndex = new Date(currentCalYear, currentCalMonth, 1).getDay();
+            const totalDays = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+
+            for (let i = 0; i < firstDayIndex; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day-cell empty';
+                container.appendChild(empty);
+            }
+
+            for (let d = 1; d <= totalDays; d++) {
+                const cell = document.createElement('div');
+                cell.className = 'calendar-day-cell';
+                cell.innerText = d;
+                const formatted = `${currentCalYear}-${String(currentCalMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+                if (tempSelectedDob === formatted) {
+                    cell.classList.add('active-selected');
+                }
+
+                cell.onclick = () => {
+                    tempSelectedDob = formatted;
+                    document.querySelectorAll('.calendar-day-cell').forEach(el => el.classList.remove('active-selected'));
+                    cell.classList.add('active-selected');
+                };
+
+                container.appendChild(cell);
+            }
+        }
+
+        window.saveDobSelection = async function() {
+            if (!tempSelectedDob) {
+                showToast("Please choose a date.");
+                return;
+            }
+            try {
+                await update(ref(db, `users/${currentUser.uid}/profile`), { dob: tempSelectedDob });
+                document.getElementById('dob-val').innerText = tempSelectedDob;
+                showToast("DOB updated!");
+                closeDobModal();
+            } catch (err) {
+                showToast("Database error.");
+            }
+        };
+
+        document.getElementById('edit-avatar-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('avatar-filename').innerText = file.name;
+                avatarStatusCleared = false;
+                document.getElementById('avatar-delete-inline').style.display = 'flex';
+            }
+        });
+
+        document.getElementById('edit-banner-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('banner-filename').innerText = file.name;
+                bannerStatusCleared = false;
+                document.getElementById('banner-delete-inline').style.display = 'flex';
+            }
+        });
+
+        window.clearActiveAsset = function(type) {
+            if (type === 'avatar') {
+                document.getElementById('edit-avatar-file').value = "";
+                document.getElementById('avatar-filename').innerText = "Removed (Save to apply)";
+                avatarStatusCleared = true;
+                document.getElementById('avatar-delete-inline').style.display = 'none';
+            } else if (type === 'banner') {
+                document.getElementById('edit-banner-file').value = "";
+                document.getElementById('banner-filename').innerText = "Removed (Save to apply)";
+                bannerStatusCleared = true;
+                document.getElementById('banner-delete-inline').style.display = 'none';
+            }
+        };
+
+        window.openEditorModal = function() {
+            document.getElementById('edit-name-field').value = currentUsername;
+            avatarStatusCleared = false;
+            bannerStatusCleared = false;
+            
+            get(child(dbRef, `users/${currentUser.uid}/profile`)).then((snap) => {
+                const avatarDelBtn = document.getElementById('avatar-delete-inline');
+                const bannerDelBtn = document.getElementById('banner-delete-inline');
+
+                if(snap.exists()) {
+                    const p = snap.val();
+                    document.getElementById('avatar-filename').innerText = p.avatarUrl ? "Active Image" : "No file chosen";
+                    document.getElementById('banner-filename').innerText = p.bannerUrl ? "Active Image" : "No file chosen";
+                    
+                    avatarDelBtn.style.display = p.avatarUrl ? 'flex' : 'none';
+                    bannerDelBtn.style.display = p.bannerUrl ? 'flex' : 'none';
+
+                    window._currentAvatarUrl = p.avatarUrl || "";
+                    window._currentAvatarDeleteUrl = p.avatarDeleteUrl || "";
+                    window._currentBannerUrl = p.bannerUrl || "";
+                    window._currentBannerDeleteUrl = p.bannerDeleteUrl || "";
+                } else {
+                    document.getElementById('avatar-filename').innerText = "No file chosen";
+                    document.getElementById('banner-filename').innerText = "No file chosen";
+                    avatarDelBtn.style.display = 'none';
+                    bannerDelBtn.style.display = 'none';
+                    window._currentAvatarUrl = "";
+                    window._currentAvatarDeleteUrl = "";
+                    window._currentBannerUrl = "";
+                    window._currentBannerDeleteUrl = "";
+                }
+            });
+
+            document.getElementById('edit-avatar-file').value = "";
+            document.getElementById('edit-banner-file').value = "";
+            document.getElementById('avatar-progress-container').style.display = 'none';
+            document.getElementById('avatar-progress-bar').style.width = '0%';
+            document.getElementById('avatar-progress-percent').innerText = '0%';
+            document.getElementById('banner-progress-container').style.display = 'none';
+            document.getElementById('banner-progress-bar').style.width = '0%';
+            document.getElementById('banner-progress-percent').innerText = '0%';
+            document.getElementById('edit-name-error').style.display = 'none';
+            
+            const modal = document.getElementById('editor-modal');
+            modal.classList.add('active');
+            anime({ targets: '#editor-modal .editor-box', scale: [0.95, 1], opacity: [0, 1], duration: 300, easing: 'easeOutCubic' });
+        };
+
+        window.closeEditorModal = function() {
+            anime({
+                targets: '#editor-modal .editor-box', scale: [1, 0.95], opacity: [1, 0], duration: 200, easing: 'easeInCubic',
+                complete: () => { document.getElementById('editor-modal').classList.remove('active'); }
+            });
+        };
+
+        function uploadFileWithProgress(file, progressBarId, progressPercentId, progressContainerId, apiKey) {
+            return new Promise((resolve, reject) => {
+                const container = document.getElementById(progressContainerId);
+                const bar = document.getElementById(progressBarId);
+                const percentText = document.getElementById(progressPercentId);
+                
+                container.style.display = 'flex';
+                bar.style.width = '0%';
+                percentText.innerText = '0%';
+
+                const formData = new FormData();
+                formData.append("image", file);
+
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", `https://api.imgbb.com/1/upload?key=${apiKey}`);
+
+                xhr.upload.addEventListener("progress", (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        bar.style.width = percent + '%';
+                        percentText.innerText = percent + '%';
+                    }
+                });
+
+                xhr.addEventListener("load", () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const res = JSON.parse(xhr.responseText);
+                            if (res && res.data) { resolve(res.data); } 
+                            else { reject("Invalid format response"); }
+                        } catch (err) { reject("Parse error"); }
+                    } else { reject("Code: " + xhr.status); }
+                });
+
+                xhr.addEventListener("error", () => reject("Network error"));
+                xhr.send(formData);
+            });
+        }
+
+        async function deleteFromImgbb(deleteUrl) {
+            if (!deleteUrl) return;
+            try {
+                const urlObj = new URL(deleteUrl);
+                const pathParts = urlObj.pathname.split('/').filter(p => p);
+                if (pathParts.length >= 2) {
+                    const id = pathParts[0];
+                    const hash = pathParts[1];
+                    const formData = new FormData();
+                    formData.append("action", "delete");
+                    formData.append("delete", "image");
+                    formData.append("from", "resource");
+                    formData.append("deleting[id]", id);
+                    formData.append("deleting[hash]", hash);
+                    
+                    await fetch("https://ibb.co/json", { method: "POST", mode: "no-cors", body: formData });
+                }
+            } catch (e) { console.warn("Background drop exception:", e); }
+        }
+
+        window.saveProfileData = async function() {
+            const newName = document.getElementById('edit-name-field').value.trim();
+            const avatarFile = document.getElementById('edit-avatar-file').files[0];
+            const bannerFile = document.getElementById('edit-banner-file').files[0];
+            
+            const err = document.getElementById('edit-name-error');
+            const saveBtn = document.getElementById('save-profile-btn');
+
+            if(!newName) { err.innerText = "Name input cannot be empty."; err.style.display = 'block'; return; }
+            if(!/^[a-zA-Z0-9 ._-]+$/.test(newName)) { err.innerText = "Special characters limit failed."; err.style.display = 'block'; return; }
+
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing';
+            saveBtn.style.pointerEvents = 'none';
+
+            let fetchedApiKey = "";
+            try {
+                const keySnap = await get(child(dbRef, "settings/imgbb_api_key"));
+                if (keySnap.exists()) { fetchedApiKey = keySnap.val().trim(); }
+            } catch (kErr) {}
+
+            if (!fetchedApiKey && (avatarFile || bannerFile)) {
+                err.innerText = "System Key validation failed."; err.style.display = 'block';
+                saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
+                saveBtn.style.pointerEvents = 'auto';
+                return;
+            }
+
+            let finalAvatarUrl = avatarStatusCleared ? "" : (window._currentAvatarUrl || "");
+            let finalAvatarDeleteUrl = avatarStatusCleared ? "" : (window._currentAvatarDeleteUrl || "");
+            let finalBannerUrl = bannerStatusCleared ? "" : (window._currentBannerUrl || "");
+            let finalBannerDeleteUrl = bannerStatusCleared ? "" : (window._currentBannerDeleteUrl || "");
+
+            let avatarUploaded = false;
+            let bannerUploaded = false;
+
+            try {
+                if (avatarFile && !avatarStatusCleared) {
+                    const uploadResult = await uploadFileWithProgress(avatarFile, 'avatar-progress-bar', 'avatar-progress-percent', 'avatar-progress-container', fetchedApiKey);
+                    finalAvatarUrl = uploadResult.url;
+                    finalAvatarDeleteUrl = uploadResult.delete_url;
+                    avatarUploaded = true;
+                }
+                if (bannerFile && !bannerStatusCleared) {
+                    const uploadResult = await uploadFileWithProgress(bannerFile, 'banner-progress-bar', 'banner-progress-percent', 'banner-progress-container', fetchedApiKey);
+                    finalBannerUrl = uploadResult.url;
+                    finalBannerDeleteUrl = uploadResult.delete_url;
+                    bannerUploaded = true;
+                }
+
+                const lowerName = newName.toLowerCase();
+                const lowerCurrentName = currentUsername ? currentUsername.toLowerCase() : "";
+                const isAdmin = currentUser && currentUser.email && currentUser.email.toLowerCase() === 'z3ro.vx@mail.ru';
+
+                if (lowerName !== lowerCurrentName) {
+                    if (!isAdmin) {
+                        const checkSnap = await get(child(dbRef, `usernames/${lowerName}`));
+                        if (checkSnap.exists() && checkSnap.val() !== currentUser.uid) {
+                            err.innerText = "Username variant already claimed."; err.style.display = 'block';
+                            saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
+                            saveBtn.style.pointerEvents = 'auto';
+                            return;
+                        }
+                    }
+                    if (lowerCurrentName) { try { await remove(ref(db, `usernames/${lowerCurrentName}`)); } catch(e){} }
+                    await set(ref(db, `usernames/${lowerName}`), currentUser.uid);
+                }
+
+                await update(ref(db, `users/${currentUser.uid}/profile`), { 
+                    username: newName, 
+                    avatarUrl: finalAvatarUrl,
+                    avatarDeleteUrl: finalAvatarDeleteUrl,
+                    bannerUrl: finalBannerUrl,
+                    bannerDeleteUrl: finalBannerDeleteUrl
+                });
+                await set(ref(db, `users/${currentUser.uid}/name`), newName);
+
+                if ((avatarUploaded || avatarStatusCleared) && window._currentAvatarDeleteUrl) { deleteFromImgbb(window._currentAvatarDeleteUrl); }
+                if ((bannerUploaded || bannerStatusCleared) && window._currentBannerDeleteUrl) { deleteFromImgbb(window._currentBannerDeleteUrl); }
+
+                currentUsername = newName;
+                document.getElementById('username-display').innerText = currentUsername;
+                renderAvatar(finalAvatarUrl, currentUsername);
+
+                const activeAvatar = finalAvatarUrl || currentUser.photoURL || "";
+                renderBanner(finalBannerUrl || activeAvatar);
+                
+                closeEditorModal();
+                showToast("Profile metrics updated!");
+            } catch(e) {
+                err.innerText = "Database sync failed."; err.style.display = 'block';
+            } finally {
+                saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
+                saveBtn.style.pointerEvents = 'auto';
+            }
+        };
+
+        let _pendingDelMovieId = null;
+        let _pendingDelEpKey = null;
+
+        window.promptDeleteHistory = function(mId, epKey) {
+            _pendingDelMovieId = mId; _pendingDelEpKey = epKey;
+            document.getElementById('del-modal').classList.add('active');
+            anime({ targets: '#del-modal .del-modal-box', scale: [0.95, 1], opacity: [0, 1], duration: 300, easing: 'easeOutCubic' });
+        };
+
+        window.closeDelModal = function() {
+            anime({
+                targets: '#del-modal .del-modal-box', scale: [1, 0.95], opacity: [1, 0], duration: 200, easing: 'easeInCubic',
+                complete: () => { document.getElementById('del-modal').classList.remove('active'); }
+            });
+        };
+
+        window.confirmDeleteHistory = async function() {
+            if(!_pendingDelMovieId || !_pendingDelEpKey) return;
+            try {
+                if (_pendingDelEpKey === 'movie') { await remove(ref(db, `users/${currentUser.uid}/progress/${_pendingDelMovieId}`)); } 
+                else { await remove(ref(db, `users/${currentUser.uid}/progress/${_pendingDelMovieId}/${_pendingDelEpKey}`)); }
+                showToast("Removed tracking indices.");
+                closeDelModal();
+                await fetchHistoryAndReviews(); 
+            } catch(e) { console.error(e); }
+        };
+
+        async function fetchHistoryAndReviews() {
+            try {
+                const [moviesSnap, progressSnap, reviewsSnap] = await Promise.all([
+                    get(child(dbRef, `movies`)), get(child(dbRef, `users/${currentUser.uid}/progress`)), get(child(dbRef, `reviews`))
+                ]);
+
+                if (moviesSnap.exists()) {
+                    const moviesObj = moviesSnap.val();
+                    allMoviesData = Object.keys(moviesObj).map(k => ({ id: k, ...moviesObj[k] }));
+                }
+
+                // Empty History state handling [cite: 2]
+                let hasHistoryItems = false;
+
+                if (progressSnap.exists() && allMoviesData.length > 0) {
+                    const userProgress = progressSnap.val();
+                    let historyHtml = '';
+                    let allItems = [];
+
+                    for(const movieId in userProgress) {
+                        const movie = allMoviesData.find(m => m.id === movieId);
+                        if(!movie) continue;
+                        const prog = userProgress[movieId];
+                        
+                        if(movie.type === 'series') {
+                            for(const epKey in prog) {
+                                const epProg = prog[epKey];
+                                if(epProg.duration && (epProg.time / epProg.duration) * 100 > 1) {
+                                    const p = epKey.split('_'); 
+                                    const sIdx = parseInt(p[0].replace('s', ''));
+                                    const eIdx = parseInt(p[1].replace('e', ''));
+                                    const epData = movie.seasons && movie.seasons[sIdx] && movie.seasons[sIdx].episodes ? movie.seasons[sIdx].episodes[eIdx] : null;
+                                    
+                                    if(epData) {
+                                        allItems.push({
+                                            type: 'series', movieId: movie.id, epKey: epKey, sIdx: sIdx, eIdx: eIdx,
+                                            badge: `S${sIdx + 1} E${eIdx + 1}`, title: movie.title,
+                                            desc: epData.ep_title || `Episode ${eIdx + 1}`,
+                                            thumb: epData.ep_thumb || movie.backdrop || movie.poster,
+                                            percent: Math.min((epProg.time / epProg.duration) * 100, 100), last_watched: epProg.last_watched || 0
+                                        });
+                                    }
+                                }
+                            }
+                        } else {
+                            if(prog.duration && (prog.time / prog.duration) * 100 > 1) {
+                                allItems.push({
+                                    type: 'movie', movieId: movie.id, title: movie.title,
+                                    desc: movie.description || 'No contextual synopsis available.',
+                                    poster: movie.poster, percent: Math.min((prog.time / prog.duration) * 100, 100), last_watched: prog.last_watched || 0
+                                });
+                            }
+                        }
+                    }
+
+                    allItems.sort((a, b) => b.last_watched - a.last_watched);
+                    allItems.forEach(item => {
+                        if (item.type === 'series') {
+                            historyHtml += `
+                            <div class="history-card" onclick="window.location.href='player.html?id=${item.movieId}&s=${item.sIdx}&e=${item.eIdx}'">
+                                <div class="history-thumb"><img src="${item.thumb}" loading="lazy"><div class="play-overlay"><i class="fas fa-play-circle"></i></div><div class="h-progress-bg"><div class="h-progress-fill" style="width: ${item.percent}%"></div></div></div>
+                                <div class="history-info"><span class="h-badge">${item.badge}</span><span class="h-title">${item.title}</span><p class="h-desc">${item.desc}</p></div>
+                                <button class="remove-history-btn" onclick="event.stopPropagation(); promptDeleteHistory('${item.movieId}', '${item.epKey}')"><i class="fas fa-trash-alt"></i></button>
+                            </div>`;
+                        } else {
+                            historyHtml += `
+                            <div class="history-card" onclick="window.location.href='player.html?id=${item.movieId}'">
+                                <div class="history-thumb movie-thumb"><img src="${item.poster}" loading="lazy"><div class="play-overlay"><i class="fas fa-play-circle"></i></div><div class="h-progress-bg"><div class="h-progress-fill" style="width: ${item.percent}%"></div></div></div>
+                                <div class="history-info"><span class="h-badge" style="color: #8e8e93;">MOVIE</span><span class="h-title">${item.title}</span><p class="h-desc">${item.desc}</p></div>
+                                <button class="remove-history-btn" onclick="event.stopPropagation(); promptDeleteHistory('${item.movieId}', 'movie')"><i class="fas fa-trash-alt"></i></button>
+                            </div>`;
+                        }
+                    });
+
+                    if(historyHtml !== '') {
+                        document.getElementById('history-sec').style.display = 'block';
+                        document.getElementById('history-container').innerHTML = historyHtml;
+                        hasHistoryItems = true;
+                    }
+                }
+
+                // Render dynamic empty state message if no items are tracked [cite: 2]
+                if (!hasHistoryItems) {
+                    document.getElementById('history-sec').style.display = 'block';
+                    document.getElementById('history-container').innerHTML = `
+                    <div class="empty-history-wrapper">
+                        <i class="fa-solid fa-clapperboard empty-icon"></i>
+                        <div class="empty-title">Your Watch History is Empty</div>
+                        <div class="empty-sub">Start watching movies or series to automatically track your progress here.</div>
+                    </div>`;
+                }
+
+                if (reviewsSnap.exists() && allMoviesData.length > 0) {
+                    const allReviewsObj = reviewsSnap.val();
+                    let myReviews = [];
+                    for(const mId in allReviewsObj) {
+                        if(allReviewsObj[mId][currentUser.uid]) {
+                            const movie = allMoviesData.find(m => m.id === mId);
+                            if(movie) myReviews.push({ movieTitle: movie.title, data: allReviewsObj[mId][currentUser.uid] });
+                        }
+                    }
+                    myReviews.sort((a, b) => b.data.timestamp - a.data.timestamp);
+                    if(myReviews.length > 0) {
+                        document.getElementById('reviews-sec').style.display = 'block';
+                        document.getElementById('reviews-container').innerHTML = myReviews.map(r => {
+                            const starsHtml = Array(5).fill(0).map((_,i) => `<i class="fa-solid fa-star" style="color: ${i < r.data.rating ? '#f5c518' : 'rgba(255,255,255,0.06)'}"></i>`).join('');
+                            return `<div class="my-review-card"><div class="rev-movie-title">${r.movieTitle}</div><div class="rev-stars">${starsHtml}</div><div class="rev-text">"${r.data.text}"</div></div>`;
+                        }).join('');
+                    }
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        window.triggerLogout = function() {
+            const btn = document.getElementById('logout-btn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.style.pointerEvents = 'none';
+            setTimeout(() => {
+                signOut(auth).then(() => { window.location.replace('login.html'); })
+                .catch(() => { btn.innerHTML = '<i class="fas fa-power-off"></i> <span>Logout</span>'; btn.style.pointerEvents = 'auto'; });
+            }, 600); 
+        };
+    </script>
+</body>
+</html>
